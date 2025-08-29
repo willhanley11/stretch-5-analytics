@@ -1,0 +1,74 @@
+// Re-export the PlayerStatsFromGameLogs interface from lib/db for easier imports
+export type { PlayerStatsFromGameLogs } from "@/lib/db"
+
+// Add the PlayerStatsFromGameLogs interface to match the database structure
+export interface PlayerStatsFromGameLogs {
+  season: number
+  phase: string
+  player_id: string
+  player_name: string
+  player_team_code: string
+  player_team_name: string
+  teamlogo: string
+  games_played: number
+  games_started: number
+  minutes_played: number
+  points_scored: number
+  points_scored_per_40: number
+  two_pointers_made: number
+  two_pointers_attempted: number
+  two_pointers_percentage: number
+  two_pointers_made_per_40: number
+  two_pointers_attempted_per_40: number
+  three_pointers_made: number
+  three_pointers_attempted: number
+  three_pointers_percentage: number
+  three_pointers_made_per_40: number
+  three_pointers_attempted_per_40: number
+  free_throws_made: number
+  free_throws_attempted: number
+  free_throws_percentage: number
+  free_throws_made_per_40: number
+  free_throws_attempted_per_40: number
+  offensive_rebounds: number
+  defensive_rebounds: number
+  total_rebounds: number
+  offensive_rebounds_per_40: number
+  defensive_rebounds_per_40: number
+  total_rebounds_per_40: number
+  assists: number
+  steals: number
+  turnovers: number
+  blocks: number
+  blocks_against: number
+  fouls_commited: number
+  fouls_drawn: number
+  pir: number
+  assists_per_40: number
+  steals_per_40: number
+  turnovers_per_40: number
+  blocks_per_40: number
+  blocks_against_per_40: number
+  fouls_commited_per_40: number
+  fouls_drawn_per_40: number
+  pir_per_40: number
+  total_points: number
+  total_minutes: number
+  total_two_pointers_made: number
+  total_two_pointers_attempted: number
+  total_three_pointers_made: number
+  total_three_pointers_attempted: number
+  total_free_throws_made: number
+  total_free_throws_attempted: number
+  total_offensive_rebounds: number
+  total_defensive_rebounds: number
+  total_total_rebounds: number
+  total_assists: number
+  total_steals: number
+  total_turnovers: number
+  total_blocks: number
+  total_blocks_against: number
+  total_fouls_commited: number
+  total_fouls_drawn: number
+  total_pir: number
+}

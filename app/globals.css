@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .clip-diagonal {
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+}
+
+@layer base {
+  :root {
+    --background: 37 35% 96%; /* Warm cream #fdf9f3 */
+    --foreground: 0 0% 24%; /* Charcoal #3d3d3d */
+    --card: 0 0% 100%; /* Clean white */
+    --card-foreground: 0 0% 24%; /* Charcoal */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 24%;
+    --primary: 120 23% 45%; /* Sage green #5a8f5a */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 44 33% 90%; /* Light cream */
+    --secondary-foreground: 0 0% 24%;
+    --muted: 44 33% 95%; /* Very light cream */
+    --muted-foreground: 0 0% 40%;
+    --accent: 44 33% 92%; /* Cream accent */
+    --accent-foreground: 0 0% 24%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --input: 44 33% 88%;
+    --ring: 120 23% 45%; /* Sage green */
+    --border: 0 0% 85%;
+    --chart-1: 120 23% 45%; /* Sage green */
+    --chart-2: 120 23% 55%;
+    --chart-3: 187 75% 40%;
+    --chart-4: 43 96% 58%;
+    --chart-5: 0 91% 63%;
+    --radius: 0.75rem;
+    --sidebar-background: 0 0% 24%; /* Charcoal */
+    --sidebar-foreground: 44 33% 97%;
+    --sidebar-primary: 120 23% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 30%;
+    --sidebar-accent-foreground: 44 33% 97%;
+    --sidebar-border: 0 0% 30%;
+    --sidebar-ring: 120 23% 45%;
+  }
+
+  .dark {
+    --background: 0 0% 24%; /* Dark charcoal */
+    --foreground: 44 33% 97%; /* Light cream */
+    --card: 0 0% 30%; /* Dark card */
+    --card-foreground: 44 33% 97%;
+    --popover: 0 0% 30%;
+    --popover-foreground: 44 33% 97%;
+    --primary: 120 23% 55%; /* Lighter sage for dark mode */
+    --primary-foreground: 0 0% 24%;
+    --secondary: 0 0% 30%;
+    --secondary-foreground: 44 33% 97%;
+    --muted: 0 0% 30%;
+    --muted-foreground: 44 33% 80%;
+    --accent: 0 0% 35%;
+    --accent-foreground: 44 33% 97%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 44 33% 97%;
+    --border: 0 0% 35%;
+    --input: 0 0% 35%;
+    --ring: 120 23% 55%;
+    --chart-1: 120 23% 55%;
+    --chart-2: 120 23% 65%;
+    --chart-3: 187 80% 50%;
+    --chart-4: 43 96% 68%;
+    --chart-5: 0 91% 71%;
+    --sidebar-background: 0 0% 24%;
+    --sidebar-foreground: 44 33% 97%;
+    --sidebar-primary: 120 23% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 30%;
+    --sidebar-accent-foreground: 44 33% 97%;
+    --sidebar-border: 0 0% 30%;
+    --sidebar-ring: 120 23% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles outside of Tailwind layers */
+body {
+  color: hsl(var(--foreground));
+}
+
+/* Enhanced card styling with cream borders */
+.card,
+[class*="card"],
+div[class*="card"] {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid black !important; /* Subtle cream border */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 0.75rem !important;
+}
+
+/* Enhance sidebar appearance */
+.sidebar,
+[class*="sidebar"],
+div[class*="sidebar"] {
+  background-color: hsl(var(--sidebar-background)) !important;
+  border-right: 1px solid hsl(var(--sidebar-border)) !important;
+}
+
+/* Table styling improvements */
+table {
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+thead th {
+  @apply bg-light-beige text-charcoal-800 font-medium;
+}
+
+
+
+tbody tr:hover {
+  @apply bg-sage-50/50;
+}
+
+/* Button styling improvements */
+.btn-primary {
+  background-color: #5a8f5a;
+  color: white;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #4a7c4a;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #374151;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid #9ca3af;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #fef9f3;
+  border-color: #6b7280;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Form styling improvements */
+.form-input {
+  background-color: white;
+  border: 2px solid #d1c199;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
+}
+
+.form-input:hover {
+  border-color: #5a8f5a;
+}
+
+.form-input:focus {
+  border-color: #5a8f5a;
+  box-shadow: 0 0 0 3px rgba(90, 143, 90, 0.1);
+}
+
+/* Navigation improvements */
+.nav-link {
+  color: #4b5563;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link.active {
+  color: #5a8f5a;
+  border-bottom: 2px solid #5a8f5a;
+}
+
+/* Stats card improvements */
+.stats-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stats-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Performance indicator improvements */
+.performance-hot {
+  @apply bg-gradient-to-r from-red-500 to-orange-500 text-white;
+}
+
+.performance-warm {
+  @apply bg-gradient-to-r from-orange-400 to-yellow-400 text-white;
+}
+
+.performance-neutral {
+  @apply bg-gradient-to-r from-gray-400 to-gray-500 text-white;
+}
+
+.performance-cool {
+  @apply bg-gradient-to-r from-blue-400 to-cyan-400 text-white;
+}
+
+.performance-cold {
+  @apply bg-gradient-to-r from-blue-600 to-blue-800 text-white;
+}
