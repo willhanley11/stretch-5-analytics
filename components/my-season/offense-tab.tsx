@@ -2561,7 +2561,11 @@ const PlayerTeamSelector = () => {
         }}
       />
       
-      <PlayerSpiderChart key={`mobile-${selectedPlayer?.player_id}-${selectedPhaseToggle}`} className="absolute  top-0 left-0 right-0 bottom-0 z-0 bg-light-beige rounded-lg" />
+      <PlayerSpiderChart
+  key={`mobile-${selectedPlayer?.player_id}-${selectedPhaseToggle}`}
+  className="absolute top-0 left-0 right-0 bottom-0 z-0 bg-light-beige rounded-lg"
+  style={{ marginTop: '20px' }} // Add a top margin here
+/>
       
       <div className="relative z-10 p-3">
         <div className="flex justify-between items-center mb-2">
