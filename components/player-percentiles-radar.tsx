@@ -60,66 +60,12 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
     { subject: "STOCKS", value: calculateSTOCKSPercentile(), fullMark: 100 },
     { subject: "eFG%", value: rankToPercentile(playerRanks?.effectiveFieldGoal), fullMark: 100 },
   ]
-
- const CustomPolarAngleAxisTick = ({ cx, cy, payload, index }: any) => {
-  const { value } = payload
-  const totalPoints = radarData.length
-  const angleInRadians = (index * 2 * Math.PI) / totalPoints - Math.PI / 2
-  const angleDeg = (angleInRadians * 180) / Math.PI
-
-  const outerRadius = 150
-  const dataValue = radarData[index]?.value || 0
-  const dataRadius = (dataValue / 100) * outerRadius
-
-  const dataX = cx + Math.cos(angleInRadians) * dataRadius
-  const dataY = cy + Math.sin(angleInRadians) * dataRadius
-
-  const labelRadius = outerRadius + 18
-  const labelX = cx + Math.cos(angleInRadians) * labelRadius
-  const labelY = cy + Math.sin(angleInRadians) * labelRadius
-
-  let textAnchor: "start" | "middle" | "end" = "middle"
-  if (angleDeg > -160 && angleDeg < -100) textAnchor = "end"
-  else if (angleDeg > 100 && angleDeg < 160) textAnchor = "start"
-
-  return (
-    <g>
-      {/* Dotted guide line */}
-      <line
-        x1={dataX}
-        y1={dataY}
-        x2={labelX}
-        y2={labelY}
-        stroke="#9CA3AF"
-        strokeWidth={1}
-        strokeDasharray="2,2"
-        opacity={0.6}
-      />
-
-      {/* Dot at data value */}
-      <circle cx={dataX} cy={dataY} r={4} fill="white" stroke={teamColor} strokeWidth={2} />
-
-      {/* Stat label */}
-      <text
-        x={labelX}
-        y={labelY}
-        textAnchor={textAnchor}
-        dominantBaseline="middle"
-        fontSize={11}
-        fontWeight={600}
-        fill="#374151"
-      >
-        {value}
-      </text>
-    </g>
-  )
-}
-
+  
   const CustomPolarRadiusTick = ({ x, y, payload }: any) => {
     if (payload.value % 25 !== 0 || payload.value === 0) return null
     return (
       <text
-        x={x + 6} // Move to the right
+        x={x + 6}
         y={y}
         textAnchor="start"
         fill="#6B7280"
@@ -129,6 +75,16 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
         {payload.value}
       </text>
     )
+  }
+
+  const CustomRadarDot = (props: any) => {
+    const { cx, cy, payload } = props
+    if (payload.value) {
+      return (
+        <circle cx={cx} cy={cy} r={4} fill="white" stroke={teamColor} strokeWidth={2} />
+      )
+    }
+    return null
   }
 
   return (
@@ -150,7 +106,22 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
 
           <PolarAngleAxis
             dataKey="subject"
-            tick={CustomPolarAngleAxisTick}
+            tick={(props) => {
+              const { payload, x, y } = props
+              return (
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize={11}
+                  fontWeight={600}
+                  fill="#374151"
+                >
+                  {payload.value}
+                </text>
+              )
+            }}
             tickLine={false}
             axisLine={false}
           />
@@ -171,7 +142,7 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
             fill={teamColor}
             fillOpacity={0.25}
             strokeWidth={3}
-            dot={false}
+            dot={<CustomRadarDot />}
             strokeLinecap="round"
             strokeLinejoin="round"
             isAnimationActive={true}
