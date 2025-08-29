@@ -1406,7 +1406,7 @@ const PlayerSpiderChart = ({ className }) => {
               const y = center + radius * Math.sin(angleRad - Math.PI / 2)
               return (
                 <g key={category.key}>
-                  {/* Data point circle */}
+                  {/* Data point circle - Safari compatible version */}
                   <circle
                     cx={x}
                     cy={y}
@@ -1414,7 +1414,10 @@ const PlayerSpiderChart = ({ className }) => {
                     fill={teamColor}
                     stroke="#000000"
                     strokeWidth="1.5"
-                    filter="url(#shadow)"
+                    style={{
+                      filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1))',
+                      WebkitFilter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1))'
+                    }}
                   />
                   {/* Percentile label on the data point */}
                   <text
@@ -1422,10 +1425,14 @@ const PlayerSpiderChart = ({ className }) => {
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-xs font-bold fill-white"
-                    style={{ textShadow: "1px 1px 1px rgba(0,0,0,0.5)" }}
+                    className="text-xs font-bold"
+                    fill="white"
+                    style={{ 
+                      textShadow: "1px 1px 1px rgba(0,0,0,0.5)",
+                      WebkitTextShadow: "1px 1px 1px rgba(0,0,0,0.5)"
+                    }}
                   >
-                    {value}
+                    {Math.round(value)}
                   </text>
                 </g>
               )
