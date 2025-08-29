@@ -2578,7 +2578,7 @@ const PlayerTeamSelector = () => {
         
         <div className="w-full h-px bg-gray-300 mt-2"></div>
         
-        <div className="bg-light-beige">
+        <div className="bg-light-beige -mb-8">
           {/* The spider chart will render in the background of this container */}
         </div>
       </div>
