@@ -138,7 +138,7 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart
   cx="50%"
-  cy="50%"
+  cy="55%"
   outerRadius={150}
   data={radarData}
   margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
