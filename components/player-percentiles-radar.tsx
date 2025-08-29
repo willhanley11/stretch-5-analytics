@@ -115,8 +115,6 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
   )
 }
 
-
-
   const CustomPolarRadiusTick = ({ x, y, payload }: any) => {
     if (payload.value % 25 !== 0 || payload.value === 0) return null
     return (
@@ -134,16 +132,15 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
   }
 
   return (
-    <div className="w-full h-full relative bg-red-300 rounded-xl shadow-lg flex items-center justify-center -mb-8">
+    <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart
-  cx="50%"
-  cy="55%"
-  outerRadius={150}
-  data={radarData}
-  margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
->
-
+          cx="50%"
+          cy="50%"
+          outerRadius={150}
+          data={radarData}
+          margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+        >
           <PolarGrid
             gridType="polygon"
             radialLines={true}
@@ -209,5 +206,3 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
     </div>
   )
 }
-
-export default PlayerPercentilesRadar
