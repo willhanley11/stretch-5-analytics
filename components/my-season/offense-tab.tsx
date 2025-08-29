@@ -978,21 +978,21 @@ useEffect(() => {
     }
 
     return {
-      points: calculatePercentileRank("points_scored"),
-      rebounds: calculatePercentileRank("total_rebounds"),
-      assists: calculatePercentileRank("assists"),
-      threePointers: calculatePercentileRank("three_pointers_made"),
-      steals: calculatePercentileRank("steals"),
-      blocks: calculatePercentileRank("blocks"),
+      points: calculatePercentileRank("points_scored_per_40"),
+      rebounds: calculatePercentileRank("total_rebounds_per_40"),
+      assists: calculatePercentileRank("assists_per_40"),
+      threePointers: calculatePercentileRank("three_pointers_made_per_40"),
+      steals: calculatePercentileRank("steals_per_40"),
+      blocks: calculatePercentileRank("blocks_per_40"),
       effectiveFieldGoal: calculatePercentileRank("three_pointers_percentage"), // Using 3P% as proxy
-      pir: calculatePercentileRank("pir"),
-      assistToTurnover: calculatePercentileRank("assists"), // Simplified since we don't have turnovers in pre-calc
+      pir: calculatePercentileRank("pir_per_40"),
+      assistToTurnover: calculatePercentileRank("assists_per_40"), // Simplified since we don't have turnovers in pre-calc
       minutes: calculatePercentileRank("minutes_played"),
       twoPointPercentage: calculatePercentileRank("two_pointers_percentage"),
       threePointPercentage: calculatePercentileRank("three_pointers_percentage"),
       freeThrowPercentage: calculatePercentileRank("free_throws_percentage"),
-      offensiveRebounds: calculatePercentileRank("offensive_rebounds"),
-      defensiveRebounds: calculatePercentileRank("defensive_rebounds"),
+      offensiveRebounds: calculatePercentileRank("offensive_rebounds_per_40"),
+      defensiveRebounds: calculatePercentileRank("defensive_rebounds_per_40"),
     }
   }, [selectedPlayer, allPlayers, selectedPhase, selectedPhaseToggle])
 
@@ -1108,6 +1108,7 @@ useEffect(() => {
 
 // Spider Chart Component
 const PlayerSpiderChart = ({ className }) => {
+  const chartId = Math.random().toString(36).substr(2, 9) // Generate unique ID for gradients
   if (!selectedPlayer || !playerRanks) {
     return (
       <div className={`flex items-center justify-center h-full ${className}`}>
@@ -1265,12 +1266,12 @@ const PlayerSpiderChart = ({ className }) => {
 
   const playerSpiderData = {
     stats: {
-      points: calculatePercentileForStat("points_scored_per_40"),
-      eFG: calculateEFGPercentile(),
-      pir: calculatePercentileForStat("pir_per_40"),
-      astToRatio: calculateAstToRatioPercentile(),
-      stocks: calculateStocksPercentile(),
-      rebounds: calculateReboundsPercentile(),
+      points: playerRanks.points?.percentile || calculatePercentileForStat("points_scored_per_40"),
+      eFG: playerRanks.threePointPercentage?.percentile || calculateEFGPercentile(),
+      pir: playerRanks.pir?.percentile || calculatePercentileForStat("pir_per_40"),
+      astToRatio: playerRanks.assistToTurnover?.percentile || calculateAstToRatioPercentile(),
+      stocks: ((playerRanks.steals?.percentile || 0) + (playerRanks.blocks?.percentile || 0)) / 2 || calculateStocksPercentile(),
+      rebounds: playerRanks.rebounds?.percentile || calculateReboundsPercentile(),
     },
   }
 
@@ -1283,8 +1284,8 @@ const PlayerSpiderChart = ({ className }) => {
     { key: "astToRatio", label: "AST/TO", angle: 300 },
   ]
 
-  const center = 180
-  const maxRadius = 125
+  const center = 210
+  const maxRadius = 140
   const labelRadius = maxRadius + 15
 
   // Calculate points for the polygon
@@ -1299,32 +1300,32 @@ const PlayerSpiderChart = ({ className }) => {
     })
     .join(" ")
 
-  const teamColor = getTeamBorderColor(playerData.teamAbbr)
+  const teamColor = getTeamBorderColor(playerData.teamAbbr) || '#bf5050'
 
   return (
-    <div className={`flex items-center justify-center h-full w-full ${className}`}>
-      <div className="bg-blue-600 rounded-xl mt-14" style={{ width: "350px", height: "350px" }}>
-        <div className="relative w-full h-full">
-          <svg width="350" height="350" className="absolute inset-0 ">
+    <div className={`flex items-start justify-center h-full w-full pt-4 ${className}`}>
+      <div className="bg-light-beige rounded-lg" style={{ width: "100%", height: "100%" }}>
+        <div className="relative w-full h-full rounded-lg overflow-hidden">
+          <svg viewBox="0 0 420 420" className="absolute inset-0 w-full h-full rounded-lg">
             {/* Gradient Definitions */}
             <defs>
-              <radialGradient id="backgroundGradient" cx="50%" cy="50%" r="50%">
+              <radialGradient id={`backgroundGradient-${chartId}`} cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor="#f8fafc" stopOpacity="1" />
                 <stop offset="100%" stopColor="#f1f5f9" stopOpacity="1" />
               </radialGradient>
-              <linearGradient id="dataFill" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id={`dataFill-${chartId}`} x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor={teamColor} stopOpacity="0.1" />
                 <stop offset="50%" stopColor={teamColor} stopOpacity="0.2" />
                 <stop offset="100%" stopColor={teamColor} stopOpacity="0.15" />
               </linearGradient>
-              <filter id="softGlow">
+              <filter id={`softGlow-${chartId}`}>
                 <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                 <feMerge>
                   <feMergeNode in="coloredBlur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-              <filter id="shadow">
+              <filter id={`shadow-${chartId}`}>
                 <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.1" />
               </filter>
             </defs>
@@ -1334,7 +1335,7 @@ const PlayerSpiderChart = ({ className }) => {
               cx={center}
               cy={center}
               r={maxRadius}
-              fill="url(#backgroundGradient)"
+              fill={`url(#backgroundGradient-${chartId})`}
               stroke="none"
             />
 
@@ -1388,11 +1389,12 @@ const PlayerSpiderChart = ({ className }) => {
             {/* Player data polygon with enhanced styling */}
             <polygon
               points={points}
-              fill="url(#dataFill)"
+              fill={`url(#dataFill-${chartId})`}
               stroke={teamColor}
-              strokeWidth="3"
-              filter="url(#softGlow)"
-              style={{ filter: "url(#shadow)" }}
+              strokeWidth="4"
+              strokeOpacity="0.9"
+              filter={`url(#softGlow-${chartId})`}
+              style={{ filter: `url(#shadow-${chartId})` }}
             />
 
             {/* Data points with percentile labels directly on them */}
@@ -1512,7 +1514,7 @@ const PlayerTeamSelector = () => {
                   return selectedLogoUrl ? (
                     <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg shadow-sm">
                       <div
-                        className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center p-0.5"
+                        className="w-8 h-8 sm:w-10 sm:h-10 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
                         style={{
                           border: "1px solid black",
                           backgroundColor: "white",
@@ -1583,7 +1585,7 @@ const PlayerTeamSelector = () => {
 
       {/* Team dropdown menu */}
       {isTeamDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-blue-600 border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
           {availableTeams.map((team) => {
             const logoUrl = team.teamlogo || ""
             const isSelected = team.player_team_code === selectedTeam?.player_team_code
@@ -1626,7 +1628,7 @@ const PlayerTeamSelector = () => {
 
       {/* Player dropdown menu */}
       {isPlayerDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-blue-600 border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
           {teamPlayers.map((player) => {
             const isSelected = player.player_id === selectedPlayer?.player_id
 
@@ -1657,10 +1659,10 @@ const PlayerTeamSelector = () => {
 
   const FilterPlayerHeader = () => {
     return (
-      <div className="flex flex-col lg:flex-row gap-4 w-full bg-blue-600">
+      <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige">
         {/* Main Content Container - 75% width */}
        
-        <Card className="overflow-hidden bg-blue-600 flex-[3] mb-2">
+        <Card className="overflow-hidden bg-green-500 flex-[3] mb-2">
           {/* Team color accent stripe at top for player header part - This remains the ONLY top stripe */}
           <div
                 className="w-full h-2 rounded-t-lg border-b border-black -mb-1"
@@ -1693,7 +1695,7 @@ const PlayerTeamSelector = () => {
                     {/* Team Logo in SelectTrigger */}
                     {selectedTeam.player_team_code && (
                       <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-blue-600 rounded-md border border-gray-300 shadow-sm">
+                        <div className="w-6 h-6 bg-light-beige rounded-md border border-gray-300 shadow-sm">
                           {getTeamLogo(selectedTeam.player_team_code, selectedTeam.player_team_logo_url, "w-full h-full")}
                         </div>
                       </div>
@@ -1710,7 +1712,7 @@ const PlayerTeamSelector = () => {
                     {/* Team Logo in SelectItem */}
                     {team.player_team_code && (
                       <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-blue-600 rounded-md border border-gray-300 shadow-sm">
+                        <div className="w-6 h-6 bg-light-beige rounded-md border border-gray-300 shadow-sm">
                           {getTeamLogo(team.player_team_code, team.player_team_logo_url, "w-full h-full")}
                         </div>
                       </div>
@@ -1804,7 +1806,7 @@ const PlayerTeamSelector = () => {
               {/* Team Logo - positioned to the left of player/team name */}
               {playerData.teamAbbr && (
                 <div className="flex-shrink-0 ">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-blue-600">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-light-beige">
                     {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                   </div>
                 </div>
@@ -1946,8 +1948,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center sm:min-h-auto md:min-h-[60px] ${
                 selectedStat === "points"
-                  ? `border-2 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "points" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("points")}
@@ -1970,8 +1972,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center sm:min-h-auto md:min-h-[60px] ${
                 selectedStat === "rebounds"
-                  ? `border-2 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "rebounds" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("rebounds")}
@@ -1994,8 +1996,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "assists"
-                  ? `border-2 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "assists" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("assists")}
@@ -2018,8 +2020,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "threePointers"
-                  ? `border-2 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "threePointers" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("threePointers")}
@@ -2044,8 +2046,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "steals"
-                  ? `border-2 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "steals" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("steals")}
@@ -2068,8 +2070,8 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "blocks"
-                  ? `border-2 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
-                  : `border-gray-300 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`
+                  ? `border-2 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  : `border-gray-300 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "blocks" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
               onClick={() => setSelectedStat("blocks")}
@@ -2090,7 +2092,7 @@ const PlayerTeamSelector = () => {
 
             {/* PIR (Player Index Rating) - Hidden on mobile, visible on sm+ */}
             <div
-              className={`hidden sm:block border-2 border-gray-300 rounded-lg sm:rounded-xl py-1 sm:py-1.5 px-0.5 sm:px-1 text-center shadow-lg hover:shadow-xl transition-shadow ${playerRanks?.pir?.isTopTier ? "bg-orange-100" : "bg-blue-600"}`}
+              className={`hidden sm:block border-2 border-gray-300 rounded-lg sm:rounded-xl py-1 sm:py-1.5 px-0.5 sm:px-1 text-center shadow-lg hover:shadow-xl transition-shadow ${playerRanks?.pir?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`}
             >
               <div className="text-[8px] md:text-[10px] font-bold text-gray-700 mb-0.5">PIR</div>
               <div className="flex items-center justify-center text-xs md:text-sm lg:text-base font-bold text-gray-900 mb-0.5">
@@ -2146,7 +2148,7 @@ const PlayerTeamSelector = () => {
       </div>
 
       {/* Mobile Rolling Average Title */}
-      <div className="flex sm:hidden items-center gap-2 bg-blue-600">
+      <div className="flex sm:hidden items-center gap-2 bg-light-beige">
         <span className="text-xs font-semibold text-black -mt-0.5 md:mt-0">Moving Average</span>
       </div>
 
@@ -2433,34 +2435,35 @@ const PlayerTeamSelector = () => {
 
         {/* Right Side Container - 25% width */}
 {/* Right Side Container - 25% width */}
-<Card className="overflow-hidden lg:flex-[1.25] relative" style={{ minHeight: "400px" }}>
+<Card className="overflow-hidden lg:flex-[1.25] relative  hidden lg:block" style={{ minHeight: "400px" }}>
   {/* Team color accent stripe at top - matches main container */}
   <div
-          className="w-full h-2 rounded-t-lg border-b border-black -mb-1"
+          className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
           style={{
-            backgroundColor: getTeamBorderColor(playerData.teamAbbr),
+            backgroundColor: getTeamBorderColor(playerData.teamAbbr) || '#bf5050',
           }}
         />
 
   {/* Place the SpiderChart as an absolutely positioned background element */}
   <PlayerSpiderChart
+    key={`desktop-${selectedPlayer?.player_id}-${selectedPhaseToggle}`}
     className="absolute inset-0 z-0 bg-light-beige"
   />
 
   <div className="relative z-10 p-3 md:p-4 "> 
 
     {/* Spider Chart Header */}
-    <div className="flex justify-between items-center mb-2 bg-red-200">
+    <div className="flex justify-between items-center mb-2">
       {/* Container for logo and title */}
       <div className="flex items-center gap-2">
         {/* Team Logo */}
         {playerData.teamAbbr && (
-          <div className="w-8 h-8 bg-blue-600 ">
+          <div className="w-8 h-8 bg-light-beige ">
             {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
           </div>
         )}
         {/* Title */}
-        <h3 className="text-md font-semibold flex-nowrap bg-blue-600">Per-40 Radar</h3>
+        <h3 className="text-md font-semibold flex-nowrap bg-light-beige">Per-40 Radar</h3>
         
       </div>
       
@@ -2473,7 +2476,7 @@ const PlayerTeamSelector = () => {
 <div className="w-full h-px bg-gray-300 mt-2"></div>
 
     {/* Spider Chart Content - This div can now contain other information on top of the chart */}
-    <div className="bg-blue-600">
+    <div className="bg-light-beige">
       {/* The spider chart will render in the background of this container */}
     </div>
   </div>
@@ -2484,13 +2487,14 @@ const PlayerTeamSelector = () => {
 
   const renderMainContent = () => {
     return (
-      <div className="flex flex-col gap-5 mt-2 bg-blue-600">
+      <div className="flex flex-col gap-5 mt-2 bg-light-beige">
         {/* MOBILE: Stack cards vertically, DESKTOP: Side by side */}
         {/* Desktop and Mobile Layout */}
-<div className="flex flex-col md:flex-col lg:flex-row gap-4 -mt-2 bg-blue-600">
+<div className="flex flex-col md:flex-col lg:flex-row gap-4 -mt-2 bg-light-beige">
   {/* Mobile View - Single Column Layout */}
-  <div className="w-full md:hidden">
-    <div className="bg-blue-600 rounded-lg border border-black shadow-lg">
+  <div className="w-full md:hidden flex flex-col gap-4">
+    {/* Mobile Shooting Profile - First */}
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg">
       <div
         className="w-full h-2 border border-black rounded-t-lg -mb-1"
         style={{
@@ -2498,10 +2502,10 @@ const PlayerTeamSelector = () => {
         }}
       />
       <div className="p-3">
-        <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-blue-600">
+        <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
           <div className="flex items-center gap-2">
             {playerData.teamAbbr && (
-              <div className="w-8 h-8 bg-blue-600">
+              <div className="w-8 h-8 bg-light-beige">
                 {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
               </div>
             )}
@@ -2547,13 +2551,45 @@ const PlayerTeamSelector = () => {
         </div>
       </div>
     </div>
+
+    {/* Mobile Per-40 Radar - Second */}
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2" style={{ minHeight: "500px" }}>
+      <div
+        className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
+        style={{
+          backgroundColor: getTeamBorderColor(playerData.teamAbbr) || '#bf5050',
+        }}
+      />
+      
+      <PlayerSpiderChart key={`mobile-${selectedPlayer?.player_id}-${selectedPhaseToggle}`} className="absolute  top-0 left-0 right-0 bottom-0 z-0 bg-light-beige rounded-lg" />
+      
+      <div className="relative z-10 p-3">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            {playerData.teamAbbr && (
+              <div className="w-8 h-8 bg-light-beige">
+                {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
+              </div>
+            )}
+            <h3 className="text-md font-semibold flex-nowrap bg-light-beige">Per-40 Radar</h3>
+          </div>
+          <div className="text-xs text-gray-600 flex-nowrap">Percentile in League</div>
+        </div>
+        
+        <div className="w-full h-px bg-gray-300 mt-2"></div>
+        
+        <div className="bg-light-beige">
+          {/* The spider chart will render in the background of this container */}
+        </div>
+      </div>
+    </div>
   </div>
 
   {/* Desktop View - Two Column Layout */}
   <div className="hidden md:flex md:flex-col lg:flex-row gap-4 w-full">
     {/* Player Shot Chart Section */}
     <div className="w-full lg:w-3/5">
-      <div className="bg-blue-600 rounded-lg border border-black ">
+      <div className="bg-light-beige rounded-lg border border-black ">
         {/* Team color header strip */}
         <div
           className="w-full h-2 rounded-t-lg border-b border-black -mb-1"
@@ -2562,10 +2598,10 @@ const PlayerTeamSelector = () => {
           }}
         />
         <div className="p-3">
-          <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-blue-600">
+          <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
             <div className="flex items-center gap-2">
               {playerData.teamAbbr && (
-                <div className="w-8 h-8 bg-blue-600 rounded-lg border border-black shadow-lg">
+                <div className="w-8 h-8 bg-light-beige rounded-lg border border-black shadow-lg">
                   {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                 </div>
               )}
@@ -2582,7 +2618,7 @@ const PlayerTeamSelector = () => {
                 <div className="text-gray-500">Loading shot chart...</div>
               </div>
             ) : shotData.length > 0 ? (
-              <div className="w-full" style={{ height: "425px" }}>
+              <div className="w-full" style={{ height: "430px" }}>
                 <BasketballShotChart
                   shotData={shotData}
                   leagueAveragesData={leagueAveragesData}
@@ -2605,7 +2641,7 @@ const PlayerTeamSelector = () => {
     </div>
     {/* Shooting Profile Section */}
     <div className="w-full lg:w-2/5">
-      <div className="bg-blue-600 rounded-lg border border-black">
+      <div className="bg-light-beige rounded-lg border border-black">
         {/* Team color header strip - same style as shot chart */}
         <div
           className="w-full h-2 rounded-t-md border-b border-black -mb-1"
@@ -2614,10 +2650,10 @@ const PlayerTeamSelector = () => {
           }}
         />
         <div className="p-3">
-          <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-blue-600">
+          <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
             <div className="flex items-center gap-2">
               {playerData.teamAbbr && (
-                <div className="w-8 h-8 bg-blue-600 rounded-lg border border-black shadow-lg">
+                <div className="w-8 h-8 bg-light-beige rounded-lg border border-black shadow-lg">
                   {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                 </div>
               )}
@@ -2628,7 +2664,7 @@ const PlayerTeamSelector = () => {
             </div>
           </div>
           {/* Shooting Profile Content Container */}
-          <div className="rounded-lg h-[425px]">
+          <div className="rounded-lg h-[430px]">
             <PlayerShootingProfileTable
               playerShotData={shotData}
               leagueAveragesData={leagueAveragesData}
@@ -2642,21 +2678,21 @@ const PlayerTeamSelector = () => {
   </div>
 </div>
 
-        <Card className="overflow-hidden bg-blue-600 ">
+        <Card className="overflow-hidden bg-light-beige ">
   {/* Team color accent stripe at top */}
   <div
-    className="w-full h-2 rounded-t-lg border-b border-black -mb-1"
+    className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
     style={{
-      backgroundColor: getTeamBorderColor(playerData.teamAbbr),
+      backgroundColor: getTeamBorderColor(playerData.teamAbbr) || '#bf5050',
     }}
   />
 
   {/* Header */}
-  <div className="p-3 bg-blue-600">
+  <div className="p-3 bg-light-beige">
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
             {playerData.teamAbbr && (
-              <div className="w-8 h-8 bg-blue-600">
+              <div className="w-8 h-8 bg-light-beige">
                 {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
               </div>
             )}
@@ -2667,14 +2703,14 @@ const PlayerTeamSelector = () => {
   </div>
 
   {/* Game Logs Table Container */}
-  <div className="px-2 pb-1 md:px-3 md:pb-3 bg-blue-600">
+  <div className="px-2 pb-1 md:px-3 md:pb-3 bg-light-beige">
     <div className="">
       <div className="overflow-x-auto relative border border-gray-200 border-t-2 border-t-gray-700">
         <table className="min-w-full text-[9px] md:text-[11px] border-collapse">
           <thead className="sticky top-0 z-50 bg-gray-50 shadow-md">
             <tr className="bg-gray-50 h-4 md:h-6 border-b-2 border-gray-700">
               <th
-                className="bg-gray-50 text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium cursor-pointer bg-blue-600 hover:bg-gray-100 transition-colors border-r border-gray-300 md:min-w-[60px] shadow-lg border-b-2 border-gray-700 sticky left-0 z-20"
+                className="bg-gray-50 text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300 md:min-w-[60px] shadow-lg border-b-2 border-gray-700 sticky left-0 z-20"
                 onClick={() => handleGameLogSort("round")}
               >
                 <div className="flex items-center text-[8px] md:text-[10px]">
@@ -2928,7 +2964,7 @@ const PlayerTeamSelector = () => {
                     key={`${game.gamecode}-${game.round}`}
                     className="h-3.5 md:h-5 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
                   >
-                    <td className="text-left py-0.5 px-0.5 md:py-0.5 md:px-1 font-medium border-r border-gray-300 min-w-[45px] md:min-w-[60px] sticky left-0 bg-blue-600 z-10 group-hover:bg-blue-50 transition-colors duration-150 shadow-sm text-center">
+                    <td className="text-left py-0.5 px-0.5 md:py-0.5 md:px-1 font-medium border-r border-gray-300 min-w-[45px] md:min-w-[60px] sticky left-0  z-10 group-hover:bg-blue-50 transition-colors duration-150 shadow-sm text-center">
                       R{game.round}
                     </td>
                     <td className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 hidden md:table-cell">
