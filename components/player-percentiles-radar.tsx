@@ -134,7 +134,7 @@ const PlayerPercentilesRadar: React.FC<PlayerPercentilesRadarProps> = ({
   }
 
   return (
-    <div className="w-full h-full relative bg-red-300 rounded-xl shadow-lg flex items-center justify-center">
+    <div className="w-full h-full relative bg-red-300 rounded-xl shadow-lg flex items-center justify-center -mb-8">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart
   cx="50%"
