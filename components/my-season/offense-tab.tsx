@@ -2553,7 +2553,7 @@ const PlayerTeamSelector = () => {
     </div>
 
     {/* Mobile Per-40 Radar - Second */}
-    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2" style={{ minHeight: "500px" }}>
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2" >
       <div
         className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
         style={{
