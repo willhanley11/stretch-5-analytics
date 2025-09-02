@@ -470,7 +470,7 @@ export function ProLeagueNav() {
                 </div>
 
                 {/* League Buttons - Right Aligned */}
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
                   {allLeagues.map((league) => (
                     <button
                       key={league.id}
@@ -549,7 +549,7 @@ export function ProLeagueNav() {
             <div className="sm:hidden px-4 py-1.5">
               <div className="flex items-center justify-between">
                 {/* Left - Navigation Tabs */}
-                <nav className="flex items-center space-x-4 overflow-x-auto flex-1">
+                <nav className="flex items-center space-x-3 overflow-x-auto flex-1">
                   {leagueSections.map((section) => {
                     const IconComponent = section.icon
                     return (
