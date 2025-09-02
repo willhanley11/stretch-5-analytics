@@ -799,13 +799,11 @@ export function LeagueStandingsTab({
       {/* Conditional rendering based on selected table mode */}
       {selectedTableMode === "league" ? (
         <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
+        <div
+    className="w-full h-2 border border-black rounded-t-lg -mb-1 bg-gray-400"
+    
+  />
           <div className="flex justify-between items-center mb-4">
-          <div
-                  className="w-full h-2 border border-black rounded-t-lg -mb-1 "
-                  style={{
-                    backgroundColor: selectedTeamColor,
-                  }}
-                />
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 md:w-8 md:h-8 relative">
               <Image
