@@ -666,7 +666,7 @@ function StatisticsTab({
           <table className="w-full text-[8px] md:text-xs border-collapse">
             {/* Fixed sticky table header */}
             <thead>
-              <HeaderRow isSticky={false} />
+              <HeaderRow isSticky={true} />
             </thead>
             <tbody>
               {playersWithHeaders.length > 0 ? (
