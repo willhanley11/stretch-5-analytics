@@ -40,8 +40,8 @@ const allLeagues = Object.values(leaguesByCountry).flat()
 
 // League sections - reordered and renamed "Statistics" to "Profiles"
 const leagueSections = [
-  { id: "teams", label: "Teams", initial: "T", icon: Users },
-  { id: "statistics", label: "Players", initial: "P", icon: PersonStanding },
+  { id: "teams", label: "Teams", initial: "T", icon: BarChart },
+  { id: "statistics", label: "Players", initial: "P", icon: Users },
 
   { id: "standings", label: "League", initial: "S", icon: Trophy },
   { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
