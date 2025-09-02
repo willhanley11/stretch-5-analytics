@@ -4,6 +4,7 @@ import React from "react"
 import type { ReactNode } from "react"
 import { useState, useEffect, useMemo } from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import Image from "next/image"
 import { fetchAllTeamAdvancedStatsCalculated, fetchLeagueAveragesPrecalculated, fetchStandingsFromGameLogs } from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 
@@ -603,20 +604,23 @@ export function LeagueStandingsTab({
     })
 
     const sorted = combinedData.sort((a, b) => {
-      // Always sort by wins first (descending), then by point differential (descending)
-      if (sortColumn === "w" || sortColumn === "diff") {
+      // Handle sorting for record columns properly
+      if (sortColumn === "w") {
         const winsA = Number(a.w) || 0
         const winsB = Number(b.w) || 0
-        
-        // If wins are different, sort by wins
-        if (winsA !== winsB) {
-          return winsB - winsA // Higher wins first
-        }
-        
-        // If wins are equal, sort by point differential
+        return sortDirection === "desc" ? winsB - winsA : winsA - winsB
+      }
+      
+      if (sortColumn === "l") {
+        const lossesA = Number(a.l) || 0
+        const lossesB = Number(b.l) || 0
+        return sortDirection === "desc" ? lossesB - lossesA : lossesA - lossesB
+      }
+      
+      if (sortColumn === "diff") {
         const diffA = Number(a.diff) || 0
         const diffB = Number(b.diff) || 0
-        return diffB - diffA // Higher differential first
+        return sortDirection === "desc" ? diffB - diffA : diffA - diffB
       }
       
       // For other columns, use normal sorting
@@ -685,8 +689,18 @@ export function LeagueStandingsTab({
 
   return (
     <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold flex items-center mt-1 mb-1">League Table</h3>
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 md:w-8 md:h-8 relative">
+            <Image
+              src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+              alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+              fill
+              className="object-contain"
+            />
+          </div>
+          <h3 className="text-lg font-semibold">League Table</h3>
+        </div>
         <div className="flex items-center gap-2 md:gap-4">
           {/* View Mode Dropdown */}
           <div className="flex items-center gap-1">
@@ -697,7 +711,7 @@ export function LeagueStandingsTab({
               id="view-mode-filter"
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as ViewMode)}
-              className="text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-20 md:w-auto"
+              className="text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 md:w-auto"
             >
               <option value="team">Team</option>
               <option value="off-4factors">Off - 4 Factors</option>
@@ -837,7 +851,7 @@ export function LeagueStandingsTab({
                           // Handle conditional formatting for different column types
                           let cellBgClass = ""
                           if (["w", "l"].includes(column.key)) {
-                            cellBgClass = "bg-white text-black"
+                            cellBgClass = "" // No background for W/L
                           } else if (column.key === "diff") {
                             cellBgClass = getDiffBackgroundColorClass(rank, validTeamsCount)
                           } else if (column.key === "pace") {
@@ -846,7 +860,8 @@ export function LeagueStandingsTab({
                             cellBgClass = getRankBackgroundColorClass(rank, validTeamsCount)
                           }
                           
-                          const isRecordColumn = ["w", "l", "diff"].includes(column.key)
+                          const isWinLossColumn = ["w", "l"].includes(column.key)
+                          const isDiffColumn = column.key === "diff"
 
                           return (
                             <td
@@ -857,10 +872,15 @@ export function LeagueStandingsTab({
                                   : ""
                               }`}
                             >
-                              {isRecordColumn ? (
-                                // Record columns: no border, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 ${cellBgClass || "bg-light-beige text-black"}`}>
-                                  <span className="font-semibold">{formatStatValue(statValue, 1, column.key)}</span>
+                              {isWinLossColumn ? (
+                                // Win/Loss columns: no border, no background, always show values, no rank/value toggle
+                                <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1">
+                                  <span className="font-semibold text-black">{formatStatValue(statValue, 1, column.key)}</span>
+                                </div>
+                              ) : isDiffColumn ? (
+                                // Diff column: with faint conditional formatting, always show values, no rank/value toggle
+                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 ${cellBgClass}`}>
+                                  <span className="font-semibold text-black">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : (
                                 // Regular columns: with border and rank/value toggle
@@ -870,7 +890,7 @@ export function LeagueStandingsTab({
                                   } h-full p-0.5 md:p-1 rounded-sm border border-gray-400 ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (
-                                    <span className="font-semibold">{formatStatValue(statValue, 1, column.key)}</span>
+                                    <span className="font-semibold text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
                                   ) : (
                                     <span className="font-bold">{rank}</span>
                                   )}
