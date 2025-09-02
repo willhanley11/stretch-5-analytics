@@ -1273,7 +1273,7 @@ export function TeamDetailsTab({
           <div className="flex flex-col lg:flex-row gap-6 min-h-0  ">
             {/* Left side - Team Stats */}
             <div className="lg:w-4/12 flex flex-col">
-              <div className="bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col h-[550] md:h-[820px]">
+              <div className=" pb-1 bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col h-[550] md:h-[820px]">
                 {/* Team color header strip */}
                 <div
                   className="w-full h-2 border border-black rounded-t-lg -mb-1 "
@@ -1737,7 +1737,7 @@ export function TeamDetailsTab({
                     </div>
 
                     {/* Miscellaneous Section - Takes up 1/5 of available space */}
-                    <div className="flex-.75 flex flex-col">
+                    <div className="flex-.75 flex flex-col sm:block hidden">
                       <div className="py-2">
                         <div className="text-black font-medium uppercase text-center text-sm">MISCELLANEOUS</div>
                         <div className="h-px w-full bg-slate-700 mt-1"></div>

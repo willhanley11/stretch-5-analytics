@@ -574,8 +574,16 @@ function StatisticsTab({
   }
 
   return (
-    <div className="bg-white rounded-md py-4 px-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-      <div className="flex justify-between items-center pb-2">
+    <div className="bg-white rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)]">
+      {/* Team color header strip */}
+      <div
+        className="w-full h-2 border-b border-black rounded-t-md -mb-1"
+        style={{
+          backgroundColor: "#9ca3af", // gray-400
+        }}
+      />
+      <div className="py-4 px-4">
+        <div className="flex justify-between items-center pb-3 border-b-2 border-black">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 md:w-8 md:h-8 relative">
             <Image
@@ -589,12 +597,12 @@ function StatisticsTab({
         </div>
         <div className="flex items-center gap-1 md:gap-4 flex-wrap justify-end">
           {/* Search */}
-          <div className="relative w-16 md:w-80">
+          <div className="relative w-24 md:w-80">
             <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-2.5 md:h-4 w-2.5 md:w-4 text-gray-400" />
             <Input
               type="text"
               placeholder="Search..."
-              className="pl-4 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[9px] md:text-sm rounded-md border border-gray-300 focus:outline-none focus:ring focus:ring-blue-200 w-full h-6 md:h-auto"
+              className="pl-4 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[9px] md:text-sm rounded-md border border-gray-300 focus:outline-none w-full h-6 md:h-auto"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -1059,6 +1067,7 @@ function StatisticsTab({
             <ChevronRight className="h-3 md:h-4 w-3 md:w-4" />
           </Button>
         </div>
+      </div>
       </div>
     </div>
   )

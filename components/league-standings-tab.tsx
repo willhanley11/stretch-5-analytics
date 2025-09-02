@@ -802,10 +802,16 @@ export function LeagueStandingsTab({
       {selectedTableMode === "league" ? (
       
       
-        <div className="bg-light-beige rounded-md py-4 px-3 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-        
-        
-          <div className="flex justify-between items-center mb-2">
+        <div className="bg-light-beige rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)]">
+          {/* Team color header strip */}
+          <div
+            className="w-full h-2 border-b border-black rounded-t-md -mb-1"
+            style={{
+              backgroundColor: "#9ca3af", // gray-400
+            }}
+          />
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 md:w-8 md:h-8 relative">
               <Image
@@ -1031,6 +1037,7 @@ export function LeagueStandingsTab({
           )}
           </div>
         </div>
+          </div>
         </div>
       ) : (
         /* Player Table - Statistics Tab Content */
