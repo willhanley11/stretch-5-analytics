@@ -798,10 +798,7 @@ export function LeagueStandingsTab({
       
       {/* Conditional rendering based on selected table mode */}
       {selectedTableMode === "league" ? (
-      <div
-                  className="w-full h-2 border border-black rounded-t-lg -mb-1 bg-gray-400 "
-                  
-                />
+      
       
         <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
         
