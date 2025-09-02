@@ -772,7 +772,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">League Rankings</span>
+              <span className="text-sm font-medium">League Table</span>
             </button>
             <button
               onClick={(e) => {
@@ -792,7 +792,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">Player Rankings</span>
+              <span className="text-sm font-medium">Player Table</span>
             </button>
           </div>
         )}

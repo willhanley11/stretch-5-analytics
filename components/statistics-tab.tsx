@@ -737,7 +737,7 @@ function StatisticsTab({
                       key={`${player.player_id || player.player_name}-${player.player_team_code}-${selectedPhase}-${index}`}
                       className={`border-b bg-white hover:bg-gray-100 transition-colors group`}
                     >
-                      <td className="sticky left-0 z-[30] py-0.5 md:py-1 px-1 md:px-2 font-medium border-r border-gray-200 bg-white group-hover:bg-gray-100 min-w-[180px] md:min-w-[220px] shadow-lg transition-colors">
+                      <td className="py-0.5 md:py-1 px-1 md:px-2 font-medium border-r border-gray-200 bg-white group-hover:bg-gray-100 min-w-[140px] md:min-w-[220px] shadow-lg transition-colors">
                         <div className="flex items-center gap-1 md:gap-2">
                           {(() => {
                             const teamCode = player.player_team_code
