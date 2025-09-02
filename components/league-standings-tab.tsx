@@ -694,7 +694,7 @@ export function LeagueStandingsTab({
   return (
     <>
       {/* Mobile Table Mode Dropdown - Outside container, above it */}
-      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-1">
+      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-2">
       
         <button 
           className="w-full text-left"
@@ -735,7 +735,7 @@ export function LeagueStandingsTab({
                 {/* Table Mode Text */}
                 <div className="flex-1">
                   <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                    {selectedTableMode === "league" ? "League Table" : "Player Table"}
+                    {selectedTableMode === "league" ? "League Rankings" : "Player Rankings"}
                   </h2>
                 </div>
                 
@@ -772,7 +772,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">League Table</span>
+              <span className="text-sm font-medium">League Rankings</span>
             </button>
             <button
               onClick={(e) => {
@@ -792,7 +792,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">Player Table</span>
+              <span className="text-sm font-medium">Player Rankings</span>
             </button>
           </div>
         )}
@@ -935,7 +935,7 @@ export function LeagueStandingsTab({
                 return (
                   <tr
                     key={team.id || rowIndex}
-                    className={`border-b border-gray-200 hover:bg-gray-100 transition-colors ${rowIndex % 2 === 0 ? "bg-light-beige" : "bg-gray-50"}`}
+                    className={`border-b-2 border-gray-300 hover:bg-gray-100 transition-colors ${rowIndex % 2 === 0 ? "bg-light-beige" : "bg-gray-50"}`}
                   >
                     {/* Rank Column */}
                     <td className="bg-light-beige text-center py-1 px-0.5 font-medium border-r border-gray-400 w-[25px] min-w-[25px]">
