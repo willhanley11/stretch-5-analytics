@@ -811,7 +811,7 @@ export function LeagueStandingsTab({
             }}
           />
           <div className="p-4">
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 md:w-8 md:h-8 relative">
               <Image

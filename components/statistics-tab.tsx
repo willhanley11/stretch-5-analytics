@@ -583,7 +583,7 @@ function StatisticsTab({
         }}
       />
       <div className="py-4 px-4">
-        <div className="flex justify-between items-center pb-3 ">
+        <div className="flex justify-between items-center pb-4 ">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 md:w-8 md:h-8 relative">
             <Image
