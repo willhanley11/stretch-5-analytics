@@ -44,7 +44,6 @@ const leagueSections = [
   { id: "statistics", label: "Players", initial: "P", icon: PersonStanding },
 
   { id: "standings", label: "League", initial: "S", icon: Trophy },
-  { id: "players", label: "Statistics", initial: "St", icon: BarChart },
   { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
 ]
 
