@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Users, BarChart3, Target } from "lucide-react"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
 import type { PlayerStatsFromGameLogs } from "@/lib/db"
@@ -113,9 +114,9 @@ const ComparisonTab = ({
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [comparisonMode, setComparisonMode] = useState<"average" | "per40">("average")
 
-  // State for team and player selection - changed from 4 to 3 players
-  const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>([null, null, null])
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<(string | null)[]>([null, null, null])
+  // State for team and player selection - only 2 players
+  const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>([null, null])
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<(string | null)[]>([null, null])
 
   // Organize players by team for selection
   const [teamsList, setTeamsList] = useState<{ id: string; name: string }[]>([])
@@ -156,6 +157,22 @@ const ComparisonTab = ({
         // Convert map to array and sort by team name
         setTeamsList(Array.from(teamsMap.values()).sort((a, b) => a.name.localeCompare(b.name)))
         setPlayersByTeam(playersByTeamMap)
+        
+        // Set default players from different teams
+        if (teamsMap.size >= 2) {
+          const teamCodes = Array.from(teamsMap.keys())
+          const firstTeam = teamCodes[0]
+          const secondTeam = teamCodes[1]
+          
+          // Get first player from each team
+          const firstTeamPlayer = playersByTeamMap[firstTeam]?.[0]
+          const secondTeamPlayer = playersByTeamMap[secondTeam]?.[0]
+          
+          if (firstTeamPlayer && secondTeamPlayer) {
+            setSelectedTeams([firstTeam, secondTeam])
+            setSelectedPlayerIds([firstTeamPlayer.player_id, secondTeamPlayer.player_id])
+          }
+        }
       } catch (error) {
         console.error("Error loading players:", error)
       } finally {
@@ -277,10 +294,28 @@ const ComparisonTab = ({
 
       {/* Player Selection Grid with Header */}
       {!isLoading && (
-        <div className="bg-white rounded-md p-4 border border-black shadow-sm">
-          {/* Header */}
+        <div className="rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)] bg-light-beige">
+          {/* Team color header strip */}
+          <div
+            className="w-full h-2 border-b border-black rounded-t-md -mb-1"
+            style={{
+              backgroundColor: "#9ca3af", // gray-400
+            }}
+          />
+          <div className="p-4">
+          {/* Header - matching standings tab format */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold flex items-center mt-1 mb-1">Player Comparison</h3>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 md:w-8 md:h-8 relative">
+                <Image
+                  src={selectedLeague === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+                  alt={`${selectedLeague === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <h3 className="text-md font-semibold">Player Comparison</h3>
+            </div>
             {/* Display Mode Toggle - Updated to match league standings tab */}
             <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
               <button
@@ -302,10 +337,10 @@ const ComparisonTab = ({
             </div>
           </div>
 
-          {/* Player Selection Grid - changed from grid-cols-4 to grid-cols-3 */}
-          <div className="grid grid-cols-3 gap-4">
-            {/* Changed from [0, 1, 2, 3] to [0, 1, 2] */}
-            {[0, 1, 2].map((slotIndex) => {
+          {/* Player Selection Grid - only 2 players */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Only 2 players */}
+            {[0, 1].map((slotIndex) => {
               const selectedTeamId = selectedTeams[slotIndex]
               const selectedPlayerId = selectedPlayerIds[slotIndex]
 
@@ -392,43 +427,32 @@ const ComparisonTab = ({
 
                   {/* Player Card - fixed team logo function calls */}
                   {playerData ? (
-                    <Card className="overflow-hidden border-0 shadow-xl bg-white rounded-xl flex-1">
+                    <Card className="overflow-hidden border-0 shadow-xl rounded-xl flex-1 bg-light-beige">
                       <CardContent className="p-0">
                         {/* Player Info Header - using team logo from player data */}
-                        <div className="relative bg-white p-3 border-b border-gray-200">
-                          <div className="flex items-center">
-                            {/* Team Logo from Player Data */}
-                            <div className="flex-shrink-0 mr-3">
-                              <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-gray-200 shadow-sm bg-white flex items-center justify-center">
-                                {getTeamLogo(playerData.player_team_code, playerData.teamlogo)}
-                              </div>
-                            </div>
-
-                            {/* Player Name and Team */}
-                            <div className="flex-1">
-                              <h3
-                                className={`text-gray-900 font-bold truncate mb-1 ${
-                                  playerData.player_name.length <= 12
-                                    ? "text-sm"
-                                    : playerData.player_name.length <= 18
-                                      ? "text-xs"
-                                      : "text-[11px]"
-                                }`}
-                              >
+                        <div className="relative p-2 md:p-3 border-b border-gray-200 bg-light-beige">
+                          <div className="flex flex-col items-center justify-center text-center">
+                            {/* Player Name */}
+                            <div className="w-full mb-2">
+                              <h3 className="text-gray-900 font-bold text-xs md:text-lg text-center">
                                 {playerData.player_name}
                               </h3>
-                              <div className="flex items-center">
-                                <div className="bg-gray-100 rounded-md w-4 h-4 flex items-center justify-center shadow-sm mr-1 border border-gray-200">
+                            </div>
+
+                            {/* Team Logo and Team Name - centered as a pairing */}
+                            <div className="flex items-center justify-center gap-1">
+                              <div className="flex-shrink-0">
+                                <div className="w-4 h-4 md:w-6 md:h-6 rounded-md overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
                                   {getTeamLogo(playerData.player_team_code, playerData.teamlogo)}
                                 </div>
-                                <div className="text-gray-600 text-xs truncate">{playerData.player_team_name}</div>
                               </div>
+                              <div className="text-gray-600 text-[8px] md:text-sm">{playerData.player_team_name}</div>
                             </div>
                           </div>
                         </div>
 
                         {/* Compact Season Stats Row */}
-                        <div className="bg-white px-2 py-1 border-b border-gray-100">
+                        <div className="px-2 py-1 border-b border-gray-100 bg-light-beige">
                           <div className="grid grid-cols-4 gap-1">
                             <div className="bg-gray-50 border border-gray-200 rounded-md py-0.5 text-center">
                               <div className="text-[7px] font-semibold text-gray-500 uppercase tracking-wide">MIN</div>
@@ -454,7 +478,7 @@ const ComparisonTab = ({
                         </div>
 
                         {/* Percentile Rankings Section */}
-                        <div className="px-2 pt-3 pb-3 overflow-auto bg-white">
+                        <div className="px-2 pt-3 pb-3 overflow-auto bg-light-beige">
                           {/* Traditional Stats Section */}
                           <div className="mb-4">
                             <div className="relative mb-2">
@@ -834,6 +858,7 @@ const ComparisonTab = ({
                 </div>
               )
             })}
+          </div>
           </div>
         </div>
       )}
