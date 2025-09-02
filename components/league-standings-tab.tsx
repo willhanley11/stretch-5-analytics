@@ -752,10 +752,7 @@ export function LeagueStandingsTab({
         
         {/* Dropdown Menu */}
         {isTableDropdownOpen && (
-  <>
-    <div
-      className="w-full h-2 border border-black rounded-t-lg -mb-1 bg-gray-400"
-    />
+        
           <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
             <button
               onClick={(e) => {

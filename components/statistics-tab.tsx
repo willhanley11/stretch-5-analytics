@@ -574,16 +574,16 @@ function StatisticsTab({
 
   return (
     <div className="bg-white rounded-md p-2 md:p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-      <div className="flex justify-between items-center mb-2 md:mb-4">
-        <h3 className="text-sm md:text-lg font-semibold flex items-center">Player Statistics</h3>
-        <div className="flex items-center gap-1 md:gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 md:mb-4 gap-2 sm:gap-0">
+        <h3 className="text-sm md:text-lg font-semibold flex items-center mb-1 sm:mb-0">Player Statistics</h3>
+        <div className="flex items-center gap-1 md:gap-4 flex-wrap justify-end">
           {/* Search */}
-          <div className="relative w-32 md:w-80">
-            <Search className="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 h-3 md:h-4 w-3 md:w-4 text-gray-400" />
+          <div className="relative w-24 md:w-80">
+            <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-3 md:h-4 w-3 md:w-4 text-gray-400" />
             <Input
               type="text"
               placeholder="Search..."
-              className="pl-6 md:pl-10 pr-2 md:pr-3 py-1 md:py-2 text-xs md:text-sm rounded-md border border-gray-300 focus:outline-none focus:ring focus:ring-blue-200 w-full"
+              className="pl-5 md:pl-10 pr-2 md:pr-3 py-1 md:py-2 text-xs md:text-sm rounded-md border border-gray-300 focus:outline-none focus:ring focus:ring-blue-200 w-full"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -596,7 +596,7 @@ function StatisticsTab({
           <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
             <button
               onClick={() => setStatDisplayMode("averages")}
-              className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-xs font-medium ${
+              className={`rounded-full px-1 py-0.5 text-[10px] md:text-xs font-medium ${
                 statDisplayMode === "averages" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -604,7 +604,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("per40")}
-              className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-xs font-medium ${
+              className={`rounded-full px-1 py-0.5 text-[10px] md:text-xs font-medium ${
                 statDisplayMode === "per40" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -612,7 +612,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("total")}
-              className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-xs font-medium ${
+              className={`rounded-full px-1 py-0.5 text-[10px] md:text-xs font-medium ${
                 statDisplayMode === "total" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -624,7 +624,7 @@ function StatisticsTab({
           <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
             <button
               onClick={() => setSelectedPhase("Regular")}
-              className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-xs font-medium ${
+              className={`rounded-full px-1 py-0.5 text-[10px] md:text-xs font-medium ${
                 selectedPhase === "Regular" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -632,7 +632,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setSelectedPhase("Playoffs")}
-              className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-xs font-medium ${
+              className={`rounded-full px-1 py-0.5 text-[10px] md:text-xs font-medium ${
                 selectedPhase === "Playoffs" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -728,8 +728,7 @@ function StatisticsTab({
                             return (
                               <>
                                 <div
-                                  className="w-5 h-5 flex items-center justify-center rounded flex-shrink-0 border border-gray-500"
-                                  style={{ backgroundColor: teamColors }}
+                                  className="w-5 h-5 flex items-center justify-center rounded flex-shrink-0 "
                                 >
                                   {teamLogo ? (
                                     <img
@@ -1021,7 +1020,7 @@ function StatisticsTab({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-2 md:mt-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-2 md:mt-4 gap-2 sm:gap-0">
         <div className="text-xs md:text-sm text-gray-600">
           Showing {startIndex + 1}-{Math.min(endIndex, filteredAndSortedPlayers.length)} of{" "}
           {filteredAndSortedPlayers.length} players
@@ -1032,10 +1031,10 @@ function StatisticsTab({
             size="sm"
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-2 md:px-3 py-1 md:py-2 text-xs"
+            className="px-2 py-1 md:px-3 md:py-2 text-xs"
           >
             <ChevronLeft className="h-3 md:h-4 w-3 md:w-4" />
-            <span className="hidden md:inline">Previous</span>
+            <span className="hidden sm:inline">Previous</span>
           </Button>
           <span className="text-xs md:text-sm text-gray-600">
             Page {currentPage} of {totalPages || 1}
@@ -1045,15 +1044,16 @@ function StatisticsTab({
             size="sm"
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
-            className="px-2 md:px-3 py-1 md:py-2 text-xs"
+            className="px-2 py-1 md:px-3 md:py-2 text-xs"
           >
-            <span className="hidden md:inline">Next</span>
+            <span className="hidden sm:inline">Next</span>
             <ChevronRight className="h-3 md:h-4 w-3 md:w-4" />
           </Button>
         </div>
       </div>
     </div>
   )
+}
 }
 
 export default StatisticsTab
