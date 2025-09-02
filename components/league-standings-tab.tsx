@@ -735,7 +735,7 @@ export function LeagueStandingsTab({
                 {/* Table Mode Text */}
                 <div className="flex-1">
                   <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                    {selectedTableMode === "league" ? "League Table" : "Player Table"}
+                    {selectedTableMode === "league" ? "League Statistics" : "Player Statistics"}
                   </h2>
                 </div>
                 
@@ -772,7 +772,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">League Table</span>
+              <span className="text-sm font-medium">League Statistics</span>
             </button>
             <button
               onClick={(e) => {
@@ -792,7 +792,7 @@ export function LeagueStandingsTab({
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-medium">Player Table</span>
+              <span className="text-sm font-medium">Player Statistics</span>
             </button>
           </div>
         )}
