@@ -699,7 +699,7 @@ export function LeagueStandingsTab({
               className="object-contain"
             />
           </div>
-          <h3 className="text-md font-semibold">Table</h3>
+          <h3 className="text-md font-semibold">Standings</h3>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
           {/* View Mode Dropdown */}
@@ -755,7 +755,7 @@ export function LeagueStandingsTab({
                 <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
                   <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700"></div>
                 </th>
-                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 min-w-[60px] w-[60px] md:min-w-[300px] md:w-[300px]">
+                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 border-b-2 min-w-[60px] w-[60px] md:min-w-[300px] md:w-[300px]">
                   <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700">TEAM</div>
                 </th>
                 {columnGroups.map((group, groupIndex) => (
@@ -887,7 +887,7 @@ export function LeagueStandingsTab({
                                 <div
                                   className={`flex items-center justify-center ${
                                     displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
-                                  } h-full p-0.5 md:p-1 rounded-xs border border-gray-200 ${cellBgClass}`}
+                                  } h-full p-0.5 md:p-1 rounded-xs ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (
                                     <span className="font-semibold text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
