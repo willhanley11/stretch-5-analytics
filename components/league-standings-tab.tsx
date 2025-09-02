@@ -699,7 +699,7 @@ export function LeagueStandingsTab({
               className="object-contain"
             />
           </div>
-          <h3 className="text-lg font-semibold">League Table</h3>
+          <h3 className="text-md font-semibold">League Table</h3>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
           {/* View Mode Dropdown */}
