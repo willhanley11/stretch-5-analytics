@@ -694,7 +694,7 @@ export function LeagueStandingsTab({
   return (
     <>
       {/* Mobile Table Mode Dropdown - Outside container, above it */}
-      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-2">
+      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-3">
       
         <button 
           className="w-full text-left"
@@ -869,7 +869,7 @@ export function LeagueStandingsTab({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -ml-2 -mr-2">
           <div className="min-w-full ">
             <table className="w-full text-[0.5rem] md:text-[0.6rem] border-collapse relative table-fixed rounded-none bg-light-beige">
             <thead>

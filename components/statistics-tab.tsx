@@ -574,7 +574,7 @@ function StatisticsTab({
   }
 
   return (
-    <div className="bg-white rounded-md border-2 border-black shadow-sm max-w-[calc(100vw-32px)]">
+    <div className="bg-white rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)]">
       {/* Team color header strip */}
       <div
         className="w-full h-2 border-b border-black rounded-t-md -mb-1"
@@ -661,7 +661,7 @@ function StatisticsTab({
         </div>
       </div>
 
-      <div className="relative  -ml-2 -mr-2 border-t-2 border-black border-b-2 border-black">
+      <div className="relative  -ml-2 -mr-2 border-t-2 border-black ">
         <div className="overflow-auto max-h-[500px] md:max-h-[600px]">
           <table className="w-full text-[8px] md:text-xs border-collapse">
             {/* Fixed sticky table header */}
