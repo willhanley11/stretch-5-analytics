@@ -662,7 +662,7 @@ function StatisticsTab({
       </div>
 
       <div className="relative  -ml-2 -mr-2 rounded-none ">
-        
+        <div className="overflow-x-auto">
           <table className="w-full text-[8px] md:text-xs border-collapse">
             {/* Fixed sticky table header */}
             <thead>
@@ -1032,6 +1032,7 @@ function StatisticsTab({
               )}
             </tbody>
           </table>
+        </div>
       </div>
 
       {/* Pagination Controls */}
