@@ -394,160 +394,160 @@ function StatisticsTab({
 
   const HeaderRow = ({ isSticky = false }) => (
     <tr
-      className={`${isSticky ? "sticky top-0 z-50 bg-gray-50 shadow-sm" : "bg-gray-100"} h-6 md:h-8 border-b-2 border-black ${!isSticky ? "border-t-2 border-t-black" : ""}`}
+      className={`${isSticky ? "sticky top-0 z-50 bg-gray-50 shadow-sm" : "bg-gray-100"} h-6 md:h-8 border-collapse`}
     >
       <th
-        className={`${isSticky ? "sticky left-0 z-[60] bg-gray-50 shadow-lg" : "sticky left-0 z-[30] bg-gray-100"} text-left py-0.5 md:py-2 px-1 md:px-2 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 min-w-[180px] md:min-w-[220px]`}
+        className={`${isSticky ? "sticky left-0 z-[60] bg-gray-50 shadow-lg" : "sticky left-0 z-[30] bg-gray-100"} text-left py-0.5 md:py-2 px-1 md:px-2 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 min-w-[180px] md:min-w-[220px] border-b-2 border-black`}
         onClick={() => handlePlayerColumnSort("player_name")}
       >
         <div className="flex items-center text-[8px] md:text-sm">Player {renderSortIndicator("player_name")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-1 px-0.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border border-gray-300"
+        className="text-center py-0.5 md:py-1 px-0.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("games_played")}
       >
         <div className="flex items-center justify-center text-[8px] md:text-sm">GP {renderSortIndicator("games_played")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("games_started")}
       >
         <div className="flex items-center justify-center">GS {renderSortIndicator("games_started")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("minutes_played")}
       >
         <div className="flex items-center justify-center">MIN {renderSortIndicator("minutes_played")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("points_scored")}
       >
         <div className="flex items-center justify-center">PTS {renderSortIndicator("points_scored")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("two_pointers_made")}
       >
         <div className="flex items-center justify-center">2PM {renderSortIndicator("two_pointers_made")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
       >
         <div className="flex items-center justify-center">2PA {renderSortIndicator("two_pointers_attempted")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
       >
         <div className="flex items-center justify-center">2P% {renderSortIndicator("two_pointers_percentage")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("three_pointers_made")}
       >
         <div className="flex items-center justify-center">3PM {renderSortIndicator("three_pointers_made")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
       >
         <div className="flex items-center justify-center">3PA {renderSortIndicator("three_pointers_attempted")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
       >
         <div className="flex items-center justify-center">3P% {renderSortIndicator("three_pointers_percentage")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("free_throws_made")}
       >
         <div className="flex items-center justify-center">FTM {renderSortIndicator("free_throws_made")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("free_throws_attempted")}
       >
         <div className="flex items-center justify-center">FTA {renderSortIndicator("free_throws_attempted")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("free_throws_percentage")}
       >
         <div className="flex items-center justify-center">FT% {renderSortIndicator("free_throws_percentage")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("offensive_rebounds")}
       >
         <div className="flex items-center justify-center">OR {renderSortIndicator("offensive_rebounds")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("defensive_rebounds")}
       >
         <div className="flex items-center justify-center">DR {renderSortIndicator("defensive_rebounds")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("total_rebounds")}
       >
         <div className="flex items-center justify-center">TR {renderSortIndicator("total_rebounds")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("assists")}
       >
         <div className="flex items-center justify-center">AST {renderSortIndicator("assists")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("steals")}
       >
         <div className="flex items-center justify-center">STL {renderSortIndicator("steals")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("turnovers")}
       >
         <div className="flex items-center justify-center">TO {renderSortIndicator("turnovers")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("blocks")}
       >
         <div className="flex items-center justify-center">BLK {renderSortIndicator("blocks")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("blocks_against")}
       >
         <div className="flex items-center justify-center">BLKA {renderSortIndicator("blocks_against")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("fouls_commited")}
       >
         <div className="flex items-center justify-center">FC {renderSortIndicator("fouls_commited")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("fouls_drawn")}
       >
         <div className="flex items-center justify-center">FD {renderSortIndicator("fouls_drawn")}</div>
       </th>
       <th
-        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors"
+        className="text-center py-1 px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-b-2 border-black"
         onClick={() => handlePlayerColumnSort("pir")}
       >
         <div className="flex items-center justify-center">PIR {renderSortIndicator("pir")}</div>
       </th>
     </tr>
-  )
+  );
 
   // Format season display
   const formatSeasonDisplay = (seasonValue: number) => {
@@ -597,7 +597,7 @@ function StatisticsTab({
         </div>
         <div className="flex items-center gap-1 md:gap-4 flex-wrap justify-end">
           {/* Search */}
-          <div className="relative w-18 md:w-80">
+          <div className="relative w-20 md:w-80">
             <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-2.5 md:h-4 w-2.5 md:w-4 text-gray-400" />
             <Input
               type="text"
