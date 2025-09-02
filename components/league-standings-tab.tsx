@@ -735,7 +735,7 @@ export function LeagueStandingsTab({
                 {/* Table Mode Text */}
                 <div className="flex-1">
                   <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                    {selectedTableMode === "league" ? "League Rankings" : "Player Rankings"}
+                    {selectedTableMode === "league" ? "League Table" : "Player Table"}
                   </h2>
                 </div>
                 

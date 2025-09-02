@@ -763,7 +763,7 @@ function StatisticsTab({
                                   )}
                                 </div>
                                 <div className="flex flex-col">
-                                  <span className="text-[9px] md:text-xs font-medium text-black leading-tight">
+                                  <span className="text-[9px] md:text-xs font-medium text-nowrap text-black leading-tight">
                                     {player.player_name}
                                   </span>
                                 </div>
