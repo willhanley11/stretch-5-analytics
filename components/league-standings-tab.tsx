@@ -3,10 +3,11 @@
 import React from "react"
 import type { ReactNode } from "react"
 import { useState, useEffect, useMemo } from "react"
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { fetchAllTeamAdvancedStatsCalculated, fetchLeagueAveragesPrecalculated, fetchStandingsFromGameLogs } from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
+import StatisticsTab from "./statistics-tab"
 
 interface LeagueStandingsTabProps {
   isLoading: boolean
@@ -62,6 +63,9 @@ export function LeagueStandingsTab({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [viewMode, setViewMode] = useState<ViewMode>("team")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("rank")
+  const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">("league")
+  const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false)
+  const [playerSearch, setPlayerSearch] = useState("")
 
   const getTeamColorStyles = (teamName: string, teamCode?: string) => {
     const code = teamCode || ""
@@ -688,80 +692,186 @@ export function LeagueStandingsTab({
   const statColumnWidth = "w-[45px] md:w-[60px]"
 
   return (
-    <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 md:w-8 md:h-8 relative">
-            <Image
-              src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-              alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-              fill
-              className="object-contain"
-            />
+    <>
+      {/* Mobile Table Mode Dropdown - Outside container, above it */}
+      <div className="md:hidden bg-black shadow-md rounded-xl relative mt-2 -mb-3">
+        <button 
+          className="w-full text-left"
+          onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
+        >
+          <div 
+            className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
+            style={{
+              border: '1px solid black',
+              backgroundColor: '#9ca3af', // light gray
+            }}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center p-1.5 gap-1.5 sm:gap-0">
+              {/* League Logo and Text section */}
+              <div className="flex items-center w-full sm:w-[45%] flex-shrink-0 sm:border-r border-gray-200 sm:pr-2">
+                {/* League Logo */}
+                <div className="flex-shrink-0 mr-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg shadow-sm">
+                    <div
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
+                      style={{
+                        border: "1px solid black",
+                        backgroundColor: "white",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <Image
+                        src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+                        alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+                        width={32}
+                        height={32}
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Table Mode Text */}
+                <div className="flex-1">
+                  <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
+                    {selectedTableMode === "league" ? "League Table" : "Player Table"}
+                  </h2>
+                </div>
+                
+                {/* Dropdown arrow */}
+                <div className="ml-1">
+                  <ChevronDown
+                    className={`h-4 w-4 text-white transition-transform ${isTableDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="text-md font-semibold">Standings</h3>
-        </div>
-        <div className="flex items-center gap-2 md:gap-4">
-          {/* View Mode Dropdown */}
-          <div className="flex items-center gap-1">
-            <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
-              View:
-            </label>
-            <select
-              id="view-mode-filter"
-              value={viewMode}
-              onChange={(e) => setViewMode(e.target.value as ViewMode)}
-              className="text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 md:w-auto"
-            >
-              <option value="team">Team</option>
-              <option value="off-4factors">Off - 4 Factors</option>
-              <option value="off-shooting">Off - Shooting</option>
-              <option value="off-ptdist">Off - Pt Dist</option>
-              <option value="off-misc">Off - Misc</option>
-              <option value="def-4factors">Def - 4 Factors</option>
-              <option value="def-shooting">Def - Shooting</option>
-              <option value="def-ptdist">Def - Pt Dist</option>
-              <option value="def-misc">Def - Misc</option>
-            </select>
-          </div>
-
-          {/* Display Mode Toggle */}
-          <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
+        </button>
+        
+        {/* Dropdown Menu */}
+        {isTableDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
             <button
-              onClick={() => setDisplayMode("value")}
-              className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedTableMode("league")
+                setIsTableDropdownOpen(false)
+              }}
+              className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                selectedTableMode === "league" ? "bg-gray-50 border-l-4 border-gray-500" : ""
               }`}
             >
-              Value
+              <div className="w-5 h-5 relative mr-2">
+                <Image
+                  src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+                  alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-sm font-medium">League Table</span>
             </button>
             <button
-              onClick={() => setDisplayMode("rank")}
-              className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedTableMode("player")
+                setIsTableDropdownOpen(false)
+              }}
+              className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                selectedTableMode === "player" ? "bg-gray-50 border-l-4 border-gray-500" : ""
               }`}
             >
-              Rank
+              <div className="w-5 h-5 relative mr-2">
+                <Image
+                  src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+                  alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-sm font-medium">Player Table</span>
             </button>
           </div>
-        </div>
+        )}
       </div>
+      
+      {/* Conditional rendering based on selected table mode */}
+      {selectedTableMode === "league" ? (
+        <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
+          <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 md:w-8 md:h-8 relative">
+              <Image
+                src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
+                alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
+                fill
+                className="object-contain"
+              />
+            </div>
+            <h3 className="text-md font-semibold">Standings</h3>
+          </div>
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* View Mode Dropdown */}
+            <div className="flex items-center gap-1">
+              <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
+                View:
+              </label>
+              <select
+                id="view-mode-filter"
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as ViewMode)}
+                className="text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 md:w-auto"
+              >
+                <option value="team">Team</option>
+                <option value="off-4factors">Off - 4 Factors</option>
+                <option value="off-shooting">Off - Shooting</option>
+                <option value="off-ptdist">Off - Pt Dist</option>
+                <option value="off-misc">Off - Misc</option>
+                <option value="def-4factors">Def - 4 Factors</option>
+                <option value="def-shooting">Def - Shooting</option>
+                <option value="def-ptdist">Def - Pt Dist</option>
+                <option value="def-misc">Def - Misc</option>
+              </select>
+            </div>
 
-      <div className="overflow-x-auto">
-        <div className="min-w-full ">
-          <table className="w-full text-[0.5rem] md:text-[0.6rem] border-collapse relative table-fixed rounded-none bg-light-beige">
+            {/* Display Mode Toggle */}
+            <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
+              <button
+                onClick={() => setDisplayMode("value")}
+                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
+                  displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
+                }`}
+              >
+                Value
+              </button>
+              <button
+                onClick={() => setDisplayMode("rank")}
+                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
+                  displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
+                }`}
+              >
+                Rank
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <div className="min-w-full ">
+            <table className="w-full text-[0.5rem] md:text-[0.6rem] border-collapse relative table-fixed rounded-none bg-light-beige">
             <thead>
               <tr className="border-b-2 bg-light-beige border-t-2 border-black ">
                 <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
                   <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700"></div>
                 </th>
-                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 border-b-2 min-w-[60px] w-[60px] md:min-w-[300px] md:w-[300px]">
+                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 min-w-[60px] w-[60px] md:min-w-[300px] md:w-[300px]">
                   <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700">TEAM</div>
                 </th>
                 {columnGroups.map((group, groupIndex) => (
                   <th
                     key={group.title}
-                    className={`text-center py-1 px-1 font-semibold bg-gray-100 ${
+                    className={`text-center py-1 px-1 font-semibold bg-gray-100 border-b-2 border-gray-800 ${
                       groupIndex < columnGroups.length - 1 ? "border-r-2 border-gray-800" : ""
                     }`}
                     colSpan={group.columns.length}
@@ -913,8 +1023,20 @@ export function LeagueStandingsTab({
               <p className="text-xs mt-1">Advanced Stats: {allTeamsAdvancedStats.length}</p>
             </div>
           )}
+          </div>
         </div>
-      </div>
-    </div>
+        </div>
+      ) : (
+        /* Player Table - Statistics Tab Content */
+        <StatisticsTab
+          playerSearch={playerSearch}
+          onPlayerSearchChange={setPlayerSearch}
+          season={selectedSeason}
+          phase={selectedPhase}
+          teamStats={allTeamsAdvancedStats}
+          league={league}
+        />
+      )}
+    </>
   )
 }
