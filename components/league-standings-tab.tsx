@@ -699,7 +699,7 @@ export function LeagueStandingsTab({
               className="object-contain"
             />
           </div>
-          <h3 className="text-md font-semibold">League Table</h3>
+          <h3 className="text-md font-semibold">Table</h3>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
           {/* View Mode Dropdown */}
@@ -886,8 +886,8 @@ export function LeagueStandingsTab({
                                 // Regular columns: with border and rank/value toggle
                                 <div
                                   className={`flex items-center justify-center ${
-                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-8px)] md:w-[calc(100%-12px)] mx-1"
-                                  } h-full p-0.5 md:p-1 rounded-sm border border-gray-400 ${cellBgClass}`}
+                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
+                                  } h-full p-0.5 md:p-1 rounded-xs border border-gray-200 ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (
                                     <span className="font-semibold text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
