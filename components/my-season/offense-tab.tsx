@@ -3171,7 +3171,7 @@ const PlayerTeamSelector = () => {
     return (
       <div className="space-y-6">
   {/* Main Layout - New Structure */}
-  <div className="flex flex-col gap-2 -mt-2 sm:-mt-4">
+  <div className="flex flex-col gap-2 -mt-5 md:-mt-3">
     {/* Filter Bar - Non-sticky */}
     <div className="-mt-2 mb-4 md:mb-0 md:mt-0 md:hidden">
       <PlayerTeamSelector />
