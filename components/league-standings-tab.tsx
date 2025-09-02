@@ -694,7 +694,7 @@ export function LeagueStandingsTab({
   return (
     <>
       {/* Mobile Table Mode Dropdown - Outside container, above it */}
-      <div className="md:hidden bg-black shadow-md rounded-xl relative">
+      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-1">
         <button 
           className="w-full text-left"
           onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
