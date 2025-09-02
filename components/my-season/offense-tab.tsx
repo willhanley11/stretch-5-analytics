@@ -1498,7 +1498,7 @@ const PlayerTeamSelector = () => {
   const selectedTeamColor = selectedTeam ? getTeamColorStyles(selectedTeam.player_team_code).backgroundColor : "#6b7280"
 
   return (
-    <div className="bg-black shadow-md rounded-xl relative mt-1 -mb-3 team-dropdown-container">
+    <div className="bg-black shadow-md rounded-xl relative mt-2 -mb-3 team-dropdown-container">
       <div className="w-full text-left">
         <div
           className="rounded-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow"

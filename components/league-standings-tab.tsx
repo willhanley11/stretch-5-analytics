@@ -802,10 +802,10 @@ export function LeagueStandingsTab({
       {selectedTableMode === "league" ? (
       
       
-        <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
+        <div className="bg-light-beige rounded-md py-4 px-3 border border-black shadow-sm max-w-[calc(100vw-32px)]">
         
         
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 md:w-8 md:h-8 relative">
               <Image
