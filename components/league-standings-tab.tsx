@@ -695,6 +695,10 @@ export function LeagueStandingsTab({
     <>
       {/* Mobile Table Mode Dropdown - Outside container, above it */}
       <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-2 mb-1">
+      <div
+      className="w-full h-2 border border-black rounded-t-lg -mb-1 bg-gray-400"
+      
+    />
         <button 
           className="w-full text-left"
           onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
@@ -801,10 +805,7 @@ export function LeagueStandingsTab({
       
       
         <div className="bg-light-beige rounded-md p-4 border border-black shadow-sm max-w-[calc(100vw-32px)]">
-        <div
-      className="w-full h-2 border border-black rounded-t-lg -mb-1 bg-gray-400"
-      
-    />
+        
         
           <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
