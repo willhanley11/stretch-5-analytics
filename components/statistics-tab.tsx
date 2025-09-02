@@ -397,7 +397,7 @@ function StatisticsTab({
       className={`${isSticky ? "sticky top-0 z-50 bg-gray-50 shadow-sm" : "bg-gray-100"} h-6 md:h-8 border-b-2 border-black ${!isSticky ? "border-t-2 border-t-black" : ""}`}
     >
       <th
-        className={`${isSticky ? "sticky left-0 z-[60] bg-gray-50 shadow-lg" : "sticky left-0 z-[30] bg-gray-100"} text-left py-0.5 md:py-2 px-1 md:px-2 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 min-w-[180px] md:min-w-[220px]`}
+        className={`${isSticky ? "sticky left-0 z-[60] bg-gray-50 shadow-lg" : "sticky left-0 z-[30] bg-gray-100"} text-left py-0.5 md:py-2 px-1 md:px-2 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 min-w-[150px] md:min-w-[220px]`}
         onClick={() => handlePlayerColumnSort("player_name")}
       >
         <div className="flex items-center text-[8px] md:text-sm">Player {renderSortIndicator("player_name")}</div>
