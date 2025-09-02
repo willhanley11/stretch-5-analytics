@@ -728,7 +728,8 @@ function StatisticsTab({
                             return (
                               <>
                                 <div
-                                  className="w-5 h-5 flex items-center justify-center rounded flex-shrink-0 "
+                                  className="w-5 h-5 flex items-center justify-center rounded flex-shrink-0 border border-gray-500"
+                                  style={{ backgroundColor: teamColors }}
                                 >
                                   {teamLogo ? (
                                     <img
@@ -1053,7 +1054,6 @@ function StatisticsTab({
       </div>
     </div>
   )
-}
 }
 
 export default StatisticsTab
