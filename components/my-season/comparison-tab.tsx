@@ -390,7 +390,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Team Dropdown arrow */}
-              <div className="ml-0">
+              <div className="-ml-0.5">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -428,7 +428,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Player Dropdown arrow */}
-              <div className="ml-0 flex-shrink-0">
+              <div className="-ml-0.5 flex-shrink-0">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -590,7 +590,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Team Dropdown arrow */}
-              <div className="ml-0">
+              <div className="-ml-0.5">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -628,7 +628,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Player Dropdown arrow */}
-              <div className="ml-0 flex-shrink-0">
+              <div className="-ml-0 flex-shrink-0">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
                 />
