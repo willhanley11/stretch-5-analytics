@@ -70,6 +70,10 @@ export function ProLeagueNav() {
     { id: 2018, display: "2018-19" },
     { id: 2017, display: "2017-18" },
     { id: 2016, display: "2016-17" },
+    { id: 2015, display: "2015-16" },
+    { id: 2014, display: "2014-15" },
+    { id: 2013, display: "2013-14" },
+    { id: 2012, display: "2012-13" },
   ])
 
   const [selectedLeague, setSelectedLeague] = useState("international-euroleague")
