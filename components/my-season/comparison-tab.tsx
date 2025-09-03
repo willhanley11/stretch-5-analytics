@@ -315,418 +315,404 @@ const ComparisonTab = ({
   }
   
   // Mobile Player Selector Components - Left side (rounded left only)
-  const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
-    const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
-    const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
-    const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
-    const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
-    
-    const selectedTeamId = selectedTeams[playerIndex]
-    const selectedPlayerId = selectedPlayerIds[playerIndex]
-    const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
-    const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
-    const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
-    
-    return (
-      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3">
-        <div className="w-full text-left">
-          <div
-            className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
-            style={{
-              border: '1px solid black',
-              borderRight: 'none',
-              backgroundColor: selectedTeamColor,
-            }}
-          >
-            <div className="flex flex-row items-center p-2">
-              {/* Team Logo Section - Clickable */}
-              <button 
-                onClick={() => {
-                  // Close all other dropdowns
-                  if (playerIndex === 0) {
-                    setIsPlayer2TeamDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                  } else {
-                    setIsPlayer1TeamDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                  }
-                  setIsTeamDropdownOpen(!isTeamDropdownOpen)
-                }}
-                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
-              >
-                {/* Team Logo */}
-                <div className="flex-shrink-0 mr-1">
-                  {selectedPlayer?.teamlogo ? (
-                    <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
-                      <div
-                        className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                        style={{
-                          border: "1px solid black",
-                          backgroundColor: "white",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                        }}
-                      >
-                        <img
-                          src={selectedPlayer.teamlogo}
-                          alt={`${selectedPlayer.player_team_name} logo`}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
-                      style={{
-                        backgroundColor: "white",
-                        color: selectedTeamColor,
-                        border: '1px solid black',
-                      }}
-                    >
-                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Team Dropdown arrow */}
-                <div className="ml-0.5">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-              
-              {/* Player Name Section - Clickable */}
-              <button 
-                onClick={() => {
-                  // Close all other dropdowns
-                  if (playerIndex === 0) {
-                    setIsPlayer2TeamDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                    setIsPlayer1TeamDropdownOpen(false)
-                  } else {
-                    setIsPlayer1TeamDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                    setIsPlayer2TeamDropdownOpen(false)
-                  }
-                  setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
-                }}
-                className="flex items-center flex-1 pl-2 cursor-pointer min-w-0"
-              >
-                {/* Player Name */}
-                <div className="flex items-center flex-1 min-w-0">
-                  <span
-                    className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
-                    style={{
-                      color: "white",
-                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                    }}
-                  >
-                    {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
-                  </span>
-                </div>
-                
-                {/* Player Dropdown arrow */}
-                <div className="ml-0.5 flex-shrink-0">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Team dropdown menu */}
-        {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {teamsList.map((team) => {
-              const isSelected = team.id === selectedTeamId
-              
-              return (
-                <button
-                  key={team.id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleTeamSelect(playerIndex, team.id)
-                    // Auto-select first player from selected team
-                    const firstPlayer = playersByTeam[team.id]?.[0]
-                    if (firstPlayer) {
-                      handlePlayerSelect(playerIndex, firstPlayer.player_id)
-                    }
-                    setIsTeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-5 h-5 mr-2">
-                    {/* Show team logo if available from playersByTeam */}
-                    {playersByTeam[team.id]?.[0]?.teamlogo ? (
-                      <img
-                        src={playersByTeam[team.id][0].teamlogo}
-                        alt={`${team.name} logo`}
-                        className="w-5 h-5 object-contain"
-                      />
-                    ) : (
-                      <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
-                        {team.name.split(" ").map(word => word[0]).join("") || "?"}
-                      </div>
-                    )}
-                  </div>
-                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {team.name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-        
-        {/* Player dropdown menu */}
-        {isPlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
-              const isSelected = player.player_id === selectedPlayerId
-              
-              return (
-                <button
-                  key={player.player_id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handlePlayerSelect(playerIndex, player.player_id)
-                    setIsPlayerDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {player.player_name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    )
-  }
+const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
+  const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
+  const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
+  const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
+  const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
   
-  // Mobile Player Selector Components - Right side (rounded right only)
-  const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
-    const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
-    const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
-    const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
-    const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
-    
-    const selectedTeamId = selectedTeams[playerIndex]
-    const selectedPlayerId = selectedPlayerIds[playerIndex]
-    const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
-    const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
-    const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
-    
-    return (
-      <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container -mt-3 mr-1">
-        <div className="w-full text-left">
-          <div
-            className="rounded-r-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-l-0"
-            style={{
-              border: '1px solid black',
-              borderLeft: 'none',
-              backgroundColor: selectedTeamColor,
-            }}
-          >
-            <div className="flex flex-row items-center p-2">
-              {/* Team Logo Section - Clickable */}
-              <button 
-                onClick={() => {
-                  // Close all other dropdowns
-                  if (playerIndex === 0) {
-                    setIsPlayer2TeamDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                  } else {
-                    setIsPlayer1TeamDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                  }
-                  setIsTeamDropdownOpen(!isTeamDropdownOpen)
-                }}
-                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
-              >
-                {/* Team Logo */}
-                <div className="flex-shrink-0 mr-1">
-                  {selectedPlayer?.teamlogo ? (
-                    <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
-                      <div
-                        className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                        style={{
-                          border: "1px solid black",
-                          backgroundColor: "white",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                        }}
-                      >
-                        <img
-                          src={selectedPlayer.teamlogo}
-                          alt={`${selectedPlayer.player_team_name} logo`}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    </div>
-                  ) : (
+  const selectedTeamId = selectedTeams[playerIndex]
+  const selectedPlayerId = selectedPlayerIds[playerIndex]
+  const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
+  const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
+  const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
+  
+  return (
+    <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3 w-full">
+      <div className="w-full text-left">
+        <div
+          className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
+          style={{
+            border: '1px solid black',
+            borderRight: 'none',
+            backgroundColor: selectedTeamColor,
+          }}
+        >
+          <div className="flex flex-row items-center p-2 w-full">
+            {/* Team Logo Section - Clickable - Fixed width */}
+            <button 
+              onClick={() => {
+                // Close all other dropdowns
+                if (playerIndex === 0) {
+                  setIsPlayer2TeamDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                } else {
+                  setIsPlayer1TeamDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                }
+                setIsTeamDropdownOpen(!isTeamDropdownOpen)
+              }}
+              className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
+            >
+              {/* Team Logo */}
+              <div className="flex-shrink-0 mr-1">
+                {selectedPlayer?.teamlogo ? (
+                  <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
                     <div
-                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
+                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
                       style={{
+                        border: "1px solid black",
                         backgroundColor: "white",
-                        color: selectedTeamColor,
-                        border: '1px solid black',
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                       }}
                     >
-                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
+                      <img
+                        src={selectedPlayer.teamlogo}
+                        alt={`${selectedPlayer.player_team_name} logo`}
+                        className="w-4 h-4 object-contain"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
+                    style={{
+                      backgroundColor: "white",
+                      color: selectedTeamColor,
+                      border: '1px solid black',
+                    }}
+                  >
+                    {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
+                  </div>
+                )}
+              </div>
+              
+              {/* Team Dropdown arrow */}
+              <div className="ml-0.5">
+                <ChevronDown
+                  className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </div>
+            </button>
+            
+            {/* Player Name Section - Clickable - Takes remaining space */}
+            <button 
+              onClick={() => {
+                // Close all other dropdowns
+                if (playerIndex === 0) {
+                  setIsPlayer2TeamDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                  setIsPlayer1TeamDropdownOpen(false)
+                } else {
+                  setIsPlayer1TeamDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                  setIsPlayer2TeamDropdownOpen(false)
+                }
+                setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+              }}
+              className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
+            >
+              {/* Player Name - Fixed container */}
+              <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+                <span
+                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  style={{
+                    color: "white",
+                    textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                  }}
+                >
+                  {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
+                </span>
+              </div>
+              
+              {/* Player Dropdown arrow */}
+              <div className="ml-0.5 flex-shrink-0">
+                <ChevronDown
+                  className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Team dropdown menu */}
+      {isTeamDropdownOpen && (
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          {teamsList.map((team) => {
+            const isSelected = team.id === selectedTeamId
+            
+            return (
+              <button
+                key={team.id}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleTeamSelect(playerIndex, team.id)
+                  // Auto-select first player from selected team
+                  const firstPlayer = playersByTeam[team.id]?.[0]
+                  if (firstPlayer) {
+                    handlePlayerSelect(playerIndex, firstPlayer.player_id)
+                  }
+                  setIsTeamDropdownOpen(false)
+                }}
+                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                  isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                }`}
+              >
+                <div className="w-5 h-5 mr-2 flex-shrink-0">
+                  {/* Show team logo if available from playersByTeam */}
+                  {playersByTeam[team.id]?.[0]?.teamlogo ? (
+                    <img
+                      src={playersByTeam[team.id][0].teamlogo}
+                      alt={`${team.name} logo`}
+                      className="w-5 h-5 object-contain"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                      {team.name.split(" ").map(word => word[0]).join("") || "?"}
                     </div>
                   )}
                 </div>
-                
-                {/* Team Dropdown arrow */}
-                <div className="ml-0.5">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
+                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                  {team.name}
+                </span>
               </button>
-              
-              {/* Player Name Section - Clickable */}
-              <button 
-                onClick={() => {
-                  // Close all other dropdowns
-                  if (playerIndex === 0) {
-                    setIsPlayer2TeamDropdownOpen(false)
-                    setIsPlayer2PlayerDropdownOpen(false)
-                    setIsPlayer1TeamDropdownOpen(false)
-                  } else {
-                    setIsPlayer1TeamDropdownOpen(false)
-                    setIsPlayer1PlayerDropdownOpen(false)
-                    setIsPlayer2TeamDropdownOpen(false)
-                  }
-                  setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+            )
+          })}
+        </div>
+      )}
+      
+      {/* Player dropdown menu */}
+      {isPlayerDropdownOpen && (
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
+            const isSelected = player.player_id === selectedPlayerId
+            
+            return (
+              <button
+                key={player.player_id}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handlePlayerSelect(playerIndex, player.player_id)
+                  setIsPlayerDropdownOpen(false)
                 }}
-                className="flex items-center flex-1 pl-2 cursor-pointer min-w-0"
+                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                  isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                }`}
               >
-                {/* Player Name */}
-                <div className="flex items-center flex-1 min-w-0">
-                  <span
-                    className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
+                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                  {player.player_name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Mobile Player Selector Components - Right side (rounded right only)
+const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
+  const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
+  const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
+  const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
+  const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
+  
+  const selectedTeamId = selectedTeams[playerIndex]
+  const selectedPlayerId = selectedPlayerIds[playerIndex]
+  const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
+  const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
+  const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
+  
+  return (
+    <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container -mt-3 mr-1 w-full">
+      <div className="w-full text-left">
+        <div
+          className="rounded-r-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-l-0"
+          style={{
+            border: '1px solid black',
+            borderLeft: 'none',
+            backgroundColor: selectedTeamColor,
+          }}
+        >
+          <div className="flex flex-row items-center p-2 w-full">
+            {/* Team Logo Section - Clickable - Fixed width */}
+            <button 
+              onClick={() => {
+                // Close all other dropdowns
+                if (playerIndex === 0) {
+                  setIsPlayer2TeamDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                } else {
+                  setIsPlayer1TeamDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                }
+                setIsTeamDropdownOpen(!isTeamDropdownOpen)
+              }}
+              className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
+            >
+              {/* Team Logo */}
+              <div className="flex-shrink-0 mr-1">
+                {selectedPlayer?.teamlogo ? (
+                  <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
+                    <div
+                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
+                      style={{
+                        border: "1px solid black",
+                        backgroundColor: "white",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <img
+                        src={selectedPlayer.teamlogo}
+                        alt={`${selectedPlayer.player_team_name} logo`}
+                        className="w-4 h-4 object-contain"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
                     style={{
-                      color: "white",
-                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                      backgroundColor: "white",
+                      color: selectedTeamColor,
+                      border: '1px solid black',
                     }}
                   >
-                    {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
-                  </span>
-                </div>
-                
-                {/* Player Dropdown arrow */}
-                <div className="ml-0.5 flex-shrink-0">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Team dropdown menu */}
-        {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {teamsList.map((team) => {
-              const isSelected = team.id === selectedTeamId
-              
-              return (
-                <button
-                  key={team.id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleTeamSelect(playerIndex, team.id)
-                    // Auto-select first player from selected team
-                    const firstPlayer = playersByTeam[team.id]?.[0]
-                    if (firstPlayer) {
-                      handlePlayerSelect(playerIndex, firstPlayer.player_id)
-                    }
-                    setIsTeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-5 h-5 mr-2">
-                    {/* Show team logo if available from playersByTeam */}
-                    {playersByTeam[team.id]?.[0]?.teamlogo ? (
-                      <img
-                        src={playersByTeam[team.id][0].teamlogo}
-                        alt={`${team.name} logo`}
-                        className="w-5 h-5 object-contain"
-                      />
-                    ) : (
-                      <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
-                        {team.name.split(" ").map(word => word[0]).join("") || "?"}
-                      </div>
-                    )}
+                    {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
                   </div>
-                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {team.name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-        
-        {/* Player dropdown menu */}
-        {isPlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
-              const isSelected = player.player_id === selectedPlayerId
+                )}
+              </div>
               
-              return (
-                <button
-                  key={player.player_id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handlePlayerSelect(playerIndex, player.player_id)
-                    setIsPlayerDropdownOpen(false)
+              {/* Team Dropdown arrow */}
+              <div className="ml-0.5">
+                <ChevronDown
+                  className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </div>
+            </button>
+            
+            {/* Player Name Section - Clickable - Takes remaining space */}
+            <button 
+              onClick={() => {
+                // Close all other dropdowns
+                if (playerIndex === 0) {
+                  setIsPlayer2TeamDropdownOpen(false)
+                  setIsPlayer2PlayerDropdownOpen(false)
+                  setIsPlayer1TeamDropdownOpen(false)
+                } else {
+                  setIsPlayer1TeamDropdownOpen(false)
+                  setIsPlayer1PlayerDropdownOpen(false)
+                  setIsPlayer2TeamDropdownOpen(false)
+                }
+                setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+              }}
+              className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
+            >
+              {/* Player Name - Fixed container */}
+              <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+                <span
+                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  style={{
+                    color: "white",
+                    textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                   }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
                 >
-                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {player.player_name}
-                  </span>
-                </button>
-              )
-            })}
+                  {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
+                </span>
+              </div>
+              
+              {/* Player Dropdown arrow */}
+              <div className="ml-0.5 flex-shrink-0">
+                <ChevronDown
+                  className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </div>
+            </button>
           </div>
-        )}
-      </div>
-    )
-  }
-
-  // Show loading screen until all content is loaded
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="mb-6">
-            <h2 className="text-md font-semibold text-gray-800 mb-2">Player Comparison</h2>
-          </div>
-          <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
         </div>
       </div>
-    )
-  }
+      
+      {/* Team dropdown menu */}
+      {isTeamDropdownOpen && (
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          {teamsList.map((team) => {
+            const isSelected = team.id === selectedTeamId
+            
+            return (
+              <button
+                key={team.id}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleTeamSelect(playerIndex, team.id)
+                  // Auto-select first player from selected team
+                  const firstPlayer = playersByTeam[team.id]?.[0]
+                  if (firstPlayer) {
+                    handlePlayerSelect(playerIndex, firstPlayer.player_id)
+                  }
+                  setIsTeamDropdownOpen(false)
+                }}
+                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                  isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                }`}
+              >
+                <div className="w-5 h-5 mr-2 flex-shrink-0">
+                  {/* Show team logo if available from playersByTeam */}
+                  {playersByTeam[team.id]?.[0]?.teamlogo ? (
+                    <img
+                      src={playersByTeam[team.id][0].teamlogo}
+                      alt={`${team.name} logo`}
+                      className="w-5 h-5 object-contain"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                      {team.name.split(" ").map(word => word[0]).join("") || "?"}
+                    </div>
+                  )}
+                </div>
+                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                  {team.name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+      
+      {/* Player dropdown menu */}
+      {isPlayerDropdownOpen && (
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
+            const isSelected = player.player_id === selectedPlayerId
+            
+            return (
+              <button
+                key={player.player_id}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handlePlayerSelect(playerIndex, player.player_id)
+                  setIsPlayerDropdownOpen(false)
+                }}
+                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                  isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                }`}
+              >
+                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                  {player.player_name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
   return (
     <div className="space-y-3">
