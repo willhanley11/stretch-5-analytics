@@ -415,9 +415,9 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
               className="flex items-left flex-1 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
-              <div className="flex items-left flex-1 min-w-0 overflow-hidden -ml-1">
+              <div className="flex items-left flex-1 min-w-0 overflow-hidden">
                 <span
-                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  className="text-[9px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
                   style={{
                     color: "white",
                     textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
@@ -617,7 +617,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               {/* Player Name - Fixed container */}
               <div className="flex items-left flex-1 min-w-0 overflow-hidden">
                 <span
-                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  className="text-[9px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
                   style={{
                     color: "white",
                     textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
