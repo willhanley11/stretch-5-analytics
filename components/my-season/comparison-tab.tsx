@@ -415,7 +415,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
               className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
-              <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-center flex-1 min-w-0 overflow-hidden -ml-1">
                 <span
                   className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
                   style={{
@@ -615,7 +615,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
-              <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-center flex-1 min-w-0 overflow-hidden -ml-1">
                 <span
                   className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
                   style={{
@@ -628,7 +628,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Player Dropdown arrow */}
-              <div className="-ml-0 flex-shrink-0">
+              <div className="-ml-0.5 flex-shrink-0">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
                 />
