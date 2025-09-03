@@ -731,13 +731,11 @@ const ComparisonTab = ({
   return (
     <div className="space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile */}
-      <div className="md:hidden flex">
-        <div className="flex-1">
+      <div className="md:hidden flex gap-1">
+        <div className="flex-1 max-w-48">
           <PlayerSelectorLeft playerIndex={0} />
         </div>
-        {/* Divider line */}
-        <div className="w-0.5 bg-black -mt-3 z-10"></div>
-        <div className="flex-1">
+        <div className="flex-1 max-w-48">
           <PlayerSelectorRight playerIndex={1} />
         </div>
       </div>
