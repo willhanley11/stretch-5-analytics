@@ -412,12 +412,12 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                 }
                 setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
               }}
-              className="flex items-left flex-1 cursor-pointer min-w-0 overflow-hidden"
+              className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
               <div className="flex items-left flex-1 min-w-0 overflow-hidden">
                 <span
-                  className="text-[9px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full text-left"
                   style={{
                     color: "white",
                     textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
@@ -538,7 +538,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
             backgroundColor: selectedTeamColor,
           }}
         >
-          <div className="flex flex-row p-2 w-full">
+          <div className="flex flex-row items-center p-2 w-full">
             {/* Team Logo Section - Clickable - Fixed width */}
             <button 
               onClick={() => {
@@ -617,7 +617,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               {/* Player Name - Fixed container */}
               <div className="flex items-left flex-1 min-w-0 overflow-hidden">
                 <span
-                  className="text-[9px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full"
+                  className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis block w-full text-left"
                   style={{
                     color: "white",
                     textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
