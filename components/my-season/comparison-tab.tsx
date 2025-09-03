@@ -390,7 +390,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Team Dropdown arrow */}
-              <div className="-ml-0.5">
+              <div className="-ml-0.5 mr-0.5">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -412,7 +412,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                 }
                 setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
               }}
-              className="flex items-center flex-1 pl-2 cursor-pointer min-w-0 overflow-hidden"
+              className="flex items-center flex-1 pl-1 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
               <div className="flex items-left flex-1 min-w-0 overflow-hidden">
@@ -590,7 +590,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Team Dropdown arrow */}
-              <div className="-ml-0.5">
+              <div className="-ml-0.5 mr-0.5">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -612,7 +612,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                 }
                 setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
               }}
-              className="flex items-left flex-1 cursor-pointer min-w-0 overflow-hidden"
+              className="flex items-left flex-1  pl-1 cursor-pointer min-w-0 overflow-hidden"
             >
               {/* Player Name - Fixed container */}
               <div className="flex items-left flex-1 min-w-0 overflow-hidden">
@@ -628,7 +628,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
               </div>
               
               {/* Player Dropdown arrow */}
-              <div className="-ml-0.5 flex-shrink-0">
+              <div className="-ml-0.5  flex-shrink-0">
                 <ChevronDown
                   className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
                 />
