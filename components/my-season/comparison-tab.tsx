@@ -833,7 +833,7 @@ const ComparisonTab = ({
                       <CardContent className="p-0">
                         {/* Player Info Header - using team logo from player data */}
                         <div 
-                          className="relative p-2 md:p-3 border-b border-gray-200 border-2 border-black rounded-t-xl"
+                          className="relative p-2 md:p-3 border-b border-gray-200 rounded-t-lg"
                           style={getTeamColorStyles(playerData.player_team_code)}
                         >
                           <div className="flex flex-col items-left justify-left text-left">
