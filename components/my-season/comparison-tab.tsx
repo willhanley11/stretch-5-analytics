@@ -328,7 +328,7 @@ const ComparisonTab = ({
     const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
     
     return (
-      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3 -ml-1">
+      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3">
         <div className="w-full text-left">
           <div
             className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
@@ -504,7 +504,7 @@ const ComparisonTab = ({
     const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
     
     return (
-      <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container -mt-3">
+      <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container -mt-3 mr-1">
         <div className="w-full text-left">
           <div
             className="rounded-r-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-l-0"
@@ -893,9 +893,9 @@ const ComparisonTab = ({
 
                             {/* Performance scale legend */}
                             <div className="flex justify-between items-center text-[7px] font-medium px-8 pb-0.5">
-                              <span className="text-red-700">POOR</span>
-                              <span className="text-gray-400">AVERAGE</span>
-                              <span className="text-teal-700">GREAT</span>
+                              <span className="text-red-700">-</span>
+                              <span className="text-gray-400">AVG</span>
+                              <span className="text-teal-700">+</span>
                             </div>
 
                             {/* Main Stats */}
