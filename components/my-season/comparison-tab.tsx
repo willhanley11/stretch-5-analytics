@@ -328,7 +328,7 @@ const ComparisonTab = ({
     const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
     
     return (
-      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3">
+      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3 -ml-1">
         <div className="w-full text-left">
           <div
             className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
