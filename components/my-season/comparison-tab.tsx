@@ -502,7 +502,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
                 }`}
               >
-                <span className={`font-medium text-xs truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
                   {player.player_name}
                 </span>
               </button>
@@ -702,7 +702,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
                 }`}
               >
-                <span className={`font-medium text-xs truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
                   {player.player_name}
                 </span>
               </button>
