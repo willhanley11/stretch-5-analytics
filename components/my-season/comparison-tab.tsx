@@ -892,10 +892,10 @@ const ComparisonTab = ({
                             </div>
 
                             {/* Performance scale legend */}
-                            <div className="flex justify-between items-center text-[7px] font-medium px-8 pb-0.5">
-                              <span className="text-red-700">-</span>
+                            <div className="flex justify-between items-center text-[5px] font-medium px-8 pb-0.5">
+                              <span className="text-red-700">POOR</span>
                               <span className="text-gray-400">AVG</span>
-                              <span className="text-teal-700">+</span>
+                              <span className="text-teal-700">GREAT</span>
                             </div>
 
                             {/* Main Stats */}
