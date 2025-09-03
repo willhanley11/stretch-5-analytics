@@ -341,7 +341,19 @@ const ComparisonTab = ({
             <div className="flex flex-row items-center p-2">
               {/* Team Logo Section - Clickable */}
               <button 
-                onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+                onClick={() => {
+                  // Close all other dropdowns
+                  if (playerIndex === 0) {
+                    setIsPlayer2TeamDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                  } else {
+                    setIsPlayer1TeamDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                  }
+                  setIsTeamDropdownOpen(!isTeamDropdownOpen)
+                }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
               >
                 {/* Team Logo */}
@@ -387,11 +399,23 @@ const ComparisonTab = ({
               
               {/* Player Name Section - Clickable */}
               <button 
-                onClick={() => setIsPlayerDropdownOpen(!isPlayerDropdownOpen)}
-                className="flex items-center flex-grow pl-2 cursor-pointer min-w-0"
+                onClick={() => {
+                  // Close all other dropdowns
+                  if (playerIndex === 0) {
+                    setIsPlayer2TeamDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                    setIsPlayer1TeamDropdownOpen(false)
+                  } else {
+                    setIsPlayer1TeamDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                    setIsPlayer2TeamDropdownOpen(false)
+                  }
+                  setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+                }}
+                className="flex items-center flex-1 pl-2 cursor-pointer min-w-0"
               >
                 {/* Player Name */}
-                <div className="flex items-center whitespace-nowrap flex-grow min-w-0">
+                <div className="flex items-center flex-1 min-w-0">
                   <span
                     className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
                     style={{
@@ -517,7 +541,19 @@ const ComparisonTab = ({
             <div className="flex flex-row items-center p-2">
               {/* Team Logo Section - Clickable */}
               <button 
-                onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+                onClick={() => {
+                  // Close all other dropdowns
+                  if (playerIndex === 0) {
+                    setIsPlayer2TeamDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                  } else {
+                    setIsPlayer1TeamDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                  }
+                  setIsTeamDropdownOpen(!isTeamDropdownOpen)
+                }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
               >
                 {/* Team Logo */}
@@ -563,11 +599,23 @@ const ComparisonTab = ({
               
               {/* Player Name Section - Clickable */}
               <button 
-                onClick={() => setIsPlayerDropdownOpen(!isPlayerDropdownOpen)}
-                className="flex items-center flex-grow pl-2 cursor-pointer min-w-0"
+                onClick={() => {
+                  // Close all other dropdowns
+                  if (playerIndex === 0) {
+                    setIsPlayer2TeamDropdownOpen(false)
+                    setIsPlayer2PlayerDropdownOpen(false)
+                    setIsPlayer1TeamDropdownOpen(false)
+                  } else {
+                    setIsPlayer1TeamDropdownOpen(false)
+                    setIsPlayer1PlayerDropdownOpen(false)
+                    setIsPlayer2TeamDropdownOpen(false)
+                  }
+                  setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+                }}
+                className="flex items-center flex-1 pl-2 cursor-pointer min-w-0"
               >
                 {/* Player Name */}
-                <div className="flex items-center whitespace-nowrap flex-grow min-w-0">
+                <div className="flex items-center flex-1 min-w-0">
                   <span
                     className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
                     style={{
@@ -719,10 +767,10 @@ const ComparisonTab = ({
               <h3 className="text-md font-semibold whitespace-nowrap">Player Comparison</h3>
             </div>
             {/* Display Mode Toggle - Updated to match league standings tab */}
-            <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
+            <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
               <button
                 onClick={() => setComparisonMode("average")}
-                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[8px] md:text-xs font-medium whitespace-nowrap ${
+                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[9px] md:text-xs font-medium whitespace-nowrap ${
                   comparisonMode === "average" ? "bg-[#475569] text-white" : "text-[#475569]"
                 }`}
               >
@@ -730,7 +778,7 @@ const ComparisonTab = ({
               </button>
               <button
                 onClick={() => setComparisonMode("per40")}
-                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[8px] md:text-xs font-medium whitespace-nowrap ${
+                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[9px] md:text-xs font-medium whitespace-nowrap ${
                   comparisonMode === "per40" ? "bg-[#475569] text-white" : "text-[#475569]"
                 }`}
               >
@@ -830,7 +878,7 @@ const ComparisonTab = ({
                   {/* Player Card */}
                   {playerData ? (
                     <Card className="overflow-hidden border-0 shadow-xl rounded-xl flex-1 bg-light-beige">
-                      <CardContent className="p-0">
+                      <CardContent className="p-1">
                         {/* Player Info Header - using team logo from player data */}
                         <div 
                           className="relative p-2 md:p-3 border-b border-gray-200 rounded-t-lg"
