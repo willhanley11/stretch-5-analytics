@@ -558,7 +558,7 @@ const ComparisonTab = ({
                   <div className="hidden md:block bg-white border border-gray-300 rounded-lg shadow-sm p-1.5">
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center space-x-1">
-                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-800">
+                        <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-800">
                           {slotIndex + 1}
                         </div>
                         <span className="text-[10px] font-semibold text-gray-700">Player Selection</span>
@@ -573,7 +573,7 @@ const ComparisonTab = ({
                             setSelectedTeams(newSelectedTeams)
                             setSelectedPlayerIds(newSelectedPlayerIds)
                           }}
-                          className="w-4 h-4 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 hover:text-red-700 transition-colors"
+                          className="w-4 h-4 rounded-md bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 hover:text-red-700 transition-colors"
                           title="Clear selection"
                         >
                           <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
