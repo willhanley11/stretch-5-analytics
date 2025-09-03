@@ -717,7 +717,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
   return (
     <div className="space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile */}
-      <div className="md:hidden flex gap-1">
+      <div className="md:hidden flex gap-0">
         <div className="flex-1 w-[35px]">
           <PlayerSelectorLeft playerIndex={0} />
         </div>
