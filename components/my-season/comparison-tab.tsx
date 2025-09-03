@@ -318,7 +318,7 @@ const ComparisonTab = ({
     const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
     
     return (
-      <div className="bg-black shadow-md rounded-xl relative team-dropdown-container ">
+      <div className="bg-black shadow-md rounded-xl relative team-dropdown-container -mt-3 ">
         <div className="w-full text-left">
           <div
             className="rounded-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow"
@@ -382,7 +382,7 @@ const ComparisonTab = ({
                 {/* Player Name */}
                 <div className="flex items-center whitespace-nowrap flex-grow min-w-0">
                   <span
-                    className="text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
                     style={{
                       color: "white",
                       textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
@@ -634,22 +634,12 @@ const ComparisonTab = ({
                         {/* Player Info Header - using team logo from player data */}
                         <div className="relative p-2 md:p-3 border-b border-gray-200 bg-light-beige">
                           <div className="flex flex-col items-left justify-left text-left">
-                            {/* Team Logo, Player Name, and Team Name - offense tab format */}
-                            <div className="flex items-left justify-left gap-2">
-                              {/* Team Logo */}
-                              <div className="flex-shrink-0">
-                                <div className="w-8 h-8 md:w-12 md:h-12 rounded-md overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
-                                  {getTeamLogo(playerData.player_team_code, playerData.teamlogo)}
-                                </div>
-                              </div>
-                              
-                              {/* Player Name and Team Name stacked */}
-                              <div className="flex flex-col items-start">
-                                <h3 className="text-gray-900 font-bold text-xs md:text-lg whitespace-nowrap">
-                                  {playerData.player_name}
-                                </h3>
-                                <div className="text-gray-600 text-[8px] md:text-sm">{playerData.player_team_name}</div>
-                              </div>
+                            {/* Player Name and Team Name - centered */}
+                            <div className="flex flex-col items-center justify-center">
+                              <h3 className="text-gray-900 font-bold text-xs md:text-lg whitespace-nowrap text-center">
+                                {playerData.player_name}
+                              </h3>
+                              <div className="text-gray-600 text-[8px] md:text-sm whitespace-nowrap text-center">{playerData.player_team_name}</div>
                             </div>
                           </div>
                         </div>
