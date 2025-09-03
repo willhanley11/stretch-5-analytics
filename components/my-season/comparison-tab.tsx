@@ -470,12 +470,12 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                       className="w-5 h-5 object-contain"
                     />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[9px]">
                       {team.name.split(" ").map(word => word[0]).join("") || "?"}
                     </div>
                   )}
                 </div>
-                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
                   {team.name}
                 </span>
               </button>
@@ -670,12 +670,12 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                       className="w-5 h-5 object-contain"
                     />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[9px]">
                       {team.name.split(" ").map(word => word[0]).join("") || "?"}
                     </div>
                   )}
                 </div>
-                <span className={`font-medium text-sm truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
                   {team.name}
                 </span>
               </button>
