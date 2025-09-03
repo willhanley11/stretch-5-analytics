@@ -328,7 +328,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
   const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
   
   return (
-    <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3 w-full">
+    <div className="bg-black shadow-md rounded-l-xl border-r border-black relative team-dropdown-container -mt-3 w-full">
       <div className="w-full text-left">
         <div
           className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
@@ -714,6 +714,19 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
   )
 }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="mb-6">
+            <h2 className="text-md font-semibold text-gray-800 mb-2">Player Comparison</h2>
+          </div>
+          <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile */}
@@ -727,13 +740,13 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
       </div>
 
       {/* Player Selection Grid with Header */}
-      {!isLoading && (
+      {(
         <div className="rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)] bg-light-beige">
           {/* Team color header strip */}
           <div
             className="w-full h-2 border-b border-black rounded-t-md -mb-1"
             style={{
-              backgroundColor: "#2b5c94", // gray-400
+              backgroundColor: "#9ca3af", // gray-400
             }}
           />
           <div className="p-4 md:p-4 pb-6">
