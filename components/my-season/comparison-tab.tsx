@@ -215,7 +215,7 @@ const ComparisonTab = ({
     statKey: keyof PlayerStatsFromGameLogs,
     higherIsBetter = true,
   ) => {
-    if (!allPlayers.length || !player) return { percentile: 50, rank: 0, total: 0 }
+    if (!allPlayers.length || !player) return { percentile: 50, rank: 0, total: 0, value: 0 }
 
     // Filter out players with 0 or invalid values for percentage stats
     const validPlayers = allPlayers.filter((p) => {
@@ -255,6 +255,7 @@ const ComparisonTab = ({
       percentile,
       rank: playerRank,
       total: sortedPlayers.length,
+      value: selectedPlayerValue, // Include the actual stat value
     }
   }
 
@@ -270,6 +271,7 @@ const ComparisonTab = ({
         const rankData = getPlayerRank(playerData, statKey)
         return {
           playerId,
+          value: rankData.value,
           percentile: rankData.percentile,
         }
       })
@@ -277,8 +279,16 @@ const ComparisonTab = ({
 
     if (selectedPlayersData.length < 2) return null
 
-    const bestPercentile = Math.max(...selectedPlayersData.map((p) => p.percentile))
-    const bestPerformers = selectedPlayersData.filter((p) => p.percentile === bestPercentile)
+    // Determine if higher values are better for this stat
+    const lowerIsBetterStats = ["turnovers", "fouls_commited", "blocks_against"]
+    const higherIsBetter = !lowerIsBetterStats.includes(statKey)
+
+    // Get the best value (not percentile)
+    const bestValue = higherIsBetter 
+      ? Math.max(...selectedPlayersData.map((p) => p.value))
+      : Math.min(...selectedPlayersData.map((p) => p.value))
+    
+    const bestPerformers = selectedPlayersData.filter((p) => p.value === bestValue)
 
     return bestPerformers.map((p) => p.playerId)
   }
@@ -304,8 +314,8 @@ const ComparisonTab = ({
     return { backgroundColor: teamColors[teamCode] || "#6b7280" }
   }
   
-  // Mobile Player Selector Components - Like offense tab with separate team/player selection
-  const PlayerSelector = ({ playerIndex }: { playerIndex: number }) => {
+  // Mobile Player Selector Components - Left side (rounded left only)
+  const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
     const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
     const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
     const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
@@ -318,16 +328,193 @@ const ComparisonTab = ({
     const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
     
     return (
-      <div className="bg-black shadow-md rounded-xl relative team-dropdown-container -mt-3 ">
+      <div className="bg-black shadow-md rounded-l-xl relative team-dropdown-container -mt-3">
         <div className="w-full text-left">
           <div
-            className="rounded-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow"
+            className="rounded-l-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-r-0"
             style={{
               border: '1px solid black',
+              borderRight: 'none',
               backgroundColor: selectedTeamColor,
             }}
           >
-            <div className="flex flex-row items-center p-1.5">
+            <div className="flex flex-row items-center p-2">
+              {/* Team Logo Section - Clickable */}
+              <button 
+                onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
+              >
+                {/* Team Logo */}
+                <div className="flex-shrink-0 mr-1">
+                  {selectedPlayer?.teamlogo ? (
+                    <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
+                      <div
+                        className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
+                        style={{
+                          border: "1px solid black",
+                          backgroundColor: "white",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={selectedPlayer.teamlogo}
+                          alt={`${selectedPlayer.player_team_name} logo`}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
+                      style={{
+                        backgroundColor: "white",
+                        color: selectedTeamColor,
+                        border: '1px solid black',
+                      }}
+                    >
+                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Team Dropdown arrow */}
+                <div className="ml-0.5">
+                  <ChevronDown
+                    className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </button>
+              
+              {/* Player Name Section - Clickable */}
+              <button 
+                onClick={() => setIsPlayerDropdownOpen(!isPlayerDropdownOpen)}
+                className="flex items-center flex-grow pl-2 cursor-pointer min-w-0"
+              >
+                {/* Player Name */}
+                <div className="flex items-center whitespace-nowrap flex-grow min-w-0">
+                  <span
+                    className="text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{
+                      color: "white",
+                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                    }}
+                  >
+                    {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
+                  </span>
+                </div>
+                
+                {/* Player Dropdown arrow */}
+                <div className="ml-0.5 flex-shrink-0">
+                  <ChevronDown
+                    className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Team dropdown menu */}
+        {isTeamDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+            {teamsList.map((team) => {
+              const isSelected = team.id === selectedTeamId
+              
+              return (
+                <button
+                  key={team.id}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleTeamSelect(playerIndex, team.id)
+                    // Auto-select first player from selected team
+                    const firstPlayer = playersByTeam[team.id]?.[0]
+                    if (firstPlayer) {
+                      handlePlayerSelect(playerIndex, firstPlayer.player_id)
+                    }
+                    setIsTeamDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                  }`}
+                >
+                  <div className="w-5 h-5 mr-2">
+                    {/* Show team logo if available from playersByTeam */}
+                    {playersByTeam[team.id]?.[0]?.teamlogo ? (
+                      <img
+                        src={playersByTeam[team.id][0].teamlogo}
+                        alt={`${team.name} logo`}
+                        className="w-5 h-5 object-contain"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                        {team.name.split(" ").map(word => word[0]).join("") || "?"}
+                      </div>
+                    )}
+                  </div>
+                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                    {team.name}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+        
+        {/* Player dropdown menu */}
+        {isPlayerDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+            {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
+              const isSelected = player.player_id === selectedPlayerId
+              
+              return (
+                <button
+                  key={player.player_id}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePlayerSelect(playerIndex, player.player_id)
+                    setIsPlayerDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                  }`}
+                >
+                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                    {player.player_name}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+  
+  // Mobile Player Selector Components - Right side (rounded right only)
+  const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
+    const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
+    const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
+    const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
+    const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
+    
+    const selectedTeamId = selectedTeams[playerIndex]
+    const selectedPlayerId = selectedPlayerIds[playerIndex]
+    const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
+    const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
+    const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
+    
+    return (
+      <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container -mt-3">
+        <div className="w-full text-left">
+          <div
+            className="rounded-r-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow border-l-0"
+            style={{
+              border: '1px solid black',
+              borderLeft: 'none',
+              backgroundColor: selectedTeamColor,
+            }}
+          >
+            <div className="flex flex-row items-center p-2">
               {/* Team Logo Section - Clickable */}
               <button 
                 onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
@@ -479,20 +666,33 @@ const ComparisonTab = ({
     )
   }
 
+  // Show loading screen until all content is loaded
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="mb-6">
+            <h2 className="text-md font-semibold text-gray-800 mb-2">Player Comparison</h2>
+          </div>
+          <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile */}
-      <div className="md:hidden grid grid-cols-2 gap-1">
-        <PlayerSelector playerIndex={0} />
-        <PlayerSelector playerIndex={1} />
-      </div>
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
-          <span className="ml-2 text-sm text-gray-600">Loading player data...</span>
+      <div className="md:hidden flex">
+        <div className="flex-1">
+          <PlayerSelectorLeft playerIndex={0} />
         </div>
-      )}
+        {/* Divider line */}
+        <div className="w-0.5 bg-black -mt-3 z-10"></div>
+        <div className="flex-1">
+          <PlayerSelectorRight playerIndex={1} />
+        </div>
+      </div>
 
       {/* Player Selection Grid with Header */}
       {!isLoading && (
@@ -501,10 +701,10 @@ const ComparisonTab = ({
           <div
             className="w-full h-2 border-b border-black rounded-t-md -mb-1"
             style={{
-              backgroundColor: "#9ca3af", // gray-400
+              backgroundColor: "#2b5c94", // gray-400
             }}
           />
-          <div className="p-4 md:p-4">
+          <div className="p-4 md:p-4 pb-6">
           {/* Header - matching standings tab format */}
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
@@ -632,21 +832,26 @@ const ComparisonTab = ({
                     <Card className="overflow-hidden border-0 shadow-xl rounded-xl flex-1 bg-light-beige">
                       <CardContent className="p-0">
                         {/* Player Info Header - using team logo from player data */}
-                        <div className="relative p-2 md:p-3 border-b border-gray-200 bg-light-beige">
+                        <div 
+                          className="relative p-2 md:p-3 border-b border-gray-200 border-2 border-black rounded-t-xl"
+                          style={getTeamColorStyles(playerData.player_team_code)}
+                        >
                           <div className="flex flex-col items-left justify-left text-left">
                             {/* Player Name and Team Name - centered */}
                             <div className="flex flex-col items-center justify-center">
-                              <h3 className="text-gray-900 font-bold text-xs md:text-lg whitespace-nowrap text-center">
+                              <h3 className="text-white font-bold text-xs md:text-lg whitespace-nowrap text-center">
                                 {playerData.player_name}
                               </h3>
-                              <div className="text-gray-600 text-[8px] md:text-sm whitespace-nowrap text-center">{playerData.player_team_name}</div>
+                              <div className="text-white text-[8px] md:text-sm whitespace-nowrap text-center">
+                                {playerData.player_team_name}
+                              </div>
                             </div>
                           </div>
                         </div>
 
                         {/* Compact Season Stats Row */}
-                        <div className="px-2 py-1 border-b border-gray-100 bg-light-beige">
-                          <div className="grid grid-cols-4 gap-1">
+                        <div className="px-3 py-1 border-b border-gray-100 bg-light-beige">
+                          <div className="grid grid-cols-3 gap-1">
                             <div className="bg-gray-50 border border-gray-200 rounded-md py-0.5 text-center">
                               <div className="text-[7px] font-semibold text-gray-500 uppercase tracking-wide">MIN</div>
                               <div className="text-[10px] font-bold text-gray-900">
@@ -661,19 +866,14 @@ const ComparisonTab = ({
                               <div className="text-[7px] font-semibold text-gray-500 uppercase tracking-wide">GS</div>
                               <div className="text-[10px] font-bold text-gray-900">{playerData.games_started}</div>
                             </div>
-                            <div className="bg-gray-50 border border-gray-200 rounded-md py-0.5 text-center">
-                              <div className="text-[7px] font-semibold text-gray-500 uppercase tracking-wide">PIR</div>
-                              <div className="text-[10px] font-bold text-gray-900">
-                                {Number(playerData.pir).toFixed(1)}
-                              </div>
-                            </div>
+                            
                           </div>
                         </div>
 
                         {/* Percentile Rankings Section */}
-                        <div className="px-2 pt-3 pb-3 overflow-auto bg-light-beige">
+                        <div className="px-3 pt-2 pb-3 overflow-auto bg-light-beige">
                           {/* Traditional Stats Section */}
-                          <div className="mb-4">
+                          <div className="mb-5">
                             <div className="relative mb-2">
                               <div className="flex items-center gap-1 mb-1">
                                 <div className="w-3 h-3 flex items-center justify-center">
@@ -772,11 +972,11 @@ const ComparisonTab = ({
                               return (
                                 <div
                                   key={stat.key}
-                                  className={`flex items-center mb-1 relative transition-all duration-200 ${
+                                  className={`flex items-center mb-1.5 relative transition-all duration-200 ${
                                     isWinner
-                                      ? "bg-yellow-200 rounded-sm px-1 -mx-1"
+                                      ? "bg-yellow-200 rounded-sm px-1.5 -mx-1 border-l border-black border-r border-black"
                                       : isLoser
-                                        ? "opacity-40 grayscale"
+                                        ? "opacity-80 grayscale"
                                         : ""
                                   }`}
                                 >
@@ -826,7 +1026,7 @@ const ComparisonTab = ({
                           </div>
 
                           {/* Shooting Section */}
-                          <div className="mb-4">
+                          <div className="mb-5">
                             <div className="relative mb-2">
                               <div className="flex items-center gap-1 mb-1">
                                 <Target className="h-3 w-3 text-green-600" />
@@ -864,11 +1064,11 @@ const ComparisonTab = ({
                               return (
                                 <div
                                   key={stat.key}
-                                  className={`flex items-center mb-1 relative transition-all duration-200 ${
+                                  className={`flex items-center mb-1.5 relative transition-all duration-200 ${
                                     isWinner
-                                      ? "bg-yellow-200 rounded-sm px-1 -mx-1"
+                                      ? "bg-yellow-200 rounded-sm px-1.5 -mx-1 border-l border-black border-r border-black"
                                       : isLoser
-                                        ? "opacity-40 grayscale"
+                                        ? "opacity-80 grayscale"
                                         : ""
                                   }`}
                                 >
@@ -923,7 +1123,7 @@ const ComparisonTab = ({
                               <div className="flex items-center gap-1 mb-1">
                                 <BarChart3 className="h-3 w-3 text-blue-600" />
                                 <span className="text-[10px] font-semibold text-gray-800 uppercase tracking-wide">
-                                  Other
+                                  MISC
                                 </span>
                               </div>
                               <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
@@ -945,6 +1145,15 @@ const ComparisonTab = ({
                                   comparisonMode === "per40"
                                     ? (Number(playerData.defensive_rebounds) * 40) / Number(playerData.minutes_played)
                                     : Number(playerData.defensive_rebounds),
+                                isPercentage: false,
+                              },
+                              {
+                                key: "assists" as keyof PlayerStatsFromGameLogs,
+                                label: "AST",
+                                value:
+                                  comparisonMode === "per40"
+                                    ? (Number(playerData.assists) * 40) / Number(playerData.minutes_played)
+                                    : Number(playerData.assists),
                                 isPercentage: false,
                               },
                               {
@@ -978,11 +1187,11 @@ const ComparisonTab = ({
                               return (
                                 <div
                                   key={stat.key}
-                                  className={`flex items-center mb-1 relative transition-all duration-200 ${
+                                  className={`flex items-center mb-1.5 relative transition-all duration-200 ${
                                     isWinner
-                                      ? "bg-yellow-200 rounded-sm px-1 -mx-1"
+                                      ? "bg-yellow-200 rounded-sm px-1.5 -mx-1 border-l border-black border-r border-black"
                                       : isLoser
-                                        ? "opacity-40 grayscale"
+                                        ? "opacity-80 grayscale"
                                         : ""
                                   }`}
                                 >

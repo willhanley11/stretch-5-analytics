@@ -704,7 +704,7 @@ export function LeagueStandingsTab({
             className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
             style={{
               border: '1px solid black',
-              backgroundColor: '#9ca3af', // light gray
+              backgroundColor: '#2b5c94', // light gray
             }}
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center p-1.5 gap-1.5 sm:gap-0">
@@ -807,7 +807,7 @@ export function LeagueStandingsTab({
           <div
             className="w-full h-2 border-b border-black rounded-t-md -mb-1"
             style={{
-              backgroundColor: "#9ca3af", // gray-400
+              backgroundColor: "#2b5c94", // gray-400
             }}
           />
           <div className="p-4">
