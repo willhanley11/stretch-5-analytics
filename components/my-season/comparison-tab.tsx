@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, BarChart3, Target } from "lucide-react"
+import { Users, BarChart3, Target, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
@@ -113,6 +113,12 @@ const ComparisonTab = ({
   const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [comparisonMode, setComparisonMode] = useState<"average" | "per40">("average")
+  
+  // Dropdown states for mobile
+  const [isPlayer1TeamDropdownOpen, setIsPlayer1TeamDropdownOpen] = useState(false)
+  const [isPlayer1PlayerDropdownOpen, setIsPlayer1PlayerDropdownOpen] = useState(false)
+  const [isPlayer2TeamDropdownOpen, setIsPlayer2TeamDropdownOpen] = useState(false)
+  const [isPlayer2PlayerDropdownOpen, setIsPlayer2PlayerDropdownOpen] = useState(false)
 
   // State for team and player selection - only 2 players
   const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>([null, null])
@@ -282,8 +288,204 @@ const ComparisonTab = ({
     return value.toFixed(2)
   }
 
+  // Team colors mapping (simplified version from offense tab)
+  const teamColors = {
+    BER: "#d6c042", IST: "#2a619c", MCO: "#b03340", BAS: "#2c5f94", RED: "#c24b5a",
+    MIL: "#d44c60", BAR: "#2b5c94", MUN: "#9e3b4d", ULK: "#d4b041", ASV: "#8a8d90",
+    TEL: "#d4a355", OLY: "#bf5050", PAN: "#2a7046", PRS: "#4e565f", PAR: "#3a3834",
+    MAD: "#999999", VIR: "#2f2f2f", ZAL: "#2a7a51", PAM: "#d47800",
+    "7BET": "#893247", ARI: "#d6b52c", BAH: "#213243", BES: "#363636", BUD: "#2a72b5",
+    CED: "#d39800", BOU: "#c24033", TRE: "#4e6571", CAN: "#d3a127", HAP: "#b02727",
+    HTA: "#d0392e", JOV: "#409944", ULM: "#c24400", TREF: "#d3a127", TTK: "#42b4c5",
+    UBT: "#858585", UMV: "#6c0924", HAM: "#213243", WOL: "#5ac591"
+  }
+  
+  const getTeamColorStyles = (teamCode: string) => {
+    return { backgroundColor: teamColors[teamCode] || "#6b7280" }
+  }
+  
+  // Mobile Player Selector Components - Like offense tab with separate team/player selection
+  const PlayerSelector = ({ playerIndex }: { playerIndex: number }) => {
+    const isTeamDropdownOpen = playerIndex === 0 ? isPlayer1TeamDropdownOpen : isPlayer2TeamDropdownOpen
+    const setIsTeamDropdownOpen = playerIndex === 0 ? setIsPlayer1TeamDropdownOpen : setIsPlayer2TeamDropdownOpen
+    const isPlayerDropdownOpen = playerIndex === 0 ? isPlayer1PlayerDropdownOpen : isPlayer2PlayerDropdownOpen
+    const setIsPlayerDropdownOpen = playerIndex === 0 ? setIsPlayer1PlayerDropdownOpen : setIsPlayer2PlayerDropdownOpen
+    
+    const selectedTeamId = selectedTeams[playerIndex]
+    const selectedPlayerId = selectedPlayerIds[playerIndex]
+    const selectedTeam = selectedTeamId ? teamsList.find(t => t.id === selectedTeamId) : null
+    const selectedPlayer = selectedTeamId && selectedPlayerId ? playersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
+    const selectedTeamColor = selectedPlayer ? getTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
+    
+    return (
+      <div className="bg-black shadow-md rounded-xl relative team-dropdown-container ">
+        <div className="w-full text-left">
+          <div
+            className="rounded-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow"
+            style={{
+              border: '1px solid black',
+              backgroundColor: selectedTeamColor,
+            }}
+          >
+            <div className="flex flex-row items-center p-1.5">
+              {/* Team Logo Section - Clickable */}
+              <button 
+                onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
+              >
+                {/* Team Logo */}
+                <div className="flex-shrink-0 mr-1">
+                  {selectedPlayer?.teamlogo ? (
+                    <div className="w-6 h-6 flex items-center justify-center rounded-lg shadow-sm">
+                      <div
+                        className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
+                        style={{
+                          border: "1px solid black",
+                          backgroundColor: "white",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <img
+                          src={selectedPlayer.teamlogo}
+                          alt={`${selectedPlayer.player_team_name} logo`}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
+                      style={{
+                        backgroundColor: "white",
+                        color: selectedTeamColor,
+                        border: '1px solid black',
+                      }}
+                    >
+                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Team Dropdown arrow */}
+                <div className="ml-0.5">
+                  <ChevronDown
+                    className={`h-3 w-3 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </button>
+              
+              {/* Player Name Section - Clickable */}
+              <button 
+                onClick={() => setIsPlayerDropdownOpen(!isPlayerDropdownOpen)}
+                className="flex items-center flex-grow pl-2 cursor-pointer min-w-0"
+              >
+                {/* Player Name */}
+                <div className="flex items-center whitespace-nowrap flex-grow min-w-0">
+                  <span
+                    className="text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis"
+                    style={{
+                      color: "white",
+                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                    }}
+                  >
+                    {selectedPlayer?.player_name || `Select Player ${playerIndex + 1}`}
+                  </span>
+                </div>
+                
+                {/* Player Dropdown arrow */}
+                <div className="ml-0.5 flex-shrink-0">
+                  <ChevronDown
+                    className={`h-3 w-3 text-white transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Team dropdown menu */}
+        {isTeamDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+            {teamsList.map((team) => {
+              const isSelected = team.id === selectedTeamId
+              
+              return (
+                <button
+                  key={team.id}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleTeamSelect(playerIndex, team.id)
+                    // Auto-select first player from selected team
+                    const firstPlayer = playersByTeam[team.id]?.[0]
+                    if (firstPlayer) {
+                      handlePlayerSelect(playerIndex, firstPlayer.player_id)
+                    }
+                    setIsTeamDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                  }`}
+                >
+                  <div className="w-5 h-5 mr-2">
+                    {/* Show team logo if available from playersByTeam */}
+                    {playersByTeam[team.id]?.[0]?.teamlogo ? (
+                      <img
+                        src={playersByTeam[team.id][0].teamlogo}
+                        alt={`${team.name} logo`}
+                        className="w-5 h-5 object-contain"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs">
+                        {team.name.split(" ").map(word => word[0]).join("") || "?"}
+                      </div>
+                    )}
+                  </div>
+                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                    {team.name}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+        
+        {/* Player dropdown menu */}
+        {isPlayerDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+            {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
+              const isSelected = player.player_id === selectedPlayerId
+              
+              return (
+                <button
+                  key={player.player_id}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePlayerSelect(playerIndex, player.player_id)
+                    setIsPlayerDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                  }`}
+                >
+                  <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                    {player.player_name}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
+      {/* Mobile Player Selectors - Only visible on mobile */}
+      <div className="md:hidden grid grid-cols-2 gap-1">
+        <PlayerSelector playerIndex={0} />
+        <PlayerSelector playerIndex={1} />
+      </div>
       {/* Loading state */}
       {isLoading && (
         <div className="flex justify-center items-center py-12">
@@ -302,9 +504,9 @@ const ComparisonTab = ({
               backgroundColor: "#9ca3af", // gray-400
             }}
           />
-          <div className="p-4">
+          <div className="p-4 md:p-4">
           {/* Header - matching standings tab format */}
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 md:w-8 md:h-8 relative">
                 <Image
@@ -314,13 +516,13 @@ const ComparisonTab = ({
                   className="object-contain"
                 />
               </div>
-              <h3 className="text-md font-semibold">Player Comparison</h3>
+              <h3 className="text-md font-semibold whitespace-nowrap">Player Comparison</h3>
             </div>
             {/* Display Mode Toggle - Updated to match league standings tab */}
             <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
               <button
                 onClick={() => setComparisonMode("average")}
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[8px] md:text-xs font-medium whitespace-nowrap ${
                   comparisonMode === "average" ? "bg-[#475569] text-white" : "text-[#475569]"
                 }`}
               >
@@ -328,7 +530,7 @@ const ComparisonTab = ({
               </button>
               <button
                 onClick={() => setComparisonMode("per40")}
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                className={`rounded-full px-1 md:px-3 py-0.5 md:py-1 text-[8px] md:text-xs font-medium whitespace-nowrap ${
                   comparisonMode === "per40" ? "bg-[#475569] text-white" : "text-[#475569]"
                 }`}
               >
@@ -337,8 +539,8 @@ const ComparisonTab = ({
             </div>
           </div>
 
-          {/* Player Selection Grid - only 2 players */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Player Cards - only 2 players */}
+          <div className="grid grid-cols-2 gap-2 md:gap-2 -mr-2 -ml-2">
             {/* Only 2 players */}
             {[0, 1].map((slotIndex) => {
               const selectedTeamId = selectedTeams[slotIndex]
@@ -352,8 +554,8 @@ const ComparisonTab = ({
 
               return (
                 <div key={slotIndex} className="flex flex-col space-y-2">
-                  {/* Compact Team & Player Selection */}
-                  <div className="bg-white border border-gray-300 rounded-lg shadow-sm p-1.5">
+                  {/* Desktop Player Selection - hidden on mobile */}
+                  <div className="hidden md:block bg-white border border-gray-300 rounded-lg shadow-sm p-1.5">
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center space-x-1">
                         <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-800">
@@ -425,28 +627,29 @@ const ComparisonTab = ({
                     </div>
                   </div>
 
-                  {/* Player Card - fixed team logo function calls */}
+                  {/* Player Card */}
                   {playerData ? (
                     <Card className="overflow-hidden border-0 shadow-xl rounded-xl flex-1 bg-light-beige">
                       <CardContent className="p-0">
                         {/* Player Info Header - using team logo from player data */}
                         <div className="relative p-2 md:p-3 border-b border-gray-200 bg-light-beige">
-                          <div className="flex flex-col items-center justify-center text-center">
-                            {/* Player Name */}
-                            <div className="w-full mb-2">
-                              <h3 className="text-gray-900 font-bold text-xs md:text-lg text-center">
-                                {playerData.player_name}
-                              </h3>
-                            </div>
-
-                            {/* Team Logo and Team Name - centered as a pairing */}
-                            <div className="flex items-center justify-center gap-1">
+                          <div className="flex flex-col items-left justify-left text-left">
+                            {/* Team Logo, Player Name, and Team Name - offense tab format */}
+                            <div className="flex items-left justify-left gap-2">
+                              {/* Team Logo */}
                               <div className="flex-shrink-0">
-                                <div className="w-4 h-4 md:w-6 md:h-6 rounded-md overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
+                                <div className="w-8 h-8 md:w-12 md:h-12 rounded-md overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
                                   {getTeamLogo(playerData.player_team_code, playerData.teamlogo)}
                                 </div>
                               </div>
-                              <div className="text-gray-600 text-[8px] md:text-sm">{playerData.player_team_name}</div>
+                              
+                              {/* Player Name and Team Name stacked */}
+                              <div className="flex flex-col items-start">
+                                <h3 className="text-gray-900 font-bold text-xs md:text-lg whitespace-nowrap">
+                                  {playerData.player_name}
+                                </h3>
+                                <div className="text-gray-600 text-[8px] md:text-sm">{playerData.player_team_name}</div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -689,7 +892,6 @@ const ComparisonTab = ({
                                       className={`absolute inset-y-0.5 left-0 ${getPercentileBarColor(rankData.percentile)} rounded-sm`}
                                       style={{ width: `${rankData.percentile}%` }}
                                     ></div>
-
                                     {/* Extension bar */}
                                     <div
                                       className="absolute bg-gray-300 rounded-sm"
@@ -700,7 +902,6 @@ const ComparisonTab = ({
                                         height: "25%",
                                       }}
                                     ></div>
-
                                     {/* Circle */}
                                     <div
                                       className="absolute flex items-center justify-center"
@@ -805,7 +1006,6 @@ const ComparisonTab = ({
                                       className={`absolute inset-y-0.5 left-0 ${getPercentileBarColor(rankData.percentile)} rounded-sm`}
                                       style={{ width: `${rankData.percentile}%` }}
                                     ></div>
-
                                     {/* Extension bar */}
                                     <div
                                       className="absolute bg-gray-300 rounded-sm"
@@ -816,7 +1016,6 @@ const ComparisonTab = ({
                                         height: "25%",
                                       }}
                                     ></div>
-
                                     {/* Circle */}
                                     <div
                                       className="absolute flex items-center justify-center"
