@@ -538,7 +538,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
             backgroundColor: selectedTeamColor,
           }}
         >
-          <div className="flex flex-row items-center p-2 w-full">
+          <div className="flex flex-row p-2 w-full">
             {/* Team Logo Section - Clickable - Fixed width */}
             <button 
               onClick={() => {
