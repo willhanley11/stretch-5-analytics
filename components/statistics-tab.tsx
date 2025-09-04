@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
 import type { PlayerStatsFromGameLogs } from "@/lib/db"
 import Image from "next/image"
+import { LeagueLoadingScreen } from "@/components/ui/league-spinner"
 
 interface StatisticsTabProps {
   playerSearch: string
@@ -564,12 +565,11 @@ function StatisticsTab({
 
   if (isPlayerStatsLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-          <div className="text-center mt-10">
-            <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading Player Statistics...</p>
-          </div>
-        </div>
+      <LeagueLoadingScreen 
+        league={league === "eurocup" ? "eurocup" : "euroleague"} 
+        message="Loading Player Statistics..."
+        className="mt-10"
+      />
     )
   }
 

@@ -11,6 +11,7 @@ import { PlayerShootingProfileTable } from "@/components/player-shooting-profile
 import { fetchAllPlayerStatsFromGameLogs } from "@/app/actions/player-stats"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
 import { ChevronDown } from 'lucide-react'
+import { LeagueLoadingScreen, LeagueSpinner } from "@/components/ui/league-spinner"
 
 // Team background colors (same as in StatisticsTab)
 const teamColors = {
@@ -1406,7 +1407,7 @@ const PlayerSpiderChart = ({ className }) => {
               const y = center + radius * Math.sin(angleRad - Math.PI / 2)
               return (
                 <g key={category.key}>
-                  {/* Data point circle - Safari compatible version */}
+                  {/* Data point circle */}
                   <circle
                     cx={x}
                     cy={y}
@@ -1414,10 +1415,7 @@ const PlayerSpiderChart = ({ className }) => {
                     fill={teamColor}
                     stroke="#000000"
                     strokeWidth="1.5"
-                    style={{
-                      filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1))',
-                      WebkitFilter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1))'
-                    }}
+                    filter="url(#shadow)"
                   />
                   {/* Percentile label on the data point */}
                   <text
@@ -1425,14 +1423,10 @@ const PlayerSpiderChart = ({ className }) => {
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-xs font-bold"
-                    fill="white"
-                    style={{ 
-                      textShadow: "1px 1px 1px rgba(0,0,0,0.5)",
-                      WebkitTextShadow: "1px 1px 1px rgba(0,0,0,0.5)"
-                    }}
+                    className="text-xs font-bold fill-white"
+                    style={{ textShadow: "1px 1px 1px rgba(0,0,0,0.5)" }}
                   >
-                    {Math.round(value)}
+                    {value}
                   </text>
                 </g>
               )
@@ -1498,7 +1492,7 @@ const PlayerTeamSelector = () => {
   const selectedTeamColor = selectedTeam ? getTeamColorStyles(selectedTeam.player_team_code).backgroundColor : "#6b7280"
 
   return (
-    <div className="bg-black shadow-md rounded-xl relative mt-2 -mb-3 team-dropdown-container">
+    <div className="bg-black shadow-md rounded-xl relative mt-1 -mb-3 team-dropdown-container">
       <div className="w-full text-left">
         <div
           className="rounded-xl overflow-hidden shadow-xl w-full hover:shadow-xl transition-shadow"
@@ -1666,7 +1660,7 @@ const PlayerTeamSelector = () => {
 
   const FilterPlayerHeader = () => {
     return (
-      <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige">
+      <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige sm: mt-0 md:mt-5">
         {/* Main Content Container - 75% width */}
        
         <Card className="overflow-hidden bg-green-500 flex-[3] mb-2">
@@ -1678,11 +1672,11 @@ const PlayerTeamSelector = () => {
                 }}
               />
 
-          <div className="px-2 pb-2 pt-1">
+          <div className="px-2 pb-3 pt-2">
   {/* Filter Bar - Team, Player, Phase, and Stat Mode - Hidden on mobile */}
   <div className="hidden md:block">
     <div className="flex items-center gap-1 md:gap-4 mb-1 w-full">
-      <div className="flex items-center gap-4 mb-4 w-full">
+      <div className="flex items-center gap-4 w-full py-1">
         {/* Team Selection */}
         <div className="flex-1">
           <Select
@@ -1695,18 +1689,11 @@ const PlayerTeamSelector = () => {
               setSelectedPlayer(null)
             }}
           >
-            <SelectTrigger className="w-full h-7 text-sm border-2 border-gray-300 bg-gray-100 shadow-sm rounded-md">
+            <SelectTrigger className="w-full h-7 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
               <SelectValue placeholder="Select Team">
                 {selectedTeam && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center">
                     {/* Team Logo in SelectTrigger */}
-                    {selectedTeam.player_team_code && (
-                      <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-light-beige rounded-md border border-gray-300 shadow-sm">
-                          {getTeamLogo(selectedTeam.player_team_code, selectedTeam.player_team_logo_url, "w-full h-full")}
-                        </div>
-                      </div>
-                    )}
                     <span className="text-[9px] md:text-xs font-medium">{selectedTeam.player_team_name}</span>
                   </div>
                 )}
@@ -1717,13 +1704,7 @@ const PlayerTeamSelector = () => {
                 <SelectItem key={team.player_team_code} value={team.player_team_code}>
                   <div className="flex items-center gap-2">
                     {/* Team Logo in SelectItem */}
-                    {team.player_team_code && (
-                      <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-light-beige rounded-md border border-gray-300 shadow-sm">
-                          {getTeamLogo(team.player_team_code, team.player_team_logo_url, "w-full h-full")}
-                        </div>
-                      </div>
-                    )}
+                    
                     <span className="text-[9px] md:text-xs">{team.player_team_name}</span>
                   </div>
                 </SelectItem>
@@ -1748,7 +1729,7 @@ const PlayerTeamSelector = () => {
             disabled={!selectedTeam}
           >
             <SelectTrigger
-              className={`w-full h-7 text-sm border-2 border-gray-300 bg-gray-100 shadow-sm rounded-md ${
+              className={`w-full h-7 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md ${
                 !selectedTeam ? "opacity-50" : ""
               }`}
             >
@@ -1776,21 +1757,23 @@ const PlayerTeamSelector = () => {
       </div>
 
       {/* Phase Toggle */}
-      <div className="flex items-center gap-1 bg-gray-100 border-2 border-gray-300 rounded-lg p-1">
+      <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5">
         <button
           onClick={() => setSelectedPhaseToggle("Regular Season")}
-          className={`px-2 py-1 text-xs rounded transition-colors ${
+          className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
             selectedPhaseToggle === "Regular Season"
-              ? "bg-blue-500 text-white"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-[#475569] text-white"
+              : "text-[#475569]"
           }`}
         >
           RS
         </button>
         <button
           onClick={() => setSelectedPhaseToggle("Playoffs")}
-          className={`px-2 py-1 text-xs rounded transition-colors ${
-            selectedPhaseToggle === "Playoffs" ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"
+          className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+            selectedPhaseToggle === "Playoffs"
+              ? "bg-[#475569] text-white"
+              : "text-[#475569]"
           }`}
         >
           PO
@@ -2526,7 +2509,11 @@ const PlayerTeamSelector = () => {
         <div className="rounded-lg overflow-hidden">
           {shotDataLoading ? (
             <div className="flex justify-center items-center h-[215px]">
-              <div className="text-gray-500">Loading shot chart...</div>
+              <LeagueSpinner 
+                league={league === "international-eurocup" ? "eurocup" : "euroleague"} 
+                size="md" 
+                message="Loading shot chart..."
+              />
             </div>
           ) : shotData.length > 0 ? (
             <div className="w-full h-[215px]">
@@ -2560,7 +2547,7 @@ const PlayerTeamSelector = () => {
     </div>
 
     {/* Mobile Per-40 Radar - Second */}
-    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2 overflow-hidden" style={{ minHeight: "365px" }}>
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2" style={{ minHeight: "350px" }}>
       <div
         className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
         style={{
@@ -2568,7 +2555,7 @@ const PlayerTeamSelector = () => {
         }}
       />
       
-      <PlayerSpiderChart key={`mobile-${selectedPlayer?.player_id}-${selectedPhaseToggle}`} className="absolute  top-5 left-0 right-0 bottom-0 z-0 bg-light-beige rounded-lg" />
+      <PlayerSpiderChart key={`mobile-${selectedPlayer?.player_id}-${selectedPhaseToggle}`} className="absolute  top-0 left-0 right-0 bottom-0 z-0 bg-light-beige rounded-lg" />
       
       <div className="relative z-10 p-3">
         <div className="flex justify-between items-center mb-2">
@@ -2585,7 +2572,7 @@ const PlayerTeamSelector = () => {
         
         <div className="w-full h-px bg-gray-300 mt-2"></div>
         
-        <div className="bg-light-beige -mb-8">
+        <div className="bg-light-beige">
           {/* The spider chart will render in the background of this container */}
         </div>
       </div>
@@ -2622,7 +2609,11 @@ const PlayerTeamSelector = () => {
           <div className="rounded-lg overflow-hidden">
             {shotDataLoading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="text-gray-500">Loading shot chart...</div>
+                <LeagueSpinner 
+                  league={league === "international-eurocup" ? "eurocup" : "euroleague"} 
+                  size="md" 
+                  message="Loading shot chart..."
+                />
               </div>
             ) : shotData.length > 0 ? (
               <div className="w-full" style={{ height: "430px" }}>
@@ -3159,19 +3150,18 @@ const PlayerTeamSelector = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading player data...</p>
-          </div>
-        </div>
+        <LeagueLoadingScreen 
+          league={league === "international-eurocup" ? "eurocup" : "euroleague"} 
+          message="Loading player data..."
+          className="h-64"
+        />
       )
     }
 
     return (
       <div className="space-y-6">
   {/* Main Layout - New Structure */}
-  <div className="flex flex-col gap-2 -mt-3 md:-mt-2">
+  <div className="flex flex-col gap-2 -mt-2 sm:-mt-3">
     {/* Filter Bar - Non-sticky */}
     <div className="-mt-2 mb-4 md:mb-0 md:mt-0 md:hidden">
       <PlayerTeamSelector />

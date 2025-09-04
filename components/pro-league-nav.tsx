@@ -225,7 +225,7 @@ export function ProLeagueNav() {
       case "teams":
         return (
           <div
-            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 lg:pt-12"
+            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
               background: "background-color: #f3f4f6"
             }}
@@ -243,7 +243,7 @@ export function ProLeagueNav() {
       case "statistics":
         return (
           <div
-            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 lg:pt-12"
+            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
               background: "background-color: #ffffff",
             }}
@@ -264,7 +264,7 @@ export function ProLeagueNav() {
       case "standings":
         return (
           <div
-            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 lg:pt-12"
+            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
               background: "background-color: #ffffff",
             }}
@@ -282,7 +282,7 @@ export function ProLeagueNav() {
       case "players":
         return (
           <div
-            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 lg:pt-12" // Use consistent padding
+            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
               background: "background-color: #ffffff",
             }}
@@ -300,7 +300,7 @@ export function ProLeagueNav() {
       case "comparison":
         return (
           <div
-            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 lg:pt-12" // Use consistent padding
+            className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
               background: "background-color: #ffffff",
             }}
@@ -312,7 +312,7 @@ export function ProLeagueNav() {
         );
       case "about":
         return (
-          <div className="px-4 pt-12 sm:px-6 sm:pt-0 md:px-8 pb-4">
+          <div className="px-4 pt-6 sm:px-6 md:px-8 md:pt-2 pb-4">
             <div className="max-w-4xl mx-auto">
               <AboutPage />
             </div>
@@ -320,7 +320,7 @@ export function ProLeagueNav() {
         );
       default:
         return (
-          <div className="px-4 sm:px-6 md:px-8 pt-4 pb-4 bg-white">
+          <div className="px-4 sm:px-6 md:px-8 pt-6 md:pt-2 pb-4 bg-white">
             <div className="max-w-10xl mx-auto bg-gray-100 rounded-lg shadow-lg p-2 border border-gray-300">
               <YamagataTeamStats
                 initialTab="teams"

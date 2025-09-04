@@ -13,6 +13,7 @@ import {
 import { ChevronDown } from "lucide-react"
 import BasketballShotChart from "./basketball-shot-chart-team"
 
+
 interface TeamDetailsTabProps {
   isLoading: boolean
   teamStats: EuroleagueTeamStats[]
@@ -866,7 +867,7 @@ export function TeamDetailsTab({
   return (
     <>
       {isAnyDataLoading ? (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center h-full mt-6">
           <div className="text-center">
             {selectedTeam && teamStats.length > 0 && (
               <div className="mb-6">
@@ -947,7 +948,7 @@ export function TeamDetailsTab({
       ) : (
         <div className="space-y-6 ">
           {/* Team header row - containing both team info and logos grid */}
-          <div className="flex flex-col gap-4 w-full -mt-5">
+          <div className="flex flex-col gap-4 w-full -mt-5 md:mt-0 ">
             {/* Desktop: Team logos container */}
             <div className="hidden sm:flex flex-col w-full gap-0.5 ">
               {/* Position numbers row */}

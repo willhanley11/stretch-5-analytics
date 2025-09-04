@@ -8,6 +8,7 @@ import Image from "next/image"
 import { fetchAllTeamAdvancedStatsCalculated, fetchLeagueAveragesPrecalculated, fetchStandingsFromGameLogs } from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 import StatisticsTab from "./statistics-tab"
+import { LeagueLoadingOverlay } from "@/components/ui/league-spinner"
 
 interface LeagueStandingsTabProps {
   isLoading: boolean
@@ -1280,16 +1281,11 @@ export function LeagueStandingsTab({
 
       {/* Loading overlay - only show on mobile when league tab is selected, or always on desktop */}
       {showLoadingOverlay && (
-        <div className={`fixed inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50 ${
-          selectedTableMode === "player" ? "md:block hidden" : "block"
-        }`}>
-          <div className="text-center">
-            <div className="mb-6">
-              <h2 className="text-md font-semibold text-gray-800 mb-2">League & Players</h2>
-            </div>
-            <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-          </div>
-        </div>
+        <LeagueLoadingOverlay
+          league={league === "eurocup" ? "eurocup" : "euroleague"} 
+          message="Loading league data..."
+          className={`${selectedTableMode === "player" ? "md:block hidden" : "block"}`}
+        />
       )}
     </>
   )
