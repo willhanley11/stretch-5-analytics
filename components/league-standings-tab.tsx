@@ -762,7 +762,7 @@ export function LeagueStandingsTab({
       </div>
       
       {/* Desktop: Side by side layout */}
-      <div className="hidden md:flex gap-4 max-w-full">
+      <div className="hidden md:flex gap-4 max-w-full -mt-5">
         {/* Team Standings Section */}
         <div 
           className={`w-[45%] bg-light-beige rounded-md border border-black shadow-sm overflow-hidden cursor-pointer transition-opacity duration-200 ${
