@@ -1277,17 +1277,17 @@ const PlayerSpiderChart = ({ className }) => {
   }
 
   const categories = [
-    { key: "points", label: "POINTS", angle: 0 },
+    { key: "points", label: "PTS", angle: 0 },
     { key: "eFG", label: "eFG%", angle: 60 },
     { key: "pir", label: "PIR", angle: 120 },
-    { key: "rebounds", label: "REBOUNDS", angle: 180 },
-    { key: "stocks", label: "STOCKS", angle: 240 },
+    { key: "rebounds", label: "REB", angle: 180 },
+    { key: "stocks", label: "STOCK", angle: 240 },
     { key: "astToRatio", label: "AST/TO", angle: 300 },
   ]
 
   const center = 210
   const maxRadius = 140
-  const labelRadius = maxRadius + 30 // Increased from 15 to 30 for more spacing
+  const labelRadius = maxRadius + 15
 
   // Calculate points for the polygon
   const points = categories
@@ -1304,7 +1304,7 @@ const PlayerSpiderChart = ({ className }) => {
   const teamColor = getTeamBorderColor(playerData.teamAbbr) || '#bf5050'
 
   return (
-    <div className={`flex items-start justify-center h-full w-full pt-12 md:pt-4 ${className}`}>
+    <div className={`flex items-start justify-center h-full w-full pt-4 ${className}`}>
       <div className="bg-light-beige rounded-lg" style={{ width: "100%", height: "100%" }}>
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           <svg viewBox="0 0 420 420" className="absolute inset-0 w-full h-full rounded-lg">
@@ -1391,13 +1391,11 @@ const PlayerSpiderChart = ({ className }) => {
             <polygon
               points={points}
               fill={`url(#dataFill-${chartId})`}
-              stroke={teamColor || '#bf5050'}
+              stroke={teamColor}
               strokeWidth="4"
               strokeOpacity="0.9"
-              style={{ 
-                stroke: teamColor || '#bf5050',
-                filter: 'none'
-              }}
+              filter={`url(#softGlow-${chartId})`}
+              style={{ filter: `url(#shadow-${chartId})` }}
             />
 
             {/* Data points with percentile labels directly on them */}
@@ -1409,18 +1407,16 @@ const PlayerSpiderChart = ({ className }) => {
               const y = center + radius * Math.sin(angleRad - Math.PI / 2)
               return (
                 <g key={category.key}>
-                  {/* Data point circle with tooltip */}
+                  {/* Data point circle */}
                   <circle
                     cx={x}
                     cy={y}
                     r="9"
-                    fill={teamColor || '#bf5050'}
+                    fill={teamColor}
                     stroke="#000000"
                     strokeWidth="1.5"
-                    style={{ fill: teamColor || '#bf5050', cursor: 'pointer' }}
-                  >
-                    <title>{category.name}: {value}th percentile (higher = better performance)</title>
-                  </circle>
+                    filter="url(#shadow)"
+                  />
                   {/* Percentile label on the data point */}
                   <text
                     x={x}
@@ -1454,7 +1450,7 @@ const PlayerSpiderChart = ({ className }) => {
                   y={y}
                   textAnchor={textAnchor}
                   dominantBaseline="middle"
-                  className="text-sm font-semibold fill-gray-700" // Changed from text-xs to text-sm
+                  className="text-xs font-semibold fill-gray-700"
                 >
                   {category.label}
                 </text>
@@ -1676,7 +1672,7 @@ const PlayerTeamSelector = () => {
                 }}
               />
 
-          <div className="px-1 md:px-2 pb-1 pt-2">
+          <div className="px-2 pb-3 pt-2">
   {/* Filter Bar - Team, Player, Phase, and Stat Mode - Hidden on mobile */}
   <div className="hidden md:block">
     <div className="flex items-center gap-1 md:gap-4 mb-1 w-full">
@@ -1796,18 +1792,18 @@ const PlayerTeamSelector = () => {
         <div className="flex flex-col flex-grow">
           <div className="flex flex-col w-full relative">
             {/* Logo and Name Row */}
-            <div className="flex items-start gap-2 sm:gap-3 pb-2 md:ml-0 mt-2">
+            <div className="flex items-start gap-2 sm:gap-3 pb-2 ml-1 md:ml-0 mt-2">
               {/* Team Logo - positioned to the left of player/team name */}
               {playerData.teamAbbr && (
                 <div className="flex-shrink-0 ">
-                  <div className=" w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-white">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-light-beige">
                     {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                   </div>
                 </div>
               )}
 
               <div className="flex flex-col">
-                <h2 className="text-lg md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 leading-tight truncate">
+                <h2 className="text-md md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 leading-tight truncate">
                   {playerData.name || "Select Player"}
                 </h2>
                 {/* Team Name */}
@@ -2429,7 +2425,7 @@ const PlayerTeamSelector = () => {
 
         {/* Right Side Container - 25% width */}
 {/* Right Side Container - 25% width */}
-<Card className="overflow-hidden lg:flex-[1.25] relative  hidden lg:block" style={{ minHeight: "390px" }}>
+<Card className="overflow-hidden lg:flex-[1.25] relative  hidden lg:block" style={{ minHeight: "400px" }}>
   {/* Team color accent stripe at top - matches main container */}
   <div
           className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
@@ -2444,7 +2440,7 @@ const PlayerTeamSelector = () => {
     className="absolute inset-0 z-0 bg-light-beige"
   />
 
-  <div className="relative z-10 p-1 md:p-4 "> 
+  <div className="relative z-10 p-3 md:p-4 "> 
 
     {/* Spider Chart Header */}
     <div className="flex justify-between items-center mb-2">
@@ -2488,24 +2484,24 @@ const PlayerTeamSelector = () => {
   {/* Mobile View - Single Column Layout */}
   <div className="w-full md:hidden flex flex-col gap-4">
     {/* Mobile Shooting Profile - First */}
-    <div className="bg-light-beige rounded-lg border-r border-l border-b border-black shadow-lg">
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg">
       <div
         className="w-full h-2 border border-black rounded-t-lg -mb-1"
         style={{
           backgroundColor: getTeamBorderColor(playerData.teamAbbr),
         }}
       />
-      <div className="py-3 px-1">
-      <div className="flex justify-between items-center pb-2 px-0">
-      <div className="flex items-center gap-2 mx-1 md:mx-0 ">
+      <div className="p-3">
+        <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
+          <div className="flex items-center gap-2">
             {playerData.teamAbbr && (
               <div className="w-8 h-8 bg-light-beige">
                 {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
               </div>
             )}
-            <h3 className="text-md font-semibold">Shot Profile</h3>
+            <h3 className="text-md font-semibold">Shooting Profile</h3>
           </div>
-          <div className="text-sm text-gray-600 font-medium px-2">
+          <div className="text-sm text-gray-600 font-medium">
             {shotData.length > 0 ? `${shotData.length} shots` : "No shot data"}
           </div>
         </div>
@@ -2551,7 +2547,7 @@ const PlayerTeamSelector = () => {
     </div>
 
     {/* Mobile Per-40 Radar - Second */}
-    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative" style={{ minHeight: "350px" }}>
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative mt-2" style={{ minHeight: "350px" }}>
       <div
         className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
         style={{

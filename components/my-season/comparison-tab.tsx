@@ -783,7 +783,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
 
       {/* Player Selection Grid with Header */}
       {(
-        <div className="rounded-md border border-black shadow-sm  bg-light-beige">
+        <div className="rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)] bg-light-beige">
           {/* Team color header strip */}
           <div
             className="w-full h-2 border-b border-black rounded-t-md -mb-1"

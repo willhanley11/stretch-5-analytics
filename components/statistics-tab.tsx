@@ -574,15 +574,15 @@ function StatisticsTab({
   }
 
   return (
-    <div className="bg-white rounded-md border border-black shadow-sm ">
+    <div className="bg-white rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)]">
       {/* Team color header strip */}
       <div
-        className="w-full h-2 border-b border-black rounded-t-md "
+        className="w-full h-2 border-b border-black rounded-t-md -mb-1"
         style={{
           backgroundColor: "#9ca3af", // gray-400
         }}
       />
-      <div className="py-3 px-3">
+      <div className="py-4 px-4">
         <div className="flex justify-between items-center pb-4 ">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 md:w-8 md:h-8 relative">
@@ -595,7 +595,7 @@ function StatisticsTab({
           </div>
           <h3 className="text-md font-semibold">Statistics</h3>
           {/* Search - inline on desktop */}
-          <div className="relative w-24 md:w-48 ml-2 md:ml-4">
+          <div className="relative w-20 md:w-48 ml-2 md:ml-4">
             <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-2.5 md:h-4 w-2.5 md:w-4 text-gray-400" />
             <Input
               type="text"
@@ -661,9 +661,9 @@ function StatisticsTab({
         </div>
       </div>
 
-      <div className="relative  -ml-2 -mr-2 ">
+      <div className="relative  -ml-2 -mr-2 rounded-none ">
         <div className="overflow-x-auto">
-          <table className="w-full text-[8px] md:text-xs border-collapse rounded-none">
+          <table className="w-full text-[8px] md:text-xs border-collapse">
             {/* Fixed sticky table header */}
             <thead>
               <HeaderRow />
