@@ -1029,15 +1029,15 @@ export function LeagueStandingsTab({
         {selectedTableMode === "league" ? (
       
       
-        <div className="bg-light-beige rounded-md border border-black shadow-sm max-w-[calc(100vw-32px)]">
+        <div className="bg-light-beige rounded-md border border-black shadow-sm ">
           {/* Team color header strip */}
           <div
-            className="w-full h-2 border-b border-black rounded-t-md -mb-1"
+            className="w-full h-2 border-b border-black rounded-t-md"
             style={{
               backgroundColor: "#9ca3af", // gray-400
             }}
           />
-          <div className="p-4">
+          <div className="p-3">
             <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 md:w-8 md:h-8 relative">
@@ -1050,7 +1050,7 @@ export function LeagueStandingsTab({
             </div>
             <h3 className="text-md font-semibold">Standings</h3>
           </div>
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4 mt-1">
             {/* View Mode Dropdown */}
             <div className="flex items-center gap-1">
               <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
@@ -1228,14 +1228,14 @@ export function LeagueStandingsTab({
                                 </div>
                               ) : isDiffColumn ? (
                                 // Diff column: with faint conditional formatting, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 ${cellBgClass}`}>
+                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 border ${cellBgClass}`}>
                                   <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : (
                                 // Regular columns: with border and rank/value toggle
                                 <div
                                   className={`flex items-center justify-center ${
-                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
+                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1 border"
                                   } h-full p-0.5 md:p-1 rounded-xs ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (

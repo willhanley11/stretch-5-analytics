@@ -394,7 +394,7 @@ export function ShootingProfileTable({
         <div className="bg-warm-beige border-t border-l border-r border-gray-400 text-black px-2 py-2 rounded-t-md  ">
           <h4 className="font-semibold text-sm text-center">2-Point Field Goals</h4>
         </div>
-        <div className="border border-gray-400 rounded-b-md overflow-hidden">
+        <div className=" rounded-b-md overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-400">
               <tr>

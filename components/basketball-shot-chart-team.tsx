@@ -81,9 +81,9 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
   season,
 }) => {
   // Constants for thresholds and styling
-  const minAttemptsForColor = 11 // Minimum attempts for a hexbin to show performance color (otherwise grey)
-  const minAttemptsForHexbinDisplay = 7 // Minimum attempts for a hexbin to be rendered on the chart
-  const minAttemptsForLeagueAverage = 10 // Minimum attempts for a league average to be considered reliable
+  const minAttemptsForColor = 10 // Minimum attempts for a hexbin to show performance color (otherwise grey)
+  const minAttemptsForHexbinDisplay = 6 // Minimum attempts for a hexbin to be rendered on the chart
+  const minAttemptsForLeagueAverage = 8 // Minimum attempts for a league average to be considered reliable
   const HEX_RADIUS_COURT_UNITS = 30 // Smaller radius for smaller hexagons
 
   const [zoneStats, setZoneStats] = useState<any>(null) // Player's zone statistics (for D3 coloring)
@@ -589,8 +589,10 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
     const { xScale, yScale, g } = drawCourt(svg, courtParams, width, height)
 
     // Hexbin parameters for grid generation
-    const colSpacing_court_units = HEX_RADIUS_COURT_UNITS * Math.sqrt(3) * 1.05
-    const rowSpacing_court_units = HEX_RADIUS_COURT_UNITS * 1.5 * 1.05
+    // Account for maximum scale factor (1.2) to prevent overlap
+    const maxScale = 1.2
+    const colSpacing_court_units = HEX_RADIUS_COURT_UNITS * Math.sqrt(3) * maxScale
+    const rowSpacing_court_units = HEX_RADIUS_COURT_UNITS * 1.5 * maxScale
     const hexRadius_screen_units = xScale(HEX_RADIUS_COURT_UNITS) - xScale(0)
 
     // Generate hexbin centers across the court
@@ -681,7 +683,7 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
 
     // Function to scale hexbin size based on attempts
     const getSizeScale = (attempts: number) => {
-      const minScale = 0.3 // Minimum visual scale for a hexbin
+      const minScale = 0.4 // Minimum visual scale for a hexbin (slightly larger)
       const maxScale = 1.2 // Maximum visual scale for a hexbin
 
       // Normalize attempts between 0 and 1
@@ -692,8 +694,9 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
         normalizedAttempts = 0.5 // Default to middle size if no variation
       }
 
-      // Linear interpolation for scaling
-      return minScale + (maxScale - minScale) * normalizedAttempts
+      // Use exponential scaling for more dramatic differentiation - stays small then jumps to big
+      const adjustedNormalized = Math.pow(normalizedAttempts, 2)
+      return minScale + (maxScale - minScale) * adjustedNormalized
     }
 
     // Draw hexbins with zone-based performance coloring
