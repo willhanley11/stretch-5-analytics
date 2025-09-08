@@ -87,14 +87,14 @@ export function LeagueLoadingOverlay({
 }: LeagueSpinnerProps) {
   return (
     <div className={cn(
-      "fixed inset-0 bg-warm-beige flex items-center justify-center z-50",
+      "absolute inset-0 bg-warm-beige",
       className
     )}>
       <LeagueSpinner 
         league={league} 
-        size="xl" 
+        size="lg" 
         message={message}
-        className="text-center"
+        className="text-center mt-20 mb-20"
       />
     </div>
   )
