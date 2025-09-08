@@ -784,13 +784,12 @@ useEffect(() => {
     loadGameLogs()
   }, [selectedPlayer, selectedSeason, league])
 
-  // Filter game logs by selected phase
+  // Filter game logs by selected phase toggle to match player stats phase
   const getFilteredGameLogs = useMemo(() => {
-    if (selectedPhase === "All") {
-      return gameData
-    }
-    return gameData.filter((game) => game.phase === selectedPhase)
-  }, [gameData, selectedPhase])
+    // Convert selectedPhaseToggle to match game log phase format
+    const phaseFilter = selectedPhaseToggle === "Regular Season" ? "RS" : "PO"
+    return gameData.filter((game) => game.phase === phaseFilter)
+  }, [gameData, selectedPhaseToggle])
 
   // Use pre-calculated player stats instead of calculating from game logs
   const getPlayersForRanking = () => {
@@ -961,7 +960,7 @@ useEffect(() => {
   const playerRanks = useMemo(() => {
     console.log("=== CALCULATING PLAYER RANKS ===")
     console.log("Selected player:", selectedPlayer?.player_name)
-    console.log("Selected phase:", selectedPhase)
+    console.log("Selected phase:", selectedPhaseToggle)
     console.log("Players for ranking:", getPlayersForRanking().length)
 
     if (!selectedPlayer || !getPlayersForRanking().length) return {}
@@ -1018,7 +1017,7 @@ useEffect(() => {
       offensiveRebounds: calculatePercentileRank("offensive_rebounds_per_40"),
       defensiveRebounds: calculatePercentileRank("defensive_rebounds_per_40"),
     }
-  }, [selectedPlayer, regularSeasonPlayers, playoffsPlayers, selectedPhase, selectedPhaseToggle])
+  }, [selectedPlayer, regularSeasonPlayers, playoffsPlayers, selectedPhaseToggle])
 
   const loadShotData = async () => {
     if (!selectedPlayer) return
@@ -2954,7 +2953,10 @@ const PlayerTeamSelector = () => {
           </thead>
           <tbody>
             {sortedGameData
-              .filter((game) => selectedPhase === "All" || game.phase === selectedPhase)
+              .filter((game) => {
+                const phaseFilter = selectedPhaseToggle === "Regular Season" ? "RS" : "PO"
+                return game.phase === phaseFilter
+              })
               .map((game, index) => {
                 // Calculate percentages
                 const twoPct =
