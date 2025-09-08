@@ -437,7 +437,8 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   const [teamPlayers, setTeamPlayers] = useState<PlayerStatsFromGameLogs[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerStatsFromGameLogs | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
+  const [regularSeasonPlayers, setRegularSeasonPlayers] = useState<PlayerStatsFromGameLogs[]>([])
+  const [playoffsPlayers, setPlayoffsPlayers] = useState<PlayerStatsFromGameLogs[]>([])
 
   // Function to get position from player code (mock implementation)
   const getPositionFromCode = (code: string): string => {
@@ -452,19 +453,16 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       console.log(`=== LOADING TEAMS FOR SEASON: ${currentSeason}, LEAGUE: ${league} ===`)
       setIsLoading(true)
       try {
-        // Load pre-calculated player stats for both regular season and playoffs
+        // Load pre-calculated player stats for both regular season and playoffs separately
         console.log("Fetching RS players...")
         const rsPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Regular Season", league)
         console.log(`Loaded ${rsPlayers.length} RS players`)
+        setRegularSeasonPlayers(rsPlayers)
 
         console.log("Fetching PO players...")
         const poPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Playoffs", league)
         console.log(`Loaded ${poPlayers.length} PO players`)
-
-        // Combine all players for ranking calculations
-        const allPlayersData = [...rsPlayers, ...poPlayers]
-        console.log(`Total players loaded: ${allPlayersData.length}`)
-        setAllPlayers(allPlayersData)
+        setPlayoffsPlayers(poPlayers)
 
         // Extract unique teams from regular season players (for team selection)
         const teams = rsPlayers.reduce(
@@ -544,9 +542,10 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       console.log(`=== LOADING PLAYERS FOR TEAM: ${selectedTeam.player_team_name} ===`)
       setIsLoading(true)
       try {
-        // Filter from all players (both RS and PO) for the selected team
-        const filteredPlayers = allPlayers.filter(
-          (player) => player.player_team_code === selectedTeam.player_team_code && player.phase === "Regular Season", // Show regular season players in team selection
+        // Filter from current phase-specific data for the selected team
+        const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+        const filteredPlayers = currentPhaseData.filter(
+          (player) => player.player_team_code === selectedTeam.player_team_code
         )
         console.log(`Found ${filteredPlayers.length} players for team ${selectedTeam.player_team_name}`)
 
@@ -574,7 +573,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     }
 
     loadPlayers()
-  }, [selectedTeam, allPlayers])
+  }, [selectedTeam, selectedPhaseToggle, regularSeasonPlayers, playoffsPlayers])
 
   // Function to load player data when a player is selected
   const loadPlayerData = (player: PlayerStatsFromGameLogs) => {
@@ -675,6 +674,27 @@ useEffect(() => {
     setTeamPlayers([])
   }, [selectedSeason])
 
+  // Update selected player when phase changes to ensure we're using the correct phase-specific data
+  useEffect(() => {
+    if (selectedPlayer && selectedTeam) {
+      console.log(`Phase changed to ${selectedPhaseToggle}, updating selected player`)
+      const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+      const phaseSpecificPlayer = currentPhaseData.find(
+        (player) => player.player_id === selectedPlayer.player_id && 
+                   player.player_team_code === selectedTeam.player_team_code
+      )
+      
+      if (phaseSpecificPlayer) {
+        console.log(`Found player in ${selectedPhaseToggle} data, updating selectedPlayer`)
+        setSelectedPlayer(phaseSpecificPlayer)
+        loadPlayerData(phaseSpecificPlayer)
+      } else {
+        console.log(`Player not found in ${selectedPhaseToggle} data`)
+        // Keep current player for display but stats will be phase-specific
+      }
+    }
+  }, [selectedPhaseToggle, regularSeasonPlayers, playoffsPlayers])
+
   // Reset selections when league changes
   useEffect(() => {
     console.log("League changed, resetting selections")
@@ -774,7 +794,7 @@ useEffect(() => {
 
   // Use pre-calculated player stats instead of calculating from game logs
   const getPlayersForRanking = () => {
-    return allPlayers.filter((player) => player.phase === selectedPhaseToggle)
+    return selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
   }
   const calculatedPlayerStats = useMemo(() => {
     if (!selectedPlayer) {
@@ -802,8 +822,9 @@ useEffect(() => {
     }
 
     // Find the player's stats for the selected phase
-    const phaseSpecificStats = allPlayers.find(
-      (player) => player.player_id === selectedPlayer.player_id && player.phase === selectedPhaseToggle,
+    const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+    const phaseSpecificStats = currentPhaseData.find(
+      (player) => player.player_id === selectedPlayer.player_id,
     )
 
     const statsToUse = phaseSpecificStats || selectedPlayer
@@ -855,7 +876,7 @@ useEffect(() => {
       assists_to_turnovers_ratio,
       games_played: statsToUse.games_played,
     }
-  }, [selectedPlayer, selectedPhaseToggle, statDisplayMode, allPlayers])
+  }, [selectedPlayer, selectedPhaseToggle, statDisplayMode, regularSeasonPlayers, playoffsPlayers])
 
   // Helper function to get stat value for a player from pre-calculated stats
   const getStatValueForPlayer = (player: PlayerStatsFromGameLogs, stat: StatType): number => {
@@ -896,8 +917,9 @@ useEffect(() => {
 
       case "best":
         // League leader (best average for the selected stat)
-        if (!allPlayers.length) return 0
-        const validPlayersForBest = allPlayers.filter((player) => {
+        const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+        if (!currentPhaseData.length) return 0
+        const validPlayersForBest = currentPhaseData.filter((player) => {
           const value = getStatValueForPlayer(player, selectedStat)
           return !isNaN(value) && value >= 0 && Number(player.games_played) > 0
         })
@@ -906,8 +928,9 @@ useEffect(() => {
 
       case "leagueAvg":
         // League average for the selected stat
-        if (!allPlayers.length) return 0
-        const validPlayersForAvg = allPlayers.filter((player) => {
+        const currentPhaseDataForAvg = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+        if (!currentPhaseDataForAvg.length) return 0
+        const validPlayersForAvg = currentPhaseDataForAvg.filter((player) => {
           const value = getStatValueForPlayer(player, selectedStat)
           return !isNaN(value) && value >= 0 && Number(player.games_played) > 0
         })
@@ -918,7 +941,7 @@ useEffect(() => {
       default:
         return 0
     }
-  }, [getFilteredGameLogs, selectedStat, referenceLineType, allPlayers, statDisplayMode])
+  }, [getFilteredGameLogs, selectedStat, referenceLineType, regularSeasonPlayers, playoffsPlayers, selectedPhaseToggle, statDisplayMode])
 
   // Get the reference line label
   const getReferenceLineLabel = () => {
@@ -995,7 +1018,7 @@ useEffect(() => {
       offensiveRebounds: calculatePercentileRank("offensive_rebounds_per_40"),
       defensiveRebounds: calculatePercentileRank("defensive_rebounds_per_40"),
     }
-  }, [selectedPlayer, allPlayers, selectedPhase, selectedPhaseToggle])
+  }, [selectedPlayer, regularSeasonPlayers, playoffsPlayers, selectedPhase, selectedPhaseToggle])
 
   const loadShotData = async () => {
     if (!selectedPlayer) return
