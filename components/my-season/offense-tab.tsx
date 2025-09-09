@@ -190,7 +190,6 @@ const OffenseTab = ({ selectedSeason = 2024, league = "euroleague" }: OffenseTab
   const [shotDataLoading, setShotDataLoading] = useState<boolean>(false)
   const [selectedCustomReferenceLine, setSelectedCustomReferenceLine] = useState(null)
   const [selectedPhaseToggle, setSelectedPhaseToggle] = useState<"Regular Season" | "Playoffs">("Regular Season")
-  const [statDisplayMode, setStatDisplayMode] = useState<"per_game" | "per_40">("per_game")
   const [yearOverYearStats, setYearOverYearStats] = useState<PlayerStatsFromGameLogs[]>([])
   const [yearOverYearLoading, setYearOverYearLoading] = useState<boolean>(false)
 
@@ -437,8 +436,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   const [teamPlayers, setTeamPlayers] = useState<PlayerStatsFromGameLogs[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerStatsFromGameLogs | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [regularSeasonPlayers, setRegularSeasonPlayers] = useState<PlayerStatsFromGameLogs[]>([])
-  const [playoffsPlayers, setPlayoffsPlayers] = useState<PlayerStatsFromGameLogs[]>([])
+  const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
 
   // Function to get position from player code (mock implementation)
   const getPositionFromCode = (code: string): string => {
@@ -453,16 +451,19 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       console.log(`=== LOADING TEAMS FOR SEASON: ${currentSeason}, LEAGUE: ${league} ===`)
       setIsLoading(true)
       try {
-        // Load pre-calculated player stats for both regular season and playoffs separately
+        // Load pre-calculated player stats for both regular season and playoffs
         console.log("Fetching RS players...")
         const rsPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Regular Season", league)
         console.log(`Loaded ${rsPlayers.length} RS players`)
-        setRegularSeasonPlayers(rsPlayers)
 
         console.log("Fetching PO players...")
         const poPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Playoffs", league)
         console.log(`Loaded ${poPlayers.length} PO players`)
-        setPlayoffsPlayers(poPlayers)
+
+        // Combine all players for ranking calculations
+        const allPlayersData = [...rsPlayers, ...poPlayers]
+        console.log(`Total players loaded: ${allPlayersData.length}`)
+        setAllPlayers(allPlayersData)
 
         // Extract unique teams from regular season players (for team selection)
         const teams = rsPlayers.reduce(
@@ -542,10 +543,9 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       console.log(`=== LOADING PLAYERS FOR TEAM: ${selectedTeam.player_team_name} ===`)
       setIsLoading(true)
       try {
-        // Filter from current phase-specific data for the selected team
-        const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
-        const filteredPlayers = currentPhaseData.filter(
-          (player) => player.player_team_code === selectedTeam.player_team_code
+        // Filter from all players (both RS and PO) for the selected team
+        const filteredPlayers = allPlayers.filter(
+          (player) => player.player_team_code === selectedTeam.player_team_code && player.phase === "Regular Season", // Show regular season players in team selection
         )
         console.log(`Found ${filteredPlayers.length} players for team ${selectedTeam.player_team_name}`)
 
@@ -573,7 +573,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     }
 
     loadPlayers()
-  }, [selectedTeam, selectedPhaseToggle, regularSeasonPlayers, playoffsPlayers])
+  }, [selectedTeam, allPlayers])
 
   // Function to load player data when a player is selected
   const loadPlayerData = (player: PlayerStatsFromGameLogs) => {
@@ -674,27 +674,6 @@ useEffect(() => {
     setTeamPlayers([])
   }, [selectedSeason])
 
-  // Update selected player when phase changes to ensure we're using the correct phase-specific data
-  useEffect(() => {
-    if (selectedPlayer && selectedTeam) {
-      console.log(`Phase changed to ${selectedPhaseToggle}, updating selected player`)
-      const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
-      const phaseSpecificPlayer = currentPhaseData.find(
-        (player) => player.player_id === selectedPlayer.player_id && 
-                   player.player_team_code === selectedTeam.player_team_code
-      )
-      
-      if (phaseSpecificPlayer) {
-        console.log(`Found player in ${selectedPhaseToggle} data, updating selectedPlayer`)
-        setSelectedPlayer(phaseSpecificPlayer)
-        loadPlayerData(phaseSpecificPlayer)
-      } else {
-        console.log(`Player not found in ${selectedPhaseToggle} data`)
-        // Keep current player for display but stats will be phase-specific
-      }
-    }
-  }, [selectedPhaseToggle, regularSeasonPlayers, playoffsPlayers])
-
   // Reset selections when league changes
   useEffect(() => {
     console.log("League changed, resetting selections")
@@ -784,16 +763,17 @@ useEffect(() => {
     loadGameLogs()
   }, [selectedPlayer, selectedSeason, league])
 
-  // Filter game logs by selected phase toggle to match player stats phase
+  // Filter game logs by selected phase
   const getFilteredGameLogs = useMemo(() => {
-    // Convert selectedPhaseToggle to match game log phase format
-    const phaseFilter = selectedPhaseToggle === "Regular Season" ? "RS" : "PO"
-    return gameData.filter((game) => game.phase === phaseFilter)
-  }, [gameData, selectedPhaseToggle])
+    if (selectedPhase === "All") {
+      return gameData
+    }
+    return gameData.filter((game) => game.phase === selectedPhase)
+  }, [gameData, selectedPhase])
 
   // Use pre-calculated player stats instead of calculating from game logs
   const getPlayersForRanking = () => {
-    return selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
+    return allPlayers.filter((player) => player.phase === selectedPhaseToggle)
   }
   const calculatedPlayerStats = useMemo(() => {
     if (!selectedPlayer) {
@@ -821,18 +801,14 @@ useEffect(() => {
     }
 
     // Find the player's stats for the selected phase
-    const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
-    const phaseSpecificStats = currentPhaseData.find(
-      (player) => player.player_id === selectedPlayer.player_id,
+    const phaseSpecificStats = allPlayers.find(
+      (player) => player.player_id === selectedPlayer.player_id && player.phase === selectedPhaseToggle,
     )
 
     const statsToUse = phaseSpecificStats || selectedPlayer
 
-    // Use per-40 or per-game stats based on toggle
+    // Always use per-game stats (averages)
     const getStatValue = (perGameField: string, per40Field: string) => {
-      if (statDisplayMode === "per_40") {
-        return statsToUse[per40Field] || 0
-      }
       return statsToUse[perGameField] || 0
     }
 
@@ -874,15 +850,13 @@ useEffect(() => {
       pir: getStatValue("pir", "pir_per_40"),
       assists_to_turnovers_ratio,
       games_played: statsToUse.games_played,
+      games_started: statsToUse.games_started,
     }
-  }, [selectedPlayer, selectedPhaseToggle, statDisplayMode, regularSeasonPlayers, playoffsPlayers])
+  }, [selectedPlayer, selectedPhaseToggle, allPlayers])
 
-  // Helper function to get stat value for a player from pre-calculated stats
+  // Helper function to get stat value for a player from pre-calculated stats (always averages)
   const getStatValueForPlayer = (player: PlayerStatsFromGameLogs, stat: StatType): number => {
     const getStatValue = (perGameField: string, per40Field: string) => {
-      if (statDisplayMode === "per_40") {
-        return Number(player[per40Field]) || 0
-      }
       return Number(player[perGameField]) || 0
     }
 
@@ -916,9 +890,8 @@ useEffect(() => {
 
       case "best":
         // League leader (best average for the selected stat)
-        const currentPhaseData = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
-        if (!currentPhaseData.length) return 0
-        const validPlayersForBest = currentPhaseData.filter((player) => {
+        if (!allPlayers.length) return 0
+        const validPlayersForBest = allPlayers.filter((player) => {
           const value = getStatValueForPlayer(player, selectedStat)
           return !isNaN(value) && value >= 0 && Number(player.games_played) > 0
         })
@@ -927,9 +900,8 @@ useEffect(() => {
 
       case "leagueAvg":
         // League average for the selected stat
-        const currentPhaseDataForAvg = selectedPhaseToggle === "Regular Season" ? regularSeasonPlayers : playoffsPlayers
-        if (!currentPhaseDataForAvg.length) return 0
-        const validPlayersForAvg = currentPhaseDataForAvg.filter((player) => {
+        if (!allPlayers.length) return 0
+        const validPlayersForAvg = allPlayers.filter((player) => {
           const value = getStatValueForPlayer(player, selectedStat)
           return !isNaN(value) && value >= 0 && Number(player.games_played) > 0
         })
@@ -940,7 +912,7 @@ useEffect(() => {
       default:
         return 0
     }
-  }, [getFilteredGameLogs, selectedStat, referenceLineType, regularSeasonPlayers, playoffsPlayers, selectedPhaseToggle, statDisplayMode])
+  }, [getFilteredGameLogs, selectedStat, referenceLineType, allPlayers])
 
   // Get the reference line label
   const getReferenceLineLabel = () => {
@@ -960,7 +932,7 @@ useEffect(() => {
   const playerRanks = useMemo(() => {
     console.log("=== CALCULATING PLAYER RANKS ===")
     console.log("Selected player:", selectedPlayer?.player_name)
-    console.log("Selected phase:", selectedPhaseToggle)
+    console.log("Selected phase:", selectedPhase)
     console.log("Players for ranking:", getPlayersForRanking().length)
 
     if (!selectedPlayer || !getPlayersForRanking().length) return {}
@@ -1001,23 +973,23 @@ useEffect(() => {
     }
 
     return {
-      points: calculatePercentileRank("points_scored_per_40"),
-      rebounds: calculatePercentileRank("total_rebounds_per_40"),
-      assists: calculatePercentileRank("assists_per_40"),
-      threePointers: calculatePercentileRank("three_pointers_made_per_40"),
-      steals: calculatePercentileRank("steals_per_40"),
-      blocks: calculatePercentileRank("blocks_per_40"),
+      points: calculatePercentileRank("points_scored"),
+      rebounds: calculatePercentileRank("total_rebounds"),
+      assists: calculatePercentileRank("assists"),
+      threePointers: calculatePercentileRank("three_pointers_made"),
+      steals: calculatePercentileRank("steals"),
+      blocks: calculatePercentileRank("blocks"),
       effectiveFieldGoal: calculatePercentileRank("three_pointers_percentage"), // Using 3P% as proxy
-      pir: calculatePercentileRank("pir_per_40"),
-      assistToTurnover: calculatePercentileRank("assists_per_40"), // Simplified since we don't have turnovers in pre-calc
+      pir: calculatePercentileRank("pir"),
+      assistToTurnover: calculatePercentileRank("assists"), // Simplified since we don't have turnovers in pre-calc
       minutes: calculatePercentileRank("minutes_played"),
       twoPointPercentage: calculatePercentileRank("two_pointers_percentage"),
       threePointPercentage: calculatePercentileRank("three_pointers_percentage"),
       freeThrowPercentage: calculatePercentileRank("free_throws_percentage"),
-      offensiveRebounds: calculatePercentileRank("offensive_rebounds_per_40"),
-      defensiveRebounds: calculatePercentileRank("defensive_rebounds_per_40"),
+      offensiveRebounds: calculatePercentileRank("offensive_rebounds"),
+      defensiveRebounds: calculatePercentileRank("defensive_rebounds"),
     }
-  }, [selectedPlayer, regularSeasonPlayers, playoffsPlayers, selectedPhaseToggle])
+  }, [selectedPlayer, allPlayers, selectedPhase, selectedPhaseToggle])
 
   const loadShotData = async () => {
     if (!selectedPlayer) return
@@ -1289,12 +1261,12 @@ const PlayerSpiderChart = ({ className }) => {
 
   const playerSpiderData = {
     stats: {
-      points: playerRanks.points?.percentile || calculatePercentileForStat("points_scored_per_40"),
-      eFG: playerRanks.threePointPercentage?.percentile || calculateEFGPercentile(),
-      pir: playerRanks.pir?.percentile || calculatePercentileForStat("pir_per_40"),
-      astToRatio: playerRanks.assistToTurnover?.percentile || calculateAstToRatioPercentile(),
-      stocks: ((playerRanks.steals?.percentile || 0) + (playerRanks.blocks?.percentile || 0)) / 2 || calculateStocksPercentile(),
-      rebounds: playerRanks.rebounds?.percentile || calculateReboundsPercentile(),
+      points: calculatePercentileForStat("points_scored_per_40"),
+      eFG: calculateEFGPercentile(),
+      pir: calculatePercentileForStat("pir_per_40"),
+      astToRatio: calculateAstToRatioPercentile(),
+      stocks: calculateStocksPercentile(),
+      rebounds: calculateReboundsPercentile(),
     },
   }
 
@@ -1530,7 +1502,10 @@ const PlayerTeamSelector = () => {
           <div className="flex flex-row items-center p-1.5">
             {/* Team Logo Section - Clickable */}
             <button 
-              onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+              onClick={() => {
+                setIsTeamDropdownOpen(!isTeamDropdownOpen)
+                setIsPlayerDropdownOpen(false) // Close player dropdown
+              }}
               className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer"
             >
               {/* Team Logo */}
@@ -1583,7 +1558,10 @@ const PlayerTeamSelector = () => {
 
             {/* Player Name Section - Clickable */}
             <button 
-              onClick={() => setIsPlayerDropdownOpen(!isPlayerDropdownOpen)}
+              onClick={() => {
+                setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+                setIsTeamDropdownOpen(false) // Close team dropdown
+              }}
               className="flex items-center flex-grow pl-2 cursor-pointer min-w-0"
             >
               {/* Player Name - starts immediately after separator */}
@@ -1624,7 +1602,9 @@ const PlayerTeamSelector = () => {
                   e.stopPropagation()
                   setSelectedTeam(team)
                   setSelectedPlayer(null)
+                  setSelectedPhaseToggle("Regular Season") // Always default to RS
                   setIsTeamDropdownOpen(false)
+                  setIsPlayerDropdownOpen(false) // Close player dropdown
                 }}
                 className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
@@ -1665,8 +1645,10 @@ const PlayerTeamSelector = () => {
                 onClick={(e) => {
                   e.stopPropagation()
                   setSelectedPlayer(player)
+                  setSelectedPhaseToggle("Regular Season") // Always default to RS
                   loadPlayerData(player)
                   setIsPlayerDropdownOpen(false)
+                  setIsTeamDropdownOpen(false) // Close team dropdown
                 }}
                 className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
@@ -1689,7 +1671,7 @@ const PlayerTeamSelector = () => {
       <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige sm: mt-0 md:mt-5">
         {/* Main Content Container - 75% width */}
        
-        <Card className="overflow-hidden bg-green-500 flex-[3] mb-2">
+        <Card className="overflow-hidden bg-green-500 flex-[3] mb-2 relative">
           {/* Team color accent stripe at top for player header part - This remains the ONLY top stripe */}
           <div
                 className="w-full h-2 rounded-t-lg border-b border-black -mb-1"
@@ -1697,6 +1679,38 @@ const PlayerTeamSelector = () => {
                   backgroundColor: getTeamBorderColor(playerData.teamAbbr),
                 }}
               />
+          
+          {/* Phase Toggle - Positioned just below the team color stripe - Only show if player has playoff data */}
+          {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && (
+          <div className="absolute top-4 right-2 z-50">
+            <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5 shadow-md">
+              <button
+                onClick={() => {
+                  setSelectedPhaseToggle("Regular Season")
+                }}
+                className={`rounded-full px-2 py-0.5 text-[8px] md:text-xs font-medium transition-colors ${
+                  selectedPhaseToggle === "Regular Season"
+                    ? "bg-[#475569] text-white"
+                    : "text-[#475569] hover:bg-gray-300"
+                }`}
+              >
+                RS
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedPhaseToggle("Playoffs")
+                }}
+                className={`rounded-full px-2 py-0.5 text-[8px] md:text-xs font-medium transition-colors ${
+                  selectedPhaseToggle === "Playoffs"
+                    ? "bg-[#475569] text-white"
+                    : "text-[#475569] hover:bg-gray-300"
+                }`}
+              >
+                PO
+              </button>
+            </div>
+          </div>
+          )}
 
           <div className="px-1 md:px-2 pb-1 pt-2">
   {/* Filter Bar - Team, Player, Phase, and Stat Mode - Hidden on mobile */}
@@ -1713,6 +1727,7 @@ const PlayerTeamSelector = () => {
               console.log("Found team:", team)
               setSelectedTeam(team || null)
               setSelectedPlayer(null)
+              setSelectedPhaseToggle("Regular Season") // Always default to RS
             }}
           >
             <SelectTrigger className="w-full h-7 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
@@ -1749,6 +1764,7 @@ const PlayerTeamSelector = () => {
               console.log("Found player:", player)
               if (player) {
                 setSelectedPlayer(player)
+                setSelectedPhaseToggle("Regular Season") // Always default to RS
                 loadPlayerData(player)
               }
             }}
@@ -1782,29 +1798,6 @@ const PlayerTeamSelector = () => {
         </div>
       </div>
 
-      {/* Phase Toggle */}
-      <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5">
-        <button
-          onClick={() => setSelectedPhaseToggle("Regular Season")}
-          className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
-            selectedPhaseToggle === "Regular Season"
-              ? "bg-[#475569] text-white"
-              : "text-[#475569]"
-          }`}
-        >
-          RS
-        </button>
-        <button
-          onClick={() => setSelectedPhaseToggle("Playoffs")}
-          className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
-            selectedPhaseToggle === "Playoffs"
-              ? "bg-[#475569] text-white"
-              : "text-[#475569]"
-          }`}
-        >
-          PO
-        </button>
-      </div>
     </div>
 
     {/* Divider Line */}
@@ -1852,11 +1845,7 @@ const PlayerTeamSelector = () => {
               <div className="border border-gray-300 rounded-md py-0.5 px-2 text-center shadow-sm">
                 <div className="text-[7px] font-bold text-gray-600 uppercase tracking-wide">GS</div>
                 <div className="text-[9px] font-bold text-gray-900">
-                  {
-                    getFilteredGameLogs.filter(
-                      (game) => game.is_starter === 1 || game.is_starter === true || game.is_starter === "1",
-                    ).length
-                  }
+                  {calculatedPlayerStats ? calculatedPlayerStats.games_started : 0}
                 </div>
               </div>
               <div className="border border-gray-300 rounded-md py-0.5 px-2 text-center shadow-sm">
@@ -1906,11 +1895,7 @@ const PlayerTeamSelector = () => {
                   GS
                 </div>
                 <div className="text-[8px] sm:text-[10px] md:text-xs font-bold text-gray-900">
-                  {
-                    getFilteredGameLogs.filter(
-                      (game) => game.is_starter === 1 || game.is_starter === true || game.is_starter === "1",
-                    ).length
-                  }
+                {calculatedPlayerStats ? safeFormat(calculatedPlayerStats.games_started) : "0.0"}
                 </div>
               </div>
               <div className="hidden md:block bg-gray-50 border-2 border-gray-300 rounded-lg py-0.5 px-1 sm:px-2 md:px-3 text-center shadow-sm">
@@ -2729,7 +2714,7 @@ const PlayerTeamSelector = () => {
   {/* Game Logs Table Container */}
   <div className="px-2 pb-1 md:px-3 md:pb-3 bg-light-beige">
     <div className="">
-      <div className="overflow-x-auto relative border border-gray-200 border-t-2 border-t-gray-700">
+      <div className="overflow-x-auto relative  border-t-2 border-t-gray-700">
         <table className="min-w-full text-[9px] md:text-[11px] border-collapse">
           <thead className="sticky top-0 z-50 bg-gray-50 shadow-md">
             <tr className="bg-gray-50 h-4 md:h-6 border-b-2 border-gray-700">
@@ -2953,10 +2938,7 @@ const PlayerTeamSelector = () => {
           </thead>
           <tbody>
             {sortedGameData
-              .filter((game) => {
-                const phaseFilter = selectedPhaseToggle === "Regular Season" ? "RS" : "PO"
-                return game.phase === phaseFilter
-              })
+              .filter((game) => selectedPhase === "All" || game.phase === selectedPhase)
               .map((game, index) => {
                 // Calculate percentages
                 const twoPct =

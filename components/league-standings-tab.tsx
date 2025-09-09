@@ -698,26 +698,8 @@ export function LeagueStandingsTab({
               >
                 <button
                   onClick={() => setSelectedTableMode("league")}
-                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center gap-2"
+                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
                 >
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg shadow-sm">
-                    <div
-                      className="w-6 h-6 sm:w-8 sm:h-8 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <Image
-                        src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-                        alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-                        width={24}
-                        height={24}
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                  </div>
                   <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
                     League
                   </h2>
@@ -732,26 +714,8 @@ export function LeagueStandingsTab({
               >
                 <button
                   onClick={() => setSelectedTableMode("player")}
-                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center gap-2"
+                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
                 >
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg shadow-sm">
-                    <div
-                      className="w-6 h-6 sm:w-8 sm:h-8 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <Image
-                        src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-                        alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-                        width={24}
-                        height={24}
-                        className="object-contain w-full h-full"
-                      />
-                    </div>
-                  </div>
                   <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
                     Players
                   </h2>
@@ -778,18 +742,10 @@ export function LeagueStandingsTab({
               backgroundColor: "#9ca3af", // gray-400
             }}
           />
-          <div className="p-4">
+          <div className="p-5">
             <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 md:w-8 md:h-8 relative">
-              <Image
-                src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-                alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-                fill
-                className="object-contain"
-              />
-            </div>
-            <h3 className="text-md font-semibold">Standings</h3>
+            <h3 className="text-xl font-semibold">Standings</h3>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             {/* View Mode Dropdown */}
@@ -801,7 +757,7 @@ export function LeagueStandingsTab({
                 id="view-mode-filter"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className="text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-28"
+                className="text-sm border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-48"
               >
                 <option value="team">Team</option>
                 <option value="off-4factors">Off - 4 Factors</option>
@@ -816,7 +772,7 @@ export function LeagueStandingsTab({
             </div>
 
             {/* Display Mode Toggle */}
-            <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
+            <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
               <button
                 onClick={() => setDisplayMode("value")}
                 className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
@@ -1039,16 +995,8 @@ export function LeagueStandingsTab({
           />
           <div className="p-3">
             <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 md:w-8 md:h-8 relative">
-              <Image
-                src={league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-                alt={`${league === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-                fill
-                className="object-contain"
-              />
-            </div>
-            <h3 className="text-md font-semibold">Standings</h3>
+          <div className="flex items-center gap-2 ml-1">
+            <h3 className="text-xl font-semibold">Standings</h3>
           </div>
           <div className="flex items-center gap-2 md:gap-4 mt-1">
             {/* View Mode Dropdown */}
@@ -1075,7 +1023,7 @@ export function LeagueStandingsTab({
             </div>
 
             {/* Display Mode Toggle */}
-            <div className="flex rounded-full bg-[#f1f5f9] p-0.5">
+            <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
               <button
                 onClick={() => setDisplayMode("value")}
                 className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${

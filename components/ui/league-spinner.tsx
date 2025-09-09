@@ -23,7 +23,7 @@ export function LeagueSpinner({
   message,
   className 
 }: LeagueSpinnerProps) {
-  const logoSrc = league === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"
+  const logoSrc = league === "eurocup" ? "/basketball2.png" : "/basketball2.png"
   const logoAlt = league === "eurocup" ? "EuroCup" : "Euroleague"
 
   return (

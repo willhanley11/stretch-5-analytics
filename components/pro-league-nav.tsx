@@ -22,7 +22,6 @@ const leaguesByCountry = {
       country: "International",
       flag: "🌍",
       color: "#FF6600",
-      logo: "/euroleague-logo.png",
     },
     {
       id: "international-eurocup",
@@ -30,7 +29,6 @@ const leaguesByCountry = {
       country: "International",
       flag: "🌍",
       color: "#0066CC",
-      logo: "/eurocup-logo.png",
     },
   ],
 }
@@ -378,15 +376,6 @@ export function ProLeagueNav() {
                             : "text-gray-600 hover:text-gray-800 font-medium",
                         )}
                       >
-                        <div className="relative h-4 w-4">
-                          <Image
-                            src={league.logo || "/placeholder.svg"}
-                            alt={league.name}
-                            width={16}
-                            height={16}
-                            className="object-contain"
-                          />
-                        </div>
                         <span>{league.name}</span>
                         {league.id === activeLeague && (
                           <motion.div
@@ -470,7 +459,7 @@ export function ProLeagueNav() {
                 </div>
 
                 {/* League Buttons - Right Aligned */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-4">
                   {allLeagues.map((league) => (
                     <button
                       key={league.id}
@@ -485,13 +474,6 @@ export function ProLeagueNav() {
                           : "text-gray-600 hover:text-gray-800 font-medium",
                       )}
                     >
-                      <div className="relative h-4 w-4">
-                        <img
-                          src={league.logo || "/placeholder.svg"}
-                          alt={league.name}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
                       <span>{league.name}</span>
                       {league.id === activeLeague && (
                         <motion.div
@@ -602,7 +584,7 @@ export function ProLeagueNav() {
                               onClick={() => {
                                 setSelectedSeason(season.id)
                                 setIsMobileSeasonOpen(false)
-                              }}
+              }}
                               className={cn(
                                 "flex items-center w-full px-2 py-1.5 text-xs transition-colors",
                                 selectedSeason === season.id

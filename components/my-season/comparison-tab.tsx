@@ -795,15 +795,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
           {/* Header - matching standings tab format */}
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 md:w-8 md:h-8 relative">
-                <Image
-                  src={selectedLeague === "eurocup" ? "/eurocup-logo.png" : "/euroleague-logo.png"}
-                  alt={`${selectedLeague === "eurocup" ? "EuroCup" : "Euroleague"} logo`}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <h3 className="text-md font-semibold whitespace-nowrap">Player Comparison</h3>
+              <h3 className="text-xl font-semibold whitespace-nowrap">Player Comparison</h3>
             </div>
             {/* Display Mode Toggle - Updated to match league standings tab */}
             <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
