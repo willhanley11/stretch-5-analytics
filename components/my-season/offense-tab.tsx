@@ -15,53 +15,51 @@ import { LeagueLoadingScreen, LeagueSpinner } from "@/components/ui/league-spinn
 
 // Team background colors (same as in StatisticsTab)
 const teamColors = {
-  BER: "#d6c042", // ALBA Berlin - Darker yellow
-  IST: "#2a619c", // Anadolu Efes - Darker blue
-  MCO: "#b03340", // Monaco - Darker red
-  BAS: "#2c5f94", // Baskonia - Darker navy blue
-  RED: "#c24b5a", // Crvena Zvezda - Darker red
-  MIL: "#d44c60", // Milan - Darker red with pink tone
-  BAR: "#2b5c94", // Barcelona - Darker deep blue
-  MUN: "#9e3b4d", // Bayern - Darker burgundy
-  ULK: "#d4b041", // Fenerbahce - Darker golden yellow
-  ASV: "#8a8d90", // ASVEL - Darker gray
-  TEL: "#d4a355", // Maccabi - Darker golden orange
-  OLY: "#bf5050", // Olympiacos - Darker red
-  PAN: "#2a7046", // Panathinaikos - Darker dark green
-  PRS: "#4e565f", // Paris - Darker slate
-  PAR: "#3a3834", // Partizan - Darker black-gray
+  VIR: "#2f2f2f", // Virtus Segafredo Bologna - Darker black
+  BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
+  OLY: "#bf5050", // Olympiacos Piraeus - Darker red
+  MCO: "#b03340", // AS Monaco - Darker red
+  ASV: "#8a8d90", // LDLC ASVEL Villeurbanne - Darker gray
+  PRS: "#4e565f", // Paris Basketball - Darker slate
+  TEL: "#d4a355", // Maccabi Playtika Tel Aviv - Darker golden orange
+  ZAL: "#2a7a51", // Zalgiris Kaunas - Darker kelly green
+  MIL: "#d44c60", // EA7 Emporio Armani Milan - Darker red with pink tone
+  RED: "#c24b5a", // Crvena Zvezda Meridianbet Belgrade - Darker red
   MAD: "#999999", // Real Madrid - Darker silver
-  VIR: "#2f2f2f", // Virtus - Darker black
-  ZAL: "#2a7a51", // Zalgiris - Darker kelly green
-  PAM: "#d47800", // Valencia Basket - Darker orange
-
-  // EuroCup Teams (Darker shades for better contrast with white text)
-  "7BET": "#893247", // 7bet-Lietkabelis Panevezys - Darker maroon/red
-  ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
-  BAH: "#213243", // Bahcesehir College Istanbul - Darker dark blue/charcoal
-  BES: "#363636", // Besiktas Fibabanka Istanbul - Darker dark grey/black
-  BUD: "#2a72b5", // Buducnost VOLI Podgorica - Darker light blue
-  CED: "#d39800", // Cedevita Olimpija Ljubljana - Darker orange/gold
-  BOU: "#c24033", // Cosea JL Bourg-en-Bresse - Darker red
-  TRE: "#4e6571", // Dolomiti Energia Trento - Darker slate gray
-  CAN: "#d3a127", // Dreamland Gran Canaria - Darker gold/orange
-  HAP: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
+  BAR: "#2b5c94", // FC Barcelona - Darker deep blue
+  IST: "#2a619c", // Anadolu Efes Istanbul - Darker blue
+  ULK: "#d4b041", // Fenerbahce Beko Istanbul - Darker golden yellow
+  BER: "#d6c042", // ALBA Berlin - Darker yellow
+  PAR: "#3a3834", // Partizan Mozzart Bet Belgrade - Darker black-gray
+  MUN: "#9e3b4d", // FC Bayern Munich - Darker burgundy
+  PAN: "#2a7046", // Panathinaikos AKTOR Athens - Darker dark green
   HTA: "#d0392e", // Hapoel Shlomo Tel Aviv - Darker red
-  JOV: "#409944", // Joventut Badalona - Darker green
-  ULM: "#c24400", // ratiopharm Ulm - Darker bright orange
-  TREF: "#d3a127", // Trefl Sopot - Darker gold/orange
-  TTK: "#42b4c5", // Turk Telekom Ankara - Darker light blue/turquoise
-  UBT: "#858585", // U-BT Cluj-Napoca - Darker grey
-  UMV: "#6c0924", // Umana Reyer Venice - Darker deep maroon/red
   HAM: "#213243", // Veolia Towers Hamburg - Darker dark blue/charcoal
+  PAM: "#d47800", // Valencia Basket - Darker orange
+  VNC: "#6c0924", // Umana Reyer Venice - Darker deep maroon/red
+  TSO: "#d3a127", // Trefl Sopot - Darker gold/orange
+  LKB: "#893247", // 7Bet-Lietkabelis Panevezys - Darker maroon/red
+  LJU: "#d39800", // Cedevita Olimpija Ljubljana - Darker orange/gold
+  CAN: "#d3a127", // Dreamland Gran Canaria - Darker gold/orange
+  BAH: "#213243", // Bahcesehir College Istanbul - Darker dark blue/charcoal
+  TRN: "#4e6571", // Dolomiti Energia Trento - Darker slate gray
+  TTK: "#42b4c5", // Turk Telekom Ankara - Darker light blue/turquoise
+  CLU: "#858585", // U-BT Cluj-Napoca - Darker grey
+  ULM: "#c24400", // ratiopharm Ulm - Darker bright orange
+  BOU: "#c24033", // Cosea JL Bourg-en-Bresse - Darker red
+  BUD: "#2a72b5", // Buducnost VOLI Podgorica - Darker light blue
+  BES: "#363636", // Besiktas Fibabanka Istanbul - Darker dark grey/black
+  JOV: "#409944", // Joventut Badalona - Darker green
   WOL: "#5ac591", // Wolves Twinsbet Vilnius - Darker lime green
-}
+  JER: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
+  ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
+};
 
 // Helper function to get team border color
 const getTeamBorderColor = (teamAbbr: string) => {
   
   const bgColor = teamColors[teamAbbr] || "bg-gray-600"
-  return bgColor || "#6b7280"
+  return bgColor || "#2b5c94"
 }
 
 type StatType = "points" | "rebounds" | "assists" | "threePointers" | "steals" | "blocks"
@@ -187,11 +185,9 @@ const OffenseTab = ({ selectedSeason = 2024, league = "euroleague" }: OffenseTab
   const [hoveredGame, setHoveredGame] = useState<{ game: EuroleagueGameLog; index: number } | null>(null)
   const [referenceLineType, setReferenceLineType] = useState<"best" | "playerAvg" | "leagueAvg">("playerAvg")
   const [shotData, setShotData] = useState<any[]>([])
-  const [shotDataLoading, setShotDataLoading] = useState<boolean>(false)
   const [selectedCustomReferenceLine, setSelectedCustomReferenceLine] = useState(null)
   const [selectedPhaseToggle, setSelectedPhaseToggle] = useState<"Regular Season" | "Playoffs">("Regular Season")
   const [yearOverYearStats, setYearOverYearStats] = useState<PlayerStatsFromGameLogs[]>([])
-  const [yearOverYearLoading, setYearOverYearLoading] = useState<boolean>(false)
 
   const [availableTeams, setAvailableTeams] = useState<
     {
@@ -208,7 +204,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
 
   // Move this function inside the OffenseTab component, after the state declarations
   const getTeamLogo = (teamCode: string, teamLogo?: string) => {
-    const bgColor = teamColors[teamCode] || "bg-gray-600"
+    const bgColor = teamColors[teamCode] || "#2b5c94"
 
     if (teamLogo && teamLogo.trim() !== "") {
       return (
@@ -235,9 +231,9 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     }
   }
   const getTeamColorStyles = (teamCode: string) => {
-  const bgColor = teamColors[teamCode] || "bg-gray-600"
+  const bgColor = teamColors[teamCode] || "#2b5c94"
   
-  return { backgroundColor: bgColor || "#6b7280" }
+  return { backgroundColor: bgColor || "#2b5c94" }
 }
 
   const chartRef = useRef<HTMLDivElement>(null)
@@ -509,12 +505,13 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
             const firstPlayer = firstTeamPlayers[0]
             console.log(`Auto-selecting first player: ${firstPlayer.player_name}`)
             setSelectedPlayer(firstPlayer)
-            loadPlayerData(firstPlayer)
+            await loadPlayerData(firstPlayer)
+          } else {
+            setIsLoading(false)
           }
         }
       } catch (error) {
         console.error("Error loading teams:", error)
-      } finally {
         setIsLoading(false)
       }
     }
@@ -563,11 +560,12 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
           const firstPlayer = filteredPlayers[0]
           console.log(`Auto-selecting player: ${firstPlayer.player_name}`)
           setSelectedPlayer(firstPlayer)
-          loadPlayerData(firstPlayer)
+          await loadPlayerData(firstPlayer)
+        } else if (!selectedPlayer) {
+          setIsLoading(false)
         }
       } catch (error) {
         console.error("Error loading players:", error)
-      } finally {
         setIsLoading(false)
       }
     }
@@ -576,41 +574,52 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   }, [selectedTeam, allPlayers])
 
   // Function to load player data when a player is selected
-  const loadPlayerData = (player: PlayerStatsFromGameLogs) => {
+  const loadPlayerData = async (player: PlayerStatsFromGameLogs) => {
     console.log("=== LOADING PLAYER DATA ===")
     console.log("Player:", player.player_name)
     console.log("Team:", player.player_team_name)
     console.log("Points:", player.points_scored)
     console.log("Games:", player.games_played)
 
-    // Update playerData with the selected player's information
-    Object.assign(playerData, {
-      name: player.player_name,
-      team: player.player_team_name,
-      teamAbbr: player.player_team_code,
-      position: getPositionFromCode(player.player_id),
-      number: "",
-      height: "",
-      weight: "",
-      imageUrl: "", // Not available in pre-calculated stats
-      teamLogoUrl:
-        player.teamlogo || `/placeholder.svg?height=48&width=48&query=${player.player_team_name} basketball logo`,
-      gamesPlayed: player.games_played,
-      gamesStarted: player.games_started,
-    })
+    // Set loading state for all player data
+    setIsLoading(true)
 
-    // Load year-over-year stats
-    loadYearOverYearStats(player)
+    try {
+      // Update playerData with the selected player's information
+      Object.assign(playerData, {
+        name: player.player_name,
+        team: player.player_team_name,
+        teamAbbr: player.player_team_code,
+        position: getPositionFromCode(player.player_id),
+        number: "",
+        height: "",
+        weight: "",
+        imageUrl: "", // Not available in pre-calculated stats
+        teamLogoUrl:
+          player.teamlogo || `/placeholder.svg?height=48&width=48&query=${player.player_team_name} basketball logo`,
+        gamesPlayed: player.games_played,
+        gamesStarted: player.games_started,
+      })
 
-    // Trigger re-render
-    setPlayerDataUpdated((prev) => prev + 1)
+      // Load all player data concurrently
+      await Promise.all([
+        loadYearOverYearStats(player),
+        loadShotData()
+      ])
+
+      // Trigger re-render
+      setPlayerDataUpdated((prev) => prev + 1)
+    } catch (error) {
+      console.error("Error loading player data:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Function to load year-over-year stats for the selected player
   const loadYearOverYearStats = async (player: PlayerStatsFromGameLogs) => {
     if (!player) return
 
-    setYearOverYearLoading(true)
     try {
       console.log(`Loading year-over-year stats for player: ${player.player_name}`)
 
@@ -643,8 +652,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     } catch (error) {
       console.error("Error loading year-over-year stats:", error)
       setYearOverYearStats([])
-    } finally {
-      setYearOverYearLoading(false)
     }
   }
 useEffect(() => {
@@ -684,6 +691,7 @@ useEffect(() => {
 
     // Auto-select first team and player for the new league
     const autoSelectFirstTeamAndPlayer = async () => {
+      setIsLoading(true)
       try {
         // Load teams for the new league
         const rsPlayers = await fetchAllPlayerStatsFromGameLogs(selectedSeason, "Regular Season", league)
@@ -727,12 +735,15 @@ useEffect(() => {
               const firstPlayer = firstTeamPlayers[0]
               console.log(`Auto-selecting first player for ${league}: ${firstPlayer.player_name}`)
               setSelectedPlayer(firstPlayer)
-              loadPlayerData(firstPlayer)
+              await loadPlayerData(firstPlayer)
+            } else {
+              setIsLoading(false)
             }
           }
         }
       } catch (error) {
         console.error("Error auto-selecting team and player for league change:", error)
+        setIsLoading(false)
       }
     }
 
@@ -994,7 +1005,6 @@ useEffect(() => {
   const loadShotData = async () => {
     if (!selectedPlayer) return
 
-    setShotDataLoading(true)
     try {
       console.log(
         `Loading shot data for player: ${selectedPlayer.player_id}, name: ${selectedPlayer.player_name}, season: ${selectedSeason}`,
@@ -1017,8 +1027,6 @@ useEffect(() => {
     } catch (error) {
       console.error("Error loading shot data:", error)
       setShotData([])
-    } finally {
-      setShotDataLoading(false)
     }
   }
 
@@ -1069,11 +1077,6 @@ useEffect(() => {
     return lines[selectedCustomReferenceLine] || 0
   }
 
-  useEffect(() => {
-    if (selectedPlayer) {
-      loadShotData()
-    }
-  }, [selectedPlayer, selectedSeason, league])
 
   // Calculate zone statistics from shot data
   const zoneStatistics = useMemo(() => {
@@ -2518,7 +2521,7 @@ const PlayerTeamSelector = () => {
         </div>
         
         <div className="rounded-lg overflow-hidden">
-          {shotDataLoading ? (
+          {false ? (
             <div className="flex justify-center items-center h-[215px]">
               <LeagueSpinner 
                 league={league === "international-eurocup" ? "eurocup" : "euroleague"} 
@@ -2551,7 +2554,7 @@ const PlayerTeamSelector = () => {
             playerShotData={shotData}
             leagueAveragesData={leagueAveragesData}
             playerName={selectedPlayer?.player_name || "Unknown Player"}
-            isLoading={shotDataLoading}
+            isLoading={false}
           />
         </div>
       </div>
@@ -2618,7 +2621,7 @@ const PlayerTeamSelector = () => {
           </div>
           {/* Shot Chart Container */}
           <div className="rounded-lg overflow-hidden">
-            {shotDataLoading ? (
+            {false ? (
               <div className="flex justify-center items-center h-64">
                 <LeagueSpinner 
                   league={league === "international-eurocup" ? "eurocup" : "euroleague"} 
@@ -2678,7 +2681,7 @@ const PlayerTeamSelector = () => {
               playerShotData={shotData}
               leagueAveragesData={leagueAveragesData}
               playerName={selectedPlayer?.player_name || "Unknown Player"}
-              isLoading={shotDataLoading}
+              isLoading={false}
             />
           </div>
         </div>

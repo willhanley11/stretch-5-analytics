@@ -694,7 +694,7 @@ export function LeagueStandingsTab({
                 className={`flex-1 transition-opacity duration-200 ${
                   selectedTableMode === "league" ? "opacity-100" : "opacity-40"
                 }`}
-                style={{ backgroundColor: '#2b5c94' }}
+                style={{ backgroundColor: league === 'eurocup' ? '#3979D1' : '#D37000' }}
               >
                 <button
                   onClick={() => setSelectedTableMode("league")}
@@ -710,7 +710,7 @@ export function LeagueStandingsTab({
                 className={`flex-1 transition-opacity duration-200 ${
                   selectedTableMode === "player" ? "opacity-100" : "opacity-40"
                 }`}
-                style={{ backgroundColor: '#2b5c94' }}
+                style={{ backgroundColor: league === 'eurocup' ? '#3979D1' : '#D37000' }}
               >
                 <button
                   onClick={() => setSelectedTableMode("player")}
@@ -757,7 +757,10 @@ export function LeagueStandingsTab({
                 id="view-mode-filter"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className="text-sm border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-48"
+                className={`text-sm border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 w-48`}
+                style={{
+                  '--tw-ring-color': league === 'eurocup' ? '#3979D1' : '#D37000'
+                } as any}
               >
                 <option value="team">Team</option>
                 <option value="off-4factors">Off - 4 Factors</option>
@@ -1008,7 +1011,10 @@ export function LeagueStandingsTab({
                 id="view-mode-filter"
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className="text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-24 md:w-auto"
+                className={`text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 w-24 md:w-auto`}
+                style={{
+                  '--tw-ring-color': league === 'eurocup' ? '#3979D1' : '#D37000'
+                } as any}
               >
                 <option value="team">Team</option>
                 <option value="off-4factors">Off - 4 Factors</option>
