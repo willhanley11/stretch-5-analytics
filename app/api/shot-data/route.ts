@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Helper function to get the correct shot data table
     function getShotDataTable(league: string) {
-      return league === "eurocup" ? "shot_data_eurocup" : "shot_data"
+      return league === "eurocup" ? "shot_data_eurocup" : "shot_data_euroleague"
     }
 
     const shotDataTable = getShotDataTable(league)

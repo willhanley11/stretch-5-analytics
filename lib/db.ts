@@ -9,7 +9,7 @@ function getTableNames(league: string) {
       playerStatsFromGameLogs: "player_stats_from_gamelogs_euroleague", // NEW: Pre-calculated player stats
       gameLogs: "euroleague_game_logs",
       scheduleResults: "schedule_results_euroleague",
-      shotData: "shot_data",
+      shotData: "shot_data_euroleague",
       teamAdvanced: "euroleague_team_advanced",
       teamAdvancedPrecalculated: "team_advanced_stats_euroleague", // NEW: Pre-calculated table
     },

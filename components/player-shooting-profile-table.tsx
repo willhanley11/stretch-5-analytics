@@ -354,8 +354,9 @@ export function PlayerShootingProfileTable({
   }
 
   const renderZoneRow = (zoneName: string, stats: ZoneStats, isGroupHeader: boolean = false) => {
-    const diffColor = getDifferenceColor(stats.diff, stats.hasLeagueData)
-    const textColor = stats.diff > 0 ? "#FFFFFF" : "#FFFFFF" // White text for better contrast
+    const hasMinShots = stats.attempts >= 5
+    const diffColor = hasMinShots ? getDifferenceColor(stats.diff, stats.hasLeagueData) : "transparent"
+    const textColor = hasMinShots ? "#FFFFFF" : "transparent"
     const rowClass = isGroupHeader ? "bg-gray-100 font-semibold" : "hover:bg-gray-50"
 
     return (
@@ -373,15 +374,19 @@ export function PlayerShootingProfileTable({
     {formatPercentage(stats.percentage)}
   </td>
   <td className="py-0.5 md:py-2 px-2 text-center">
-    <span
-      className="inline-block px-1 py-0 md:py-0.5 rounded-md text-[9px] md:text-xs font-medium"
-      style={{ 
-        backgroundColor: diffColor,
-        color: textColor
-      }}
-    >
-      {formatDifference(stats.diff)}
-    </span>
+    {hasMinShots ? (
+      <span
+        className="inline-block px-1 py-0 md:py-0.5 rounded-md text-[9px] md:text-xs font-medium"
+        style={{ 
+          backgroundColor: diffColor,
+          color: textColor
+        }}
+      >
+        {formatDifference(stats.diff)}
+      </span>
+    ) : (
+      <span className="text-[9px] md:text-xs text-gray-400">-</span>
+    )}
   </td>
 </tr>
 
