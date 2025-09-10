@@ -63,49 +63,57 @@ const team_logo_mappings = {
   // Add more seasons as needed
 }
 
+
+
 // Add the Euroleague team colors mapping
 export const euroleague_team_colors = {
   // EuroLeague Teams (Darker shades for better contrast with white text)
-  BER: "#d6c042", // ALBA Berlin - Darker yellow
-  IST: "#2a619c", // Anadolu Efes - Darker blue
-  MCO: "#b03340", // Monaco - Darker red
-  BAS: "#2c5f94", // Baskonia - Darker navy blue
-  RED: "#c24b5a", // Crvena Zvezda - Darker red
-  MIL: "#d44c60", // Milan - Darker red with pink tone
-  BAR: "#2b5c94", // Barcelona - Darker deep blue
-  MUN: "#9e3b4d", // Bayern - Darker burgundy
-  ULK: "#d4b041", // Fenerbahce - Darker golden yellow
-  ASV: "#8a8d90", // ASVEL - Darker gray
-  TEL: "#d4a355", // Maccabi - Darker golden orange
-  OLY: "#bf5050", // Olympiacos - Darker red
-  PAN: "#2a7046", // Panathinaikos - Darker dark green
-  PRS: "#4e565f", // Paris - Darker slate
-  PAR: "#3a3834", // Partizan - Darker black-gray
+  VIR: "#2f2f2f", // Virtus Segafredo Bologna - Darker black
+  BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
+  OLY: "#bf5050", // Olympiacos Piraeus - Darker red
+  MCO: "#b03340", // AS Monaco - Darker red
+  ASV: "#8a8d90", // LDLC ASVEL Villeurbanne - Darker gray
+  PRS: "#4e565f", // Paris Basketball - Darker slate
+  TEL: "#d4a355", // Maccabi Playtika Tel Aviv - Darker golden orange
+  ZAL: "#2a7a51", // Zalgiris Kaunas - Darker kelly green
+  MIL: "#d44c60", // EA7 Emporio Armani Milan - Darker red with pink tone
+  RED: "#c24b5a", // Crvena Zvezda Meridianbet Belgrade - Darker red
   MAD: "#999999", // Real Madrid - Darker silver
-  VIR: "#2f2f2f", // Virtus - Darker black
-  ZAL: "#2a7a51", // Zalgiris - Darker kelly green
-  PAM: "#d47800", // Valencia Basket - Darker orange
-
-  // EuroCup Teams (Darker shades for better contrast with white text)
-  "7BET": "#893247", // 7bet-Lietkabelis Panevezys - Darker maroon/red
-  ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
-  BAH: "#213243", // Bahcesehir College Istanbul - Darker dark blue/charcoal
-  BES: "#363636", // Besiktas Fibabanka Istanbul - Darker dark grey/black
-  BUD: "#2a72b5", // Buducnost VOLI Podgorica - Darker light blue
-  CED: "#d39800", // Cedevita Olimpija Ljubljana - Darker orange/gold
-  BOU: "#c24033", // Cosea JL Bourg-en-Bresse - Darker red
-  TRE: "#4e6571", // Dolomiti Energia Trento - Darker slate gray
-  CAN: "#d3a127", // Dreamland Gran Canaria - Darker gold/orange
-  HAP: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
+  BAR: "#2b5c94", // FC Barcelona - Darker deep blue
+  IST: "#2a619c", // Anadolu Efes Istanbul - Darker blue
+  ULK: "#d4b041", // Fenerbahce Beko Istanbul - Darker golden yellow
+  BER: "#d6c042", // ALBA Berlin - Darker yellow
+  PAR: "#3a3834", // Partizan Mozzart Bet Belgrade - Darker black-gray
+  MUN: "#9e3b4d", // FC Bayern Munich - Darker burgundy
+  PAN: "#2a7046", // Panathinaikos AKTOR Athens - Darker dark green
   HTA: "#d0392e", // Hapoel Shlomo Tel Aviv - Darker red
-  JOV: "#409944", // Joventut Badalona - Darker green
-  ULM: "#c24400", // ratiopharm Ulm - Darker bright orange
-  TREF: "#d3a127", // Trefl Sopot - Darker gold/orange
-  TTK: "#42b4c5", // Turk Telekom Ankara - Darker light blue/turquoise
-  UBT: "#858585", // U-BT Cluj-Napoca - Darker grey
-  UMV: "#6c0924", // Umana Reyer Venice - Darker deep maroon/red
   HAM: "#213243", // Veolia Towers Hamburg - Darker dark blue/charcoal
+  PAM: "#d47800", // Valencia Basket - Darker orange
+  VNC: "#6c0924", // Umana Reyer Venice - Darker deep maroon/red
+  TSO: "#d3a127", // Trefl Sopot - Darker gold/orange
+  LKB: "#893247", // 7Bet-Lietkabelis Panevezys - Darker maroon/red
+  LJU: "#d39800", // Cedevita Olimpija Ljubljana - Darker orange/gold
+  CAN: "#d3a127", // Dreamland Gran Canaria - Darker gold/orange
+  BAH: "#213243", // Bahcesehir College Istanbul - Darker dark blue/charcoal
+  TRN: "#4e6571", // Dolomiti Energia Trento - Darker slate gray
+  TTK: "#42b4c5", // Turk Telekom Ankara - Darker light blue/turquoise
+  CLU: "#858585", // U-BT Cluj-Napoca - Darker grey
+  ULM: "#c24400", // ratiopharm Ulm - Darker bright orange
+  BOU: "#c24033", // Cosea JL Bourg-en-Bresse - Darker red
+  BUD: "#2a72b5", // Buducnost VOLI Podgorica - Darker light blue
+  BES: "#363636", // Besiktas Fibabanka Istanbul - Darker dark grey/black
+  JOV: "#409944", // Joventut Badalona - Darker green
   WOL: "#5ac591", // Wolves Twinsbet Vilnius - Darker lime green
+  JER: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
+  ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
+
+  // New team colors added
+  LLI: "#2f2f2f", // London Lions - Darker black (black, white, red colors)
+  BRE: "#2c5f94", // Germani Brescia - Darker blue (blue, white, gold colors)
+  WRO: "#2a7a51", // Slask Wroclaw - Darker green (green, white, red colors)
+  BBU: "#2a7a51", // Frutti Extra Bursaspor - Darker green (green and white colors)
+  PMT: "#2c5f94", // Prometey Slobozhanske - Darker blue (blue and white colors)
+  PAT: "#c24400"  // Promitheas Patras - Darker orange (black, white, orange colors)
 };
 // Remove the hardcoded teamNameToCode mapping since we'll use database teamcode directly
 export const teamNameToCode = {} // Empty object - we'll get teamcode from database

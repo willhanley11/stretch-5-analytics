@@ -15,6 +15,7 @@ import { LeagueLoadingScreen, LeagueSpinner } from "@/components/ui/league-spinn
 
 // Team background colors (same as in StatisticsTab)
 const teamColors = {
+  // Your existing colors (unchanged)
   VIR: "#2f2f2f", // Virtus Segafredo Bologna - Darker black
   BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
   OLY: "#bf5050", // Olympiacos Piraeus - Darker red
@@ -53,6 +54,14 @@ const teamColors = {
   WOL: "#5ac591", // Wolves Twinsbet Vilnius - Darker lime green
   JER: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
   ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
+
+  // New team colors added
+  LLI: "#2f2f2f", // London Lions - Darker black (black, white, red colors)
+  BRE: "#2c5f94", // Germani Brescia - Darker blue (blue, white, gold colors)
+  WRO: "#2a7a51", // Slask Wroclaw - Darker green (green, white, red colors)
+  BBU: "#2a7a51", // Frutti Extra Bursaspor - Darker green (green and white colors)
+  PMT: "#2c5f94", // Prometey Slobozhanske - Darker blue (blue and white colors)
+  PAT: "#c24400"  // Promitheas Patras - Darker orange (black, white, orange colors)
 };
 
 // Helper function to get team border color
@@ -605,7 +614,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       await loadYearOverYearStats(player)
       
       // Load shot data separately (non-blocking)
-      loadShotData().catch(console.error)
+      loadShotData(player).catch(console.error)
 
       // Trigger re-render
       setPlayerDataUpdated((prev) => prev + 1)
@@ -1002,17 +1011,18 @@ useEffect(() => {
     }
   }, [selectedPlayer, allPlayers, selectedPhase, selectedPhaseToggle])
 
-  const loadShotData = async () => {
-    if (!selectedPlayer) return
+  const loadShotData = async (player?: PlayerStatsFromGameLogs) => {
+    const targetPlayer = player || selectedPlayer
+    if (!targetPlayer) return
 
     try {
       console.log(
-        `Loading shot data for player: ${selectedPlayer.player_id}, name: ${selectedPlayer.player_name}, season: ${selectedSeason}`,
+        `Loading shot data for player: ${targetPlayer.player_id}, name: ${targetPlayer.player_name}, season: ${selectedSeason}`,
       )
 
       // Pass both player ID and name to increase chances of finding data
       const response = await fetch(
-        `/api/shot-data?playerId=${selectedPlayer.player_id}&playerName=${encodeURIComponent(selectedPlayer.player_name)}&season=${selectedSeason}&league=${league}`,
+        `/api/shot-data?playerId=${targetPlayer.player_id}&playerName=${encodeURIComponent(targetPlayer.player_name)}&season=${selectedSeason}&league=${league}`,
       )
 
       if (response.ok) {
@@ -1685,7 +1695,7 @@ const PlayerTeamSelector = () => {
           
           {/* Phase Toggle - Positioned just below the team color stripe - Only show if player has playoff data and dropdown is closed */}
           {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && !isPlayerDropdownOpen && (
-          <div className="absolute top-4 right-2 z-50">
+          <div className="absolute top-4 right-2 z-10">
             <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5 shadow-md">
               <button
                 onClick={() => {

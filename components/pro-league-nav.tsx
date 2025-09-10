@@ -357,7 +357,7 @@ export function ProLeagueNav() {
                 {/* Left - Brand + League Buttons */}
                 <div className="flex items-center space-x-6 flex-shrink-0">
                   <div className="relative h-10 w-32">
-                    <Image src="/stretch5-logo-original.png" alt="Stretch5 Analytics" fill className="object-contain" />
+                    <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                   </div>
 
                   {/* League Buttons - Horizontal */}
@@ -455,7 +455,7 @@ export function ProLeagueNav() {
               <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
                 {/* Logo */}
                 <div className="relative h-6 w-20 flex-shrink-0">
-                  <Image src="/stretch5-logo-original.png" alt="Stretch5 Analytics" fill className="object-contain" />
+                  <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                 </div>
 
                 {/* League Buttons - Right Aligned */}
