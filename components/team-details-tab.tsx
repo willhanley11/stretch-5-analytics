@@ -329,7 +329,7 @@ export function TeamDetailsTab({
     return scheduleData.filter((game) => {
       const phase = game.phase || "RS"
       const isRegularSeason = phase === "RS"
-      const isPlayoffs = ["PI", "PO", "FF"].includes(phase)
+      const isPlayoffs = ["PI", "PO", "FF", "2F", "8F", "4F", "Final"].includes(phase)
 
       return selectedScheduleFilter === "regular" ? isRegularSeason : isPlayoffs
     })
@@ -630,10 +630,30 @@ export function TeamDetailsTab({
       PI: "PLAY-IN",
       PO: "PLAYOFFS",
       FF: "FINAL FOUR",
+      "8F": "ROUND OF 16",
+      "4F": "QUARTERFINALS",
+      "2F": "SEMIFINALS",
+      Final: "FINAL"
     }
 
+    // Define phase order for proper display 
+    // Euroleague: PI → PO → FF
+    // Eurocup: 8F → 4F → 2F → Final
+    const phaseOrder = ["RS", "PI", "PO", "FF", "8F", "4F", "2F", "Final"]
+    
+    // Sort phases according to defined order
+    const sortedPhases = Object.keys(gamesByPhase).sort((a, b) => {
+      const indexA = phaseOrder.indexOf(a)
+      const indexB = phaseOrder.indexOf(b)
+      // If phase not found in order array, put it at the end
+      if (indexA === -1) return 1
+      if (indexB === -1) return -1
+      return indexA - indexB
+    })
+
     // Render games with phase headers
-    return Object.entries(gamesByPhase).map(([phase, games]) => {
+    return sortedPhases.map((phase) => {
+      const games = gamesByPhase[phase]
       const showHeader = phase !== "RS" // Only show headers for non-regular season phases
       const phaseName = phaseNames[phase] || ""
 

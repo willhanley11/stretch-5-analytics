@@ -601,11 +601,11 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
         gamesStarted: player.games_started,
       })
 
-      // Load all player data concurrently
-      await Promise.all([
-        loadYearOverYearStats(player),
-        loadShotData()
-      ])
+      // Load critical player data for main tab
+      await loadYearOverYearStats(player)
+      
+      // Load shot data separately (non-blocking)
+      loadShotData()
 
       // Trigger re-render
       setPlayerDataUpdated((prev) => prev + 1)

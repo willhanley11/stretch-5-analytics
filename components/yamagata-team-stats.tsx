@@ -390,10 +390,17 @@ function YamagataTeamStats({
           console.log("Players fetched:", players ? players.length : 0)
           if (players && players.length > 0) {
             console.log("Sample player data:", players[0])
-            // Get unique phases from player data and set default
+            // Get unique phases from player data and set default to RS if available
             const playerPhases = [...new Set(players.map((p) => p.phase))].filter(Boolean)
-            if (playerPhases.length > 0 && !playerPhases.includes(selectedPlayerPhase)) {
-              setSelectedPlayerPhase(playerPhases[0])
+            if (playerPhases.length > 0) {
+              // Always prefer RS (Regular Season) first
+              if (playerPhases.includes("RS")) {
+                setSelectedPlayerPhase("RS")
+              } else if (playerPhases.includes("Regular Season")) {
+                setSelectedPlayerPhase("Regular Season") 
+              } else {
+                setSelectedPlayerPhase(playerPhases[0])
+              }
             }
           }
           setTeamPlayers(players || [])
