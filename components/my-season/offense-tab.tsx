@@ -605,7 +605,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       await loadYearOverYearStats(player)
       
       // Load shot data separately (non-blocking)
-      loadShotData()
+      loadShotData().catch(console.error)
 
       // Trigger re-render
       setPlayerDataUpdated((prev) => prev + 1)
@@ -1683,8 +1683,8 @@ const PlayerTeamSelector = () => {
                 }}
               />
           
-          {/* Phase Toggle - Positioned just below the team color stripe - Only show if player has playoff data */}
-          {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && (
+          {/* Phase Toggle - Positioned just below the team color stripe - Only show if player has playoff data and dropdown is closed */}
+          {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && !isPlayerDropdownOpen && (
           <div className="absolute top-4 right-2 z-50">
             <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5 shadow-md">
               <button
