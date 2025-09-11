@@ -435,6 +435,21 @@ function YamagataTeamStats({
     return [...new Set(teamPlayers.map((p) => p.phase))].filter(Boolean)
   }, [teamPlayers])
 
+  // Reset player phase to Regular Season when team, league, or season changes
+  useEffect(() => {
+    if (availablePlayerPhases.length > 0) {
+      // First try to set to "Regular Season" or "RS"
+      if (availablePlayerPhases.includes("Regular Season")) {
+        setSelectedPlayerPhase("Regular Season")
+      } else if (availablePlayerPhases.includes("RS")) {
+        setSelectedPlayerPhase("RS")
+      } else {
+        // If neither is available, use the first available phase
+        setSelectedPlayerPhase(availablePlayerPhases[0])
+      }
+    }
+  }, [selectedTeam, currentLeague, selectedSeason, availablePlayerPhases])
+
   // Add this useEffect hook after all the useState declarations
   // Add this right before or after other useEffect hooks if they exist
   useEffect(() => {

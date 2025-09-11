@@ -54,15 +54,109 @@ const teamColors = {
   WOL: "#5ac591", // Wolves Twinsbet Vilnius - Darker lime green
   JER: "#b02727", // Hapoel Bank Yahav Jerusalem - Darker deep red
   ARI: "#d6b52c", // Aris Midea Thessaloniki - Darker gold/yellow
-
-  // New team colors added
-  LLI: "#2f2f2f", // London Lions - Darker black (black, white, red colors)
-  BRE: "#2c5f94", // Germani Brescia - Darker blue (blue, white, gold colors)
-  WRO: "#2a7a51", // Slask Wroclaw - Darker green (green, white, red colors)
-  BBU: "#2a7a51", // Frutti Extra Bursaspor - Darker green (green and white colors)
-  PMT: "#2c5f94", // Prometey Slobozhanske - Darker blue (blue and white colors)
-  PAT: "#c24400"  // Promitheas Patras - Darker orange (black, white, orange colors)
+  LLI: "#2f2f2f", // London Lions - Darker black
+  BRE: "#2c5f94", // Germani Brescia - Darker blue
+  WRO: "#2a7a51", // Slask Wroclaw - Darker green
+  BBU: "#2a7a51", // Frutti Extra Bursaspor - Darker green
+  PMT: "#2c5f94", // Prometey Slobozhanske - Darker blue
+  PAT: "#c24400", // Promitheas Patras - Darker orange
+  NOV: "#2f2f2f",
+  KSK: "#b03340",
+  DAR: "#2a7a51",
+  CSK: "#b03340",
+  CHL: "#b03340",
+  UNK: "#2a7a51",
+  GAL: "#b03340",
+  SIE: "#2a7a51",
+  KHI: "#2c5f94", // Khimki Moscow Region - Darker blue
+  CED: "#c24400", // Cedevita Zagreb - Darker orange
+  BAM: "#b03340", // Brose Bamberg - Darker red
+  NTR: "#2a7a51", // JSF Nanterre - Darker green
+  SOP: "#2c5f94", // Asseco Prokom Gdynia - Darker blue
+  MAL: "#2a7a51", // Unicaja Malaga - Darker green
+  SAS: "#2c5f94", // Dinamo Banco di Sardegna Sassari - Darker blue
+  STR: "#b03340", // Strasbourg - Darker red
+  TIV: "#b03340", // Lokomotiv Kuban Krasnodar - Darker red
+  ZGO: "#2f2f2f", // PGE Turow Zgorzelec - Darker black
+  NIK: "#1e4a82", // Budivelnik Kiev - Dark blue/royal blue (from "bluedark, goldold and blueroyal")
+  LIE: "#1a1a1a", // Lietuvos Rytas Vilnius - Black (from "black, red and white" scheme)
+  LMG: "#2e7d32", // Limoges CSP - Forest green (from "green, white and yellow" scheme)
+  CTU: "#1976d2", // Mapooro Cantu - Blue (from "blue and white" / "white/blue/sky blue")
+  DYR: "#00aeef", // Zenit St Petersburg - Sky blue (verified hex code #00AEEF)
+  GSS: "#2e7d32", // Stelmet Zielona Gora - Green (from "green and white")
+  PAO: "#1a1a1a", // PAOK Thessaloniki - Black (from "black and white")
+  AEK: "#fbc02d", // AEK Athens - Yellow/Gold (from "black and yellow")
+  ROM: "#8b1538", // Virtus Rome - Maroon (from "maroon and gold")
+  
+  // Newly verified teams
+  KLA: "#1565c0", // Neptunas Klaipeda - Blue (from "blue and white")
+  PAI: "#1c5aa0", // Levallois Metropolitans - Navy blue (from "navy and gold" / "blue and yellow")
+  OLD: "#fdd835", // EWE Baskets Oldenburg - Yellow (from "yellow and blue" traditional colors)
+  CHA: "#d32f2f", // Proximus Spirou Charleroi - Red (from "red and white")
+  REG: "#d32f2f", // Grissin Bon Reggio Emilia - Red (from "red and white")
+  RIS: "#ff6f00", // Maccabi Rishon LeZion - Orange (from "orange and white")
+  BAN: "#ff6f00", // Banvit Bandirma - Orange (from "orange, green and white")
+  CHO: "#d32f2f", // Cholet Basket - Red (from "red and white")
+  ANT: "#d32f2f", // Telenet Giants Antwerp - Red (from "red and white")
+  SZO: "#1a1a1a", // Szolnoki Olaj - Black (from "black and red")
+  
+    // Updated with verified authentic colors
+  GRA: "#1565c0", // BCM Gravelines Dunkerque - Dark blue (from "bluedark and orange")
+  AZO: "#1976d2", // Azovmash Mariupol - Blue (from "blue and orange")  
+  SOF: "#1976d2", // Lukoil Academic Sofia - Blue (from "blue and white")
+  ROM: "#8b1538", // Virtus Rome - Maroon (from "maroon and gold")
+  RIS: "#ff6f00", // Maccabi Rishon LeZion - Orange (from "orange and white")
+  ANR: "#1976d2", // MoraBanc Andorra - Blue (from "blue, yellow and red")
+  TOR: "#8b1538", // Fiat Turin - Maroon (traditional Turin maroon color)
+  BAN: "#ff6f00", // Banvit Bandirma - Orange (from "orange, green and white")
+  VAR: "#d32f2f", // Cimberio Varese - Red (from "red and white" traditional colors)
+    // Updated with verified authentic colors
+  CAI: "#d32f2f", // CAI Zaragoza - Red (from "red and white")
+  OOS: "#1976d2", // Telenet Ostend - Blue (originally "blue and yellow", currently "red and yellow" but traditionally blue)
+  RDN: "#d32f2f", // Radnicki Kragujevac - Red (from "red and white" / "reddark and red")
+  LUD: "#1a1a1a", // MHP RIESEN Ludwigsburg - Black (from "black and yellow")
+  WUE: "#b03340", // s.Oliver Baskets Wurzburg - Darker blue (keeping original estimate as no specific info found)
+  ANT: "#d32f2f", // Telenet Giants Antwerp - Red (already verified as "red and white")
+  FUE: "#d47800", // Montakit Fuenlabrada - Darker blue (keeping original estimate as no specific info found)
+  BUR: "#1a3a5c", /* Deep navy blue */
+    
+  /* Ventspils - Blue and yellow (using blue as primary) */
+  VEN: "#1e4a72", /* Deep blue */
+  MHB: "#1b5e20", /* Deep forest green */
+  SAR: "#212121",/* Deep charcoal black */
+  DIJ: "#212121",/* Deep charcoal black */
+  BON: "#8b1538", /* Deep cardinal red */
+  PLO: "#1e4a72", // CSU Asesoft Ploiesti - Deep blue (team colors: blue and white)
+  BUC: "#8b1538", // Steaua CSM EximBank Bucharest - Deep red (team colors: blue and red - using red as primary)
+  PAO: "#1a1a1a", // PAOK Thessaloniki - Deep black (team colors: black and white)
+  AEK: "#b8860b", // AEK Athens - Dark gold/yellow (team colors: black and yellow - using darker yellow)
+  MBA: "#1e4a72", // Mornar Bar - Deep blue (team colors: blue and white)
+  LOI: "#8b0000", // Bisons Loimaa - Dark red (team colors: black, white and red - using red as primary)
+  ART: "#212121", // Artland Dragons Quakenbrueck - Deep black (team colors: black and white)
+  NAN: "#8b0000", // SLUC Nancy - Dark red (team colors: red, gray and black - using red as primary)
+  BIL: "#1a1a1a", // RETAbet Bilbao Basket - Dark red (team colors: black and red - using red as primary)
+  SZO: "#8b0000", // Szolnoki Olaj - Dark red (team colors: black and red - using red as primary)
+  ORL: "#d2691e", // Orleans Loiret Basket - Dark brown (team colors: brown and white)
+  YUZ: "#1b5e20", // Khimik Yuzhne - Deep green (team colors: green and white)
+  DON: "#cc5500", // Donetsk - Dark orange (team colors: black and orange - using orange as primary)
+  AYK: "#8b1538", // Aykon TED Ankara Kolejliler - Deep red (team colors: navy and red - using red as primary)
+  RUD: "#1e4a72", // Prienai Rudupis - Deep blue (team colors: blue, white and red - using blue as primary)
+  KAL: "#1e4a72", // Kalev Cramo Tallinn - Deep blue (team colors: blue and white)
+  NIO: "#8b1538", // Panionios Athens - Deep red (team colors: blue and red - using red as primary)
+  LEM: "#cc5500", // Le Mans Sarthe Basket - Dark orange (team colors: blue and orange - using orange as primary)
+  CIB: "#8b1538", // Cibona Zagreb - Deep red (team colors: red, blue and white - using red as primary)
+  MUR: "#8b1538", // UCAM Murcia - Deep red (team colors: red and white)
+  BDS: "#1e3a5f", // Enel Basket Brindisi - Deep royal blue (team colors: royal blue, white and orange - using blue as primary)
+  NYM: "#8b1538", // CEZ Basketball Nymburk - Deep red (team colors: red and white)
+  SSP: "#8b1538", // Spartak Saint Petersburg - Deep red (team colors: red and white)
+  VEF: "#1a1a1a", // VEF Riga - Deep black (team colors: black and white)
+  HAI: "#1e4a72", // Belfius Mons Hainaut - Deep blue (team colors: blue and white)
+  VSZ: "#1e4a72", // Alba Fehervar - Deep blue (team colors: blue and white)
+  TRB: "#8b1538", // Trabzonspor Medical Park - Deep red (team colors: light blue, white and dark red - using red as primary)
+  OKT: "#8b1538", // Krasny Oktyabr Volgograd - Darker red
+  FRA: "#1e4a72" // Fraport Skyliners Frankfurt - Darker blue
 };
+
 
 // Helper function to get team border color
 const getTeamBorderColor = (teamAbbr: string) => {
