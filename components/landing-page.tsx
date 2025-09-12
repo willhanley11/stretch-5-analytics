@@ -568,6 +568,16 @@ export default function LandingPage({
     return currentLeague?.color || "#FF6600" // Default to EuroLeague orange
   }
 
+  // Get team color for dropdown strips
+  const getTeamColor = (teamName: string) => {
+    if (!teamName) return "#6b7280" // Default gray if no team
+    const teamData = getSelectedTeamData(teamName)
+    if (teamData?.teamcode && euroleague_team_colors[teamData.teamcode]) {
+      return euroleague_team_colors[teamData.teamcode]
+    }
+    return "#6b7280" // Default gray
+  }
+
   // Comparison handlers (matching comparison tab)
   const handleCompTeamSelect = (playerIndex: number, teamId: string) => {
     const newSelectedTeams = [...compSelectedTeams]
@@ -617,7 +627,7 @@ export default function LandingPage({
           {/* Color strip */}
           <div 
             className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-            style={{ backgroundColor: getCurrentLeagueColor() }}
+            style={{ backgroundColor: getTeamColor(selectedTeam) }}
           />
           <div className="flex items-center pl-2">
             {selectedTeam ? (
@@ -700,7 +710,7 @@ export default function LandingPage({
             {/* Color strip */}
             <div 
               className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-              style={{ backgroundColor: getCurrentLeagueColor() }}
+              style={{ backgroundColor: getTeamColor(selectedPlayerTeam) }}
             />
             <div className="flex items-center pl-2">
               {selectedPlayerTeam ? (
@@ -763,7 +773,7 @@ export default function LandingPage({
             {/* Color strip */}
             <div 
               className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-              style={{ backgroundColor: getCurrentLeagueColor() }}
+              style={{ backgroundColor: getTeamColor(selectedPlayerTeam) }}
             />
             <span className="truncate pl-2">{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`} />
@@ -1164,7 +1174,7 @@ export default function LandingPage({
               {/* Color strip */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getCurrentLeagueColor() }}
+                style={{ backgroundColor: getTeamColor(selectedPlayer1?.player_team_name) }}
               />
               <div className="flex items-center pl-2">
                 {selectedPlayer1 ? (
@@ -1226,7 +1236,7 @@ export default function LandingPage({
               {/* Color strip */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getCurrentLeagueColor() }}
+                style={{ backgroundColor: getTeamColor(selectedPlayer1?.player_team_name) }}
               />
               <span className="truncate pl-2">{selectedPlayer1?.player_name || (!compSelectedTeams[0] ? "Select Team First" : "Select Player 1")}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`} />
@@ -1273,7 +1283,7 @@ export default function LandingPage({
               {/* Color strip */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getCurrentLeagueColor() }}
+                style={{ backgroundColor: getTeamColor(selectedPlayer2?.player_team_name) }}
               />
               <div className="flex items-center pl-2">
                 {selectedPlayer2 ? (
@@ -1335,7 +1345,7 @@ export default function LandingPage({
               {/* Color strip */}
               <div 
                 className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getCurrentLeagueColor() }}
+                style={{ backgroundColor: getTeamColor(selectedPlayer2?.player_team_name) }}
               />
               <span className="truncate pl-2">{selectedPlayer2?.player_name || (!compSelectedTeams[1] ? "Select Team First" : "Select Player 2")}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`} />
