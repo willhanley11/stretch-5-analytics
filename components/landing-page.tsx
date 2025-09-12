@@ -607,7 +607,7 @@ export default function LandingPage({
       return (
         <select 
           disabled 
-          className="w-full h-12 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed"
+          className="w-full h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed"
         >
           <option>Loading teams...</option>
         </select>
@@ -618,7 +618,7 @@ export default function LandingPage({
       <div className="relative w-full h-full">
         {/* Simple looking button that mimics a select */}
         <button 
-          className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+          className="shadow w-full h-10 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
             setIsTeamDropdownOpen(!isTeamDropdownOpen)
@@ -686,10 +686,10 @@ export default function LandingPage({
     if (isPlayerDataLoading) {
       return (
         <div className="flex gap-2 w-full">
-          <button disabled className="flex-1 h-12 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
+          <button disabled className="flex-1 h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
             Loading...
           </button>
-          <button disabled className="flex-1 h-12 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
+          <button disabled className="flex-1 h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
             Loading...
           </button>
         </div>
@@ -701,7 +701,7 @@ export default function LandingPage({
         {/* Team Select Button */}
         <div className="flex-.3 relative min-w-0" style={{maxWidth: '80px'}}>
           <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+            className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
@@ -763,7 +763,7 @@ export default function LandingPage({
         {/* Player Select Button */}
         <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
           <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+            className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
@@ -1165,7 +1165,7 @@ export default function LandingPage({
           {/* Player 1 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
@@ -1226,7 +1226,7 @@ export default function LandingPage({
           {/* Player 1 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
@@ -1274,7 +1274,7 @@ export default function LandingPage({
           {/* Player 2 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
@@ -1335,7 +1335,7 @@ export default function LandingPage({
           {/* Player 2 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
@@ -1389,7 +1389,7 @@ export default function LandingPage({
       description: "Reports, Schedule/Results, Rosters",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-12 flex items-center">
+        <div className="w-full h-10 flex items-center">
           <TeamDropdown />
         </div>
       ),
@@ -1405,7 +1405,7 @@ export default function LandingPage({
       description: "Profiles, Shot Charts, Gamelogs, Radar",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-12 flex items-center">
+        <div className="w-full h-10 flex items-center">
           <PlayerTeamSelector />
         </div>
       ),
@@ -1421,11 +1421,11 @@ export default function LandingPage({
       description: "League Standings, Player Statistics",
       color: "#E0E0E0",
       content: (
-        <div className="w-full flex items-center gap-2 h-12">
+        <div className="w-full flex items-center gap-2 h-10">
           {/* League Standings Dropdown */}
           <div className="relative w-full h-full flex-1">
             <button 
-              className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+              className="shadow w-full h-10 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
@@ -1487,7 +1487,7 @@ export default function LandingPage({
       description: "Averages, Per-40",
       color: "#E0E0E0",
       content: (
-        <div className="w-full flex items-center" style={{height: "100px"}}>
+        <div className="w-full flex items-center" style={{height: "80px"}}>
           <ComparisonSelector />
         </div>
       ),
@@ -1558,49 +1558,60 @@ export default function LandingPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 ">
-          {categories.map((category) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {categories.map((category, index) => {
             const IconComponent = category.icon
+            // All sections use the same formatting as Teams
+            const sectionStyles = {
+              bg: "bg-gradient-to-br from-white to-gray-50",
+              border: "border-gray-300",
+              headerBg: "bg-gray-100",
+              accent: "border-l-gray-500"
+            }
+            
             return (
               <motion.div
                 key={category.id}
-                className="bg-light-beige rounded-xl shadow-xl border border-gray-400 "
+                className={`${sectionStyles.bg} rounded-xl shadow-xl ${sectionStyles.border} border-2 ${sectionStyles.accent} border-l-4 relative overflow-hidden`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -2, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -2, boxShadow: "0 12px 30px -5px rgba(0, 0, 0, 0.2)" }}
               >
                 {/* Header Line: Icon + Title + Description + Go Button */}
-                <div className="p-3 pb-3 flex items-center gap-3">
-                  <div 
-                    className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0 border"
-                    style={{ backgroundColor: category.color }}
-                  >
-                    <IconComponent className="h-5 w-5 text-blue-900" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900">{category.title}</h3>
-                    <p className="text-xs text-gray-600 -mt-0.5">{category.description}</p>
-                  </div>
-                  
-                  {/* Go Button */}
-                  {category.goButton && (
-                    <button 
-                      onClick={category.goButton.onClick}
-                      disabled={category.goButton.disabled}
-                      className="px-3 h-10 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
+                <div className={`px-3 py-2 pb-2 ${sectionStyles.headerBg} rounded-t-lg mb-2`}>
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0 border bg-white shadow-sm"
                     >
-                      Go
-                    </button>
-                  )}
-                  
+                      <IconComponent className="h-5 w-5 text-gray-700" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900">{category.title}</h3>
+                      <p className="text-xs text-gray-700 -mt-0.5 font-medium">{category.description}</p>
+                    </div>
+                    
+                    {/* Go Button */}
+                    {category.goButton && (
+                      <button 
+                        onClick={category.goButton.onClick}
+                        disabled={category.goButton.disabled}
+                        className="px-3 h-10 bg-white text-gray-800 rounded-lg hover:bg-gray-50 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold text-xs border border-gray-400 shadow-sm transition-colors"
+                      >
+                        Go
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Content Below */}
-                <div className="px-2 pb-3">
+                <div className="px-3 pb-3">
                   {category.content}
                 </div>
+                
+                {/* Bottom accent line */}
+                <div className={`absolute bottom-0 left-0 right-0 h-1 ${sectionStyles.accent.replace('border-l-', 'bg-')}`}></div>
               </motion.div>
             )
           })}
