@@ -24,6 +24,13 @@ const seasons = [
   { id: 2021, display: "2021-22" },
   { id: 2020, display: "2020-21" },
   { id: 2019, display: "2019-20" },
+  { id: 2018, display: "2018-19" },
+  { id: 2017, display: "2017-18" },
+  { id: 2016, display: "2016-17" },
+  { id: 2015, display: "2015-16" },
+  { id: 2014, display: "2014-15" },
+  { id: 2013, display: "2013-14" },
+  { id: 2012, display: "2012-13" },
 ]
 
 const leagues = [
@@ -555,6 +562,12 @@ export default function LandingPage({
     return { backgroundColor: euroleague_team_colors[teamCode] || euroleague_team_colors.default }
   }
 
+  // Get current league color for dropdown strips
+  const getCurrentLeagueColor = () => {
+    const currentLeague = leagues.find(league => league.id === selectedLeague)
+    return currentLeague?.color || "#FF6600" // Default to EuroLeague orange
+  }
+
   // Comparison handlers (matching comparison tab)
   const handleCompTeamSelect = (playerIndex: number, teamId: string) => {
     const newSelectedTeams = [...compSelectedTeams]
@@ -595,13 +608,18 @@ export default function LandingPage({
       <div className="relative w-full h-full">
         {/* Simple looking button that mimics a select */}
         <button 
-          className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+          className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
             setIsTeamDropdownOpen(!isTeamDropdownOpen)
           }}
         >
-          <div className="flex items-center">
+          {/* Color strip */}
+          <div 
+            className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+            style={{ backgroundColor: getCurrentLeagueColor() }}
+          />
+          <div className="flex items-center pl-2">
             {selectedTeam ? (
               <>
                 <div className="w-8 h-8 mr-2 flex-shrink-0">
@@ -673,13 +691,18 @@ export default function LandingPage({
         {/* Team Select Button */}
         <div className="flex-.3 relative min-w-0" style={{maxWidth: '80px'}}>
           <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
             }}
           >
-            <div className="flex items-center">
+            {/* Color strip */}
+            <div 
+              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+              style={{ backgroundColor: getCurrentLeagueColor() }}
+            />
+            <div className="flex items-center pl-2">
               {selectedPlayerTeam ? (
                 <div className="w-8 h-8 mr-2 flex-shrink-0">
                   <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
@@ -730,14 +753,19 @@ export default function LandingPage({
         {/* Player Select Button */}
         <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
           <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
             }}
             disabled={!selectedPlayerTeam}
           >
-            <span className="truncate">{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
+            {/* Color strip */}
+            <div 
+              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+              style={{ backgroundColor: getCurrentLeagueColor() }}
+            />
+            <span className="truncate pl-2">{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
@@ -1127,13 +1155,18 @@ export default function LandingPage({
           {/* Player 1 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
               }}
             >
-              <div className="flex items-center">
+              {/* Color strip */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                style={{ backgroundColor: getCurrentLeagueColor() }}
+              />
+              <div className="flex items-center pl-2">
                 {selectedPlayer1 ? (
                   <div className="w-8 h-8 mr-2 flex-shrink-0">
                     <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
@@ -1183,14 +1216,19 @@ export default function LandingPage({
           {/* Player 1 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
               }}
               disabled={!compSelectedTeams[0]}
             >
-              <span className="truncate">{selectedPlayer1?.player_name || (!compSelectedTeams[0] ? "Select Team First" : "Select Player 1")}</span>
+              {/* Color strip */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                style={{ backgroundColor: getCurrentLeagueColor() }}
+              />
+              <span className="truncate pl-2">{selectedPlayer1?.player_name || (!compSelectedTeams[0] ? "Select Team First" : "Select Player 1")}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
@@ -1226,13 +1264,18 @@ export default function LandingPage({
           {/* Player 2 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
               }}
             >
-              <div className="flex items-center">
+              {/* Color strip */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                style={{ backgroundColor: getCurrentLeagueColor() }}
+              />
+              <div className="flex items-center pl-2">
                 {selectedPlayer2 ? (
                   <div className="w-8 h-8 mr-2 flex-shrink-0">
                     <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
@@ -1282,14 +1325,19 @@ export default function LandingPage({
           {/* Player 2 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
               }}
               disabled={!compSelectedTeams[1]}
             >
-              <span className="truncate">{selectedPlayer2?.player_name || (!compSelectedTeams[1] ? "Select Team First" : "Select Player 2")}</span>
+              {/* Color strip */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                style={{ backgroundColor: getCurrentLeagueColor() }}
+              />
+              <span className="truncate pl-2">{selectedPlayer2?.player_name || (!compSelectedTeams[1] ? "Select Team First" : "Select Player 2")}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
@@ -1367,13 +1415,18 @@ export default function LandingPage({
           {/* League Standings Dropdown */}
           <div className="relative w-full h-full flex-1">
             <button 
-              className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
               onClick={() => {
                 closeAllDropdowns()
                 setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
               }}
             >
-              <span className="truncate">
+              {/* Color strip */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                style={{ backgroundColor: getCurrentLeagueColor() }}
+              />
+              <span className="truncate pl-2">
                 {selectedTableMode === "league" ? "League Standings" : "Player Statistics"}
               </span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} />
@@ -1468,7 +1521,7 @@ export default function LandingPage({
             <select 
               value={selectedLeague} 
               onChange={(e) => onLeagueChange(e.target.value)}
-              className="w-52 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
+              className="w-52 h-10 border border-gray-300 bg-white shadow-sm rounded-md px-3 font-medium"
             >
               {leagues.map((league) => (
                 <option key={league.id} value={league.id}>
@@ -1484,7 +1537,7 @@ export default function LandingPage({
             <select 
               value={selectedSeason.toString()} 
               onChange={(e) => onSeasonChange(parseInt(e.target.value))}
-              className="w-36 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
+              className="w-36 h-10 border border-gray-300 bg-white shadow-sm rounded-md px-3 font-medium"
             >
               {seasons.map((season) => (
                 <option key={season.id} value={season.id.toString()}>
