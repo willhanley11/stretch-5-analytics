@@ -699,7 +699,7 @@ export default function LandingPage({
     return (
       <div className="flex gap-2 w-full relative min-w-0">
         {/* Team Select Button */}
-        <div className="flex-.3 relative min-w-0" style={{maxWidth: '80px'}}>
+        <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
           <button 
             className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
             onClick={() => {
