@@ -573,12 +573,12 @@ export function TeamDetailsTab({
       const teams = teamStats.map((team) => team.name)
       setAvailableTeams(teams)
 
-      // If the currently selected team is not in the list for this season, select the first team
-      if (!teams.includes(selectedTeam) && teams.length > 0) {
+      // Only set first team if no team is currently selected or selected team doesn't exist
+      if (!selectedTeam || (!teams.includes(selectedTeam) && teams.length > 0)) {
         setSelectedTeam(teams[0])
       }
     }
-  }, [teamStats, selectedSeason, selectedTeam, setSelectedTeam])
+  }, [teamStats, selectedSeason, setSelectedTeam]) // Removed selectedTeam from dependencies
 
   useEffect(() => {
     const loadLeagueAverages = async () => {
@@ -1246,6 +1246,7 @@ export function TeamDetailsTab({
                         key={teamName}
                         onClick={(e) => {
                           e.stopPropagation()
+                          console.log("Team details: Changing team from", selectedTeam, "to", teamName)
                           setSelectedTeam(teamName)
                           setIsTeamDropdownOpen(false)
                         }}
