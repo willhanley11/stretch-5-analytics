@@ -273,9 +273,28 @@ const getGameLogCellColor = (value: number, allValues: number[], higherIsBetter 
 interface OffenseTabProps {
   selectedSeason?: number
   league?: string
+  initialPlayer?: PlayerStatsFromGameLogs // Add initialPlayer prop from landing page
+  initialTeam?: any // Add initialTeam prop from landing page
+  // Keep existing props for backward compatibility
+  playerSearch?: string
+  onPlayerSearchChange?: (search: string) => void
+  selectedPlayer?: string | null
+  onPlayerSelect?: (player: string | null) => void
+  filteredPlayers?: any[]
 }
 
-const OffenseTab = ({ selectedSeason = 2024, league = "euroleague" }: OffenseTabProps) => {
+const OffenseTab = ({ 
+  selectedSeason = 2024, 
+  league = "euroleague",
+  initialPlayer,
+  initialTeam,
+  // Keep existing props for backward compatibility
+  playerSearch,
+  onPlayerSearchChange, 
+  selectedPlayer: propSelectedPlayer,
+  onPlayerSelect,
+  filteredPlayers
+}: OffenseTabProps) => {
   const [selectedStat, setSelectedStat] = useState<StatType>("points")
   const [timeRange, setTimeRange] = useState<TimeRange>("season")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("average")
@@ -531,11 +550,27 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     player_team_code: string
     season: number
     phase: string
-  } | null>(null)
+  } | null>(initialTeam ? {
+    player_team_name: initialTeam.name,
+    player_team_code: initialTeam.teamcode,
+    season: selectedSeason,
+    phase: "RS"
+  } : null)
   const [teamPlayers, setTeamPlayers] = useState<PlayerStatsFromGameLogs[]>([])
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerStatsFromGameLogs | null>(null)
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerStatsFromGameLogs | null>(initialPlayer || null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
+
+  // Debug logging for props
+  console.log("=== OFFENSE TAB DEBUG ===", {
+    selectedSeason,
+    league,
+    initialPlayer: initialPlayer?.player_name,
+    initialTeam: initialTeam?.name,
+    initialTeamCode: initialTeam?.teamcode,
+    selectedPlayer: selectedPlayer?.player_name,
+    selectedTeam: selectedTeam?.player_team_name
+  })
 
   // Function to get position from player code (mock implementation)
   const getPositionFromCode = (code: string): string => {
@@ -594,23 +629,43 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
         })
         setAvailableTeams(teams)
 
-        // Auto-select first team if no team is selected
+        // Auto-select based on initialPlayer/initialTeam or random selection
         if (teams.length > 0 && !selectedTeam) {
-          const firstTeam = teams[0]
-          console.log(`Auto-selecting first team: ${firstTeam.player_team_name}`)
-          setSelectedTeam(firstTeam)
-
-          // Auto-select first player from first team (from regular season)
-          const firstTeamPlayers = rsPlayers.filter((player) => player.player_team_code === firstTeam.player_team_code)
-          console.log(`Found ${firstTeamPlayers.length} players for first team`)
-
-          if (firstTeamPlayers.length > 0) {
-            const firstPlayer = firstTeamPlayers[0]
-            console.log(`Auto-selecting first player: ${firstPlayer.player_name}`)
-            setSelectedPlayer(firstPlayer)
-            await loadPlayerData(firstPlayer)
+          // Check if we have initialPlayer from landing page
+          if (initialPlayer && initialTeam) {
+            // Find the team and player from landing page selections
+            const landingTeam = teams.find(team => team.player_team_code === initialTeam.teamcode)
+            if (landingTeam) {
+              console.log(`Auto-selecting team from landing page: ${landingTeam.player_team_name}`)
+              setSelectedTeam(landingTeam)
+              
+              console.log(`Auto-selecting player from landing page: ${initialPlayer.player_name}`)
+              setSelectedPlayer(initialPlayer)
+              await loadPlayerData(initialPlayer)
+            }
           } else {
-            setIsLoading(false)
+            // Fallback to random selection from first 30 players
+            const first30Players = rsPlayers.slice(0, Math.min(30, rsPlayers.length))
+            
+            if (first30Players.length > 0) {
+              // Select random player from first 30
+              const randomIndex = Math.floor(Math.random() * first30Players.length)
+              const randomPlayer = first30Players[randomIndex]
+              
+              // Find the team for the random player
+              const randomTeam = teams.find(team => team.player_team_code === randomPlayer.player_team_code)
+              
+              if (randomTeam) {
+                console.log(`Auto-selecting random team: ${randomTeam.player_team_name}`)
+                setSelectedTeam(randomTeam)
+                
+                console.log(`Auto-selecting random player: ${randomPlayer.player_name}`)
+                setSelectedPlayer(randomPlayer)
+                await loadPlayerData(randomPlayer)
+              }
+            } else {
+              setIsLoading(false)
+            }
           }
         }
       } catch (error) {
@@ -630,6 +685,19 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     }
     loadLeagueAverages()
   }, [selectedSeason, league])
+
+  // Handle initialPlayer and initialTeam props from landing page
+  useEffect(() => {
+    if (initialPlayer && initialTeam && availableTeams.length > 0) {
+      const landingTeam = availableTeams.find(team => team.player_team_code === initialTeam.teamcode)
+      if (landingTeam && selectedPlayer?.player_id !== initialPlayer.player_id) {
+        console.log("Setting team and player from landing page:", landingTeam.player_team_name, initialPlayer.player_name)
+        setSelectedTeam(landingTeam)
+        setSelectedPlayer(initialPlayer)
+        loadPlayerData(initialPlayer)
+      }
+    }
+  }, [initialPlayer, initialTeam, availableTeams, selectedPlayer])
 
   // Load players when team is selected
   useEffect(() => {
@@ -825,20 +893,25 @@ useEffect(() => {
           )
 
           if (teams.length > 0) {
-            const firstTeam = teams[0]
-            console.log(`Auto-selecting first team for ${league}: ${firstTeam.player_team_name}`)
-            setSelectedTeam(firstTeam)
-
-            // Auto-select first player from first team
-            const firstTeamPlayers = rsPlayers.filter(
-              (player) => player.player_team_code === firstTeam.player_team_code,
-            )
-
-            if (firstTeamPlayers.length > 0) {
-              const firstPlayer = firstTeamPlayers[0]
-              console.log(`Auto-selecting first player for ${league}: ${firstPlayer.player_name}`)
-              setSelectedPlayer(firstPlayer)
-              await loadPlayerData(firstPlayer)
+            // Get first 30 players from RS for random selection
+            const first30Players = rsPlayers.slice(0, Math.min(30, rsPlayers.length))
+            
+            if (first30Players.length > 0) {
+              // Select random player from first 30
+              const randomIndex = Math.floor(Math.random() * first30Players.length)
+              const randomPlayer = first30Players[randomIndex]
+              
+              // Find the team for the random player
+              const randomTeam = teams.find(team => team.player_team_code === randomPlayer.player_team_code)
+              
+              if (randomTeam) {
+                console.log(`Auto-selecting random team for ${league}: ${randomTeam.player_team_name}`)
+                setSelectedTeam(randomTeam)
+                
+                console.log(`Auto-selecting random player for ${league}: ${randomPlayer.player_name}`)
+                setSelectedPlayer(randomPlayer)
+                await loadPlayerData(randomPlayer)
+              }
             } else {
               setIsLoading(false)
             }
@@ -3107,149 +3180,149 @@ const PlayerTeamSelector = () => {
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.points, gameLogStatValues.points, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.points, gameLogStatValues.points, true)}
                     >
-                      {game.points || 0}
+                      {game.minutes === "DNP" ? "-" : game.points || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.total_rebounds, gameLogStatValues.rebounds, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.total_rebounds, gameLogStatValues.rebounds, true)}
                     >
-                      {game.total_rebounds || 0}
+                      {game.minutes === "DNP" ? "-" : game.total_rebounds || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.assistances, gameLogStatValues.assists, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.assistances, gameLogStatValues.assists, true)}
                     >
-                      {game.assistances || 0}
+                      {game.minutes === "DNP" ? "-" : game.assistances || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.steals, gameLogStatValues.steals, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.steals, gameLogStatValues.steals, true)}
                     >
-                      {game.steals || 0}
+                      {game.minutes === "DNP" ? "-" : game.steals || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.blocks_favour, gameLogStatValues.blocks, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.blocks_favour, gameLogStatValues.blocks, true)}
                     >
-                      {game.blocks_favour || 0}
+                      {game.minutes === "DNP" ? "-" : game.blocks_favour || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.turnovers, gameLogStatValues.turnovers, false)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.turnovers, gameLogStatValues.turnovers, false)}
                     >
-                      {game.turnovers || 0}
+                      {game.minutes === "DNP" ? "-" : game.turnovers || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(
                         game.field_goals_made_2,
                         gameLogStatValues.fieldGoalsMade,
                         true,
                       )}
                     >
-                      {game.field_goals_made_2 || 0}
+                      {game.minutes === "DNP" ? "-" : game.field_goals_made_2 || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(
                         game.field_goals_attempted_2,
                         gameLogStatValues.fieldGoalsAttempted,
                         true,
                       )}
                     >
-                      {game.field_goals_attempted_2 || 0}
+                      {game.minutes === "DNP" ? "-" : game.field_goals_attempted_2 || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(twoPctNum, gameLogStatValues.fieldGoalPct, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(twoPctNum, gameLogStatValues.fieldGoalPct, true)}
                     >
-                      {twoPct}%
+                      {game.minutes === "DNP" ? "-" : `${twoPct}%`}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(
                         game.field_goals_made_3,
                         gameLogStatValues.threePointsMade,
                         true,
                       )}
                     >
-                      {game.field_goals_made_3 || 0}
+                      {game.minutes === "DNP" ? "-" : game.field_goals_made_3 || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(
                         game.field_goals_attempted_3,
                         gameLogStatValues.threePointsAttempted,
                         true,
                       )}
                     >
-                      {game.field_goals_attempted_3 || 0}
+                      {game.minutes === "DNP" ? "-" : game.field_goals_attempted_3 || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(threePctNum, gameLogStatValues.threePointPct, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(threePctNum, gameLogStatValues.threePointPct, true)}
                     >
-                      {threePct}%
+                      {game.minutes === "DNP" ? "-" : `${threePct}%`}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.free_throws_made, gameLogStatValues.freeThrowsMade, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.free_throws_made, gameLogStatValues.freeThrowsMade, true)}
                     >
-                      {game.free_throws_made || 0}
+                      {game.minutes === "DNP" ? "-" : game.free_throws_made || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(
                         game.free_throws_attempted,
                         gameLogStatValues.freeThrowsAttempted,
                         true,
                       )}
                     >
-                      {game.free_throws_attempted || 0}
+                      {game.minutes === "DNP" ? "-" : game.free_throws_attempted || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(ftPctNum, gameLogStatValues.freeThrowPct, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(ftPctNum, gameLogStatValues.freeThrowPct, true)}
                     >
-                      {ftPct}%
+                      {game.minutes === "DNP" ? "-" : `${ftPct}%`}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.offensive_rebounds, gameLogStatValues.rebounds, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.offensive_rebounds, gameLogStatValues.rebounds, true)}
                     >
-                      {game.offensive_rebounds || 0}
+                      {game.minutes === "DNP" ? "-" : game.offensive_rebounds || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.defensive_rebounds, gameLogStatValues.rebounds, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.defensive_rebounds, gameLogStatValues.rebounds, true)}
                     >
-                      {game.defensive_rebounds || 0}
+                      {game.minutes === "DNP" ? "-" : game.defensive_rebounds || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.fouls_commited, gameLogStatValues.turnovers, false)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.fouls_commited, gameLogStatValues.turnovers, false)}
                     >
-                      {game.fouls_commited || 0}
+                      {game.minutes === "DNP" ? "-" : game.fouls_commited || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.fouls_received, gameLogStatValues.steals, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.fouls_received, gameLogStatValues.steals, true)}
                     >
-                      {game.fouls_received || 0}
+                      {game.minutes === "DNP" ? "-" : game.fouls_received || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-medium border-r border-gray-300 font-mono"
-                      style={getGameLogCellColor(game.valuation, gameLogStatValues.points, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.valuation, gameLogStatValues.points, true)}
                     >
-                      {game.valuation || 0}
+                      {game.minutes === "DNP" ? "-" : game.valuation || 0}
                     </td>
                     <td
                       className="text-center py-0.5 px-0.5 md:py-1 md:px-1 font-mono"
-                      style={getGameLogCellColor(game.plusminus, gameLogStatValues.points, true)}
+                      style={game.minutes === "DNP" ? {} : getGameLogCellColor(game.plusminus, gameLogStatValues.points, true)}
                     >
-                      {game.plusminus > 0 ? `+${game.plusminus}` : game.plusminus || 0}
+                      {game.minutes === "DNP" ? "-" : (game.plusminus > 0 ? `+${game.plusminus}` : game.plusminus || 0)}
                     </td>
                   </tr>
                 )

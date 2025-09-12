@@ -252,6 +252,7 @@ interface YamagataTeamStatsProps {
   hideNav?: boolean
   selectedSeason?: number
   selectedLeague?: string // Add this prop
+  initialTeam?: any // Add initialTeam prop for landing page navigation
 }
 
 type StatType = "points" | "rebounds" | "assists" | "threePointers" | "steals" | "blocks"
@@ -268,6 +269,7 @@ function YamagataTeamStats({
   hideNav = false,
   selectedSeason: propSelectedSeason,
   selectedLeague: propSelectedLeague = "international-euroleague", // Add default value
+  initialTeam, // Add initialTeam prop
 }: YamagataTeamStatsProps) {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([])
 
@@ -286,8 +288,8 @@ function YamagataTeamStats({
   const [playerSortColumn, setPlayerSortColumn] = useState("pts")
   const [playerSortDirection, setPlayerSortDirection] = useState("desc")
   const [playerSearchQuery, setPlayerSearchQuery] = useState("")
-  // Update the default selected team:
-  const [selectedTeam, setSelectedTeam] = useState("Olympiacos")
+  // Update the default selected team to use initialTeam from landing page:
+  const [selectedTeam, setSelectedTeam] = useState(initialTeam?.name || "Olympiacos")
   // Add this new state for the player stats view mode
   const [playerStatsMode, setPlayerStatsMode] = useState("pergame") // "pergame", "per100", "total"
   const [selectedStat, setSelectedStat] = useState<StatType>("points")
@@ -349,6 +351,17 @@ function YamagataTeamStats({
     }
   }, [propSelectedLeague, currentLeague])
 
+  // Handle initialTeam prop from landing page
+  useEffect(() => {
+    if (initialTeam?.name && teamStats.length > 0) {
+      const teamExists = teamStats.some((team) => team.name === initialTeam.name)
+      if (teamExists && selectedTeam !== initialTeam.name) {
+        console.log("Setting team from landing page initialTeam:", initialTeam.name)
+        setSelectedTeam(initialTeam.name)
+      }
+    }
+  }, [initialTeam, teamStats, selectedTeam])
+
   // Fetch seasons on component mount
   useEffect(() => {
     const loadSeasons = async () => {
@@ -408,8 +421,14 @@ function YamagataTeamStats({
           if (stats.length > 0) {
             const teamExists = stats.some((team) => team.name === selectedTeam)
             if (!teamExists || !selectedTeam) {
-              console.log("Auto-selecting first team:", stats[0].name)
-              setSelectedTeam(stats[0].name)
+              // Check if we have an initialTeam from landing page
+              if (initialTeam?.name && stats.some((team) => team.name === initialTeam.name)) {
+                console.log("Auto-selecting team from landing page:", initialTeam.name)
+                setSelectedTeam(initialTeam.name)
+              } else {
+                console.log("Auto-selecting first team:", stats[0].name)
+                setSelectedTeam(stats[0].name)
+              }
             }
           }
         } catch (error) {
@@ -921,6 +940,8 @@ function YamagataTeamStats({
     propSelectedLeague,
     selectedSeason,
     selectedTeam,
+    initialTeam,
+    initialTeamName: initialTeam?.name,
   })
 
   return (

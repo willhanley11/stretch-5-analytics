@@ -10,6 +10,7 @@ import ComparisonTab from "./my-season/comparison-tab"
 import YamagataTeamStats from "./yamagata-team-stats"
 import StatisticsTab from "./statistics-tab"
 import AboutPage from "./about-page"
+import LandingPage from "./landing-page"
 
 // Add International section with Euroleague
 const countries = [{ id: "international", name: "International", flag: "🌍" }]
@@ -48,6 +49,7 @@ const leagueSections = [
 export function ProLeagueNav() {
   const [activeLeague, setActiveLeague] = useState("international-euroleague")
   const [activeSection, setActiveSection] = useState("teams")
+  const [showLandingPage, setShowLandingPage] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -77,6 +79,9 @@ export function ProLeagueNav() {
   const [selectedLeague, setSelectedLeague] = useState("international-euroleague")
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState<number>(2024)
+  
+  // State for landing page selections
+  const [landingPageSelections, setLandingPageSelections] = useState<any>(null)
 
   const mockPlayers = [
     { id: 1, name: "Marcelinho", image: null, initials: "MH" },
@@ -139,6 +144,22 @@ export function ProLeagueNav() {
     window.addEventListener("resize", updateHeaderHeights)
     return () => window.removeEventListener("resize", updateHeaderHeights)
   }, [])
+
+  // Recalculate header heights when transitioning from landing page
+  useEffect(() => {
+    if (!showLandingPage) {
+      // Small delay to ensure header is rendered
+      const timer = setTimeout(() => {
+        if (headerRef.current) {
+          setHeaderHeight(headerRef.current.offsetHeight)
+        }
+        if (topHeaderRowRef.current) {
+          setTopHeaderRowHeight(topHeaderRowRef.current.offsetHeight)
+        }
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [showLandingPage])
 
   // Calculate the amount the *entire header* should translate up
   // It should be 0 when scrollY is 0, and up to -topHeaderRowHeight when scrollY >= topHeaderRowHeight
@@ -222,6 +243,15 @@ export function ProLeagueNav() {
     setActiveSection(sectionId)
   }
 
+  const handleLandingPageNavigation = (tab: string, selections: any) => {
+    setShowLandingPage(false)
+    setActiveSection(tab)
+    
+    // Store landing page selections to pass to tabs
+    console.log(`Landing page navigation: tab=${tab}, selections=`, selections)
+    setLandingPageSelections({ tab, ...selections })
+  }
+
   const renderActiveContent = () => {
     switch (activeSection) {
       case "teams":
@@ -238,6 +268,7 @@ export function ProLeagueNav() {
                 hideNav={true}
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
+                initialTeam={landingPageSelections?.team}
               />
             </div>
           </div>
@@ -259,6 +290,8 @@ export function ProLeagueNav() {
                 filteredPlayers={filteredPlayerImages}
                 selectedSeason={selectedSeason}
                 league={selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"}
+                initialPlayer={landingPageSelections?.player}
+                initialTeam={landingPageSelections?.team}
               />
             </div>
           </div>
@@ -277,6 +310,7 @@ export function ProLeagueNav() {
                 hideNav={true}
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
+                initialTeam={landingPageSelections?.team}
               />
             </div>
           </div>
@@ -308,7 +342,11 @@ export function ProLeagueNav() {
             }}
           >
             <div className="max-w-10xl mx-auto ">
-              <ComparisonTab selectedSeason={selectedSeason} selectedLeague={selectedLeague} />
+              <ComparisonTab 
+                selectedSeason={selectedSeason} 
+                selectedLeague={selectedLeague}
+                initialPlayers={landingPageSelections?.players}
+              />
             </div>
           </div>
         );
@@ -329,12 +367,26 @@ export function ProLeagueNav() {
                 hideNav={true}
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
+                initialTeam={landingPageSelections?.team}
               />
             </div>
           </div>
         );
     }
   };
+
+  // Show landing page if showLandingPage is true
+  if (showLandingPage) {
+    return (
+      <LandingPage 
+        onNavigate={handleLandingPageNavigation}
+        selectedSeason={selectedSeason}
+        selectedLeague={selectedLeague}
+        onSeasonChange={setSelectedSeason}
+        onLeagueChange={setSelectedLeague}
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -360,9 +412,12 @@ export function ProLeagueNav() {
               <div className="flex items-center justify-between h-16 px-4 sm:px-8 gap-4">
                 {/* Left - Brand + League Buttons */}
                 <div className="flex items-center space-x-6 flex-shrink-0">
-                  <div className="relative h-10 w-32">
+                  <button 
+                    onClick={() => setShowLandingPage(true)}
+                    className="relative h-10 w-32 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
-                  </div>
+                  </button>
 
                   {/* League Buttons - Horizontal */}
                   <div className="flex items-center space-x-6">
@@ -458,9 +513,12 @@ export function ProLeagueNav() {
             <div className="sm:hidden">
               <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
                 {/* Logo */}
-                <div className="relative h-6 w-20 flex-shrink-0">
+                <button 
+                  onClick={() => setShowLandingPage(true)}
+                  className="relative h-6 w-20 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
-                </div>
+                </button>
 
                 {/* League Buttons - Right Aligned */}
                 <div className="flex items-center space-x-4">
