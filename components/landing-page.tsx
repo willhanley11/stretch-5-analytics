@@ -722,7 +722,7 @@ export default function LandingPage({
         </div>
 
         {/* Player Select Button */}
-        <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
+        <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
           <button 
             className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             onClick={() => {
@@ -1175,7 +1175,7 @@ export default function LandingPage({
           </div>
 
           {/* Player 1 Player Button */}
-          <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
+          <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
               className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={() => {
@@ -1274,7 +1274,7 @@ export default function LandingPage({
           </div>
 
           {/* Player 2 Player Button */}
-          <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
+          <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
               className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
               onClick={() => {
