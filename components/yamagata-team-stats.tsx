@@ -66,7 +66,7 @@ const team_logo_mappings = {
 
 
 // Add the Euroleague team colors mapping
-const euroleague_team_colors = {
+export const euroleague_team_colors = {
   // Your existing colors (unchanged)
   VIR: "#2f2f2f", // Virtus Segafredo Bologna - Darker black a
   BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
