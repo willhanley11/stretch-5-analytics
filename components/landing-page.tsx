@@ -6,7 +6,8 @@ import { Trophy, Users, BarChart, Scale, ArrowRight, ChevronDown } from "lucide-
 import { fetchTeamStats } from "@/app/actions/standings"
 import { fetchAllPlayerStatsFromGameLogs } from "@/app/actions/player-stats"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
-import Image from "next/image" 
+import Image from "next/image"
+import { Footer } from "./footer" 
 
 interface LandingPageProps {
   onNavigate: (tab: string, selections?: any) => void
@@ -1442,7 +1443,7 @@ export default function LandingPage({
     <div className="min-h-screen bg-light-beige from-slate-50 to-slate-100 fixed inset-0 z-50 overflow-auto">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-3 pt-5 pb-4">
+        <div className="max-w-6xl mx-auto px-3 pt-2 pb-2">
           <div className="flex justify-center">
             {/* Logo */}
             <div className="relative h-8 w-36">
@@ -1453,9 +1454,9 @@ export default function LandingPage({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-2 py-4 bg-warm-beige">
+      <div className="max-w-6xl mx-auto px-3 py-3 bg-warm-beige">
         {/* League and Season Selection */}
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex justify-center gap-4 mb-3">
           {/* League Dropdown */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-gray-600 ml-1">Select League</label>
@@ -1489,7 +1490,7 @@ export default function LandingPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 ">
           {categories.map((category) => {
             const IconComponent = category.icon
             return (
@@ -1529,7 +1530,7 @@ export default function LandingPage({
                 </div>
                 
                 {/* Content Below */}
-                <div className="px-2 pb-4">
+                <div className="px-2 pb-3">
                   {category.content}
                 </div>
               </motion.div>
@@ -1537,6 +1538,9 @@ export default function LandingPage({
           })}
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
