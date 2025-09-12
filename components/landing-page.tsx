@@ -1325,19 +1325,14 @@ export default function LandingPage({
       description: "Reports, Schedule/Results, Rosters",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-12 flex items-center gap-2">
-          <div className="flex-1">
-            <TeamDropdown />
-          </div>
-          <button 
-            onClick={() => onNavigate("teams", { team: selectedTeam })}
-            disabled={!selectedTeam}
-            className="px-3 h-12 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
-          >
-            Go
-          </button>
+        <div className="w-full h-12 flex items-center">
+          <TeamDropdown />
         </div>
-      )
+      ),
+      goButton: {
+        onClick: () => onNavigate("teams", { team: selectedTeam }),
+        disabled: !selectedTeam
+      }
     },
     {
       id: "players", 
@@ -1346,19 +1341,14 @@ export default function LandingPage({
       description: "Profiles, Shot Charts, Gamelogs, Radar",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-12 flex items-center gap-2">
-          <div className="flex-1">
-            <PlayerTeamSelector />
-          </div>
-          <button 
-            onClick={() => onNavigate("statistics", { team: selectedPlayerTeam, player: selectedPlayer })}
-            disabled={!selectedPlayer}
-            className="px-3 h-12 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
-          >
-            Go
-          </button>
+        <div className="w-full h-12 flex items-center">
+          <PlayerTeamSelector />
         </div>
-      )
+      ),
+      goButton: {
+        onClick: () => onNavigate("statistics", { team: selectedPlayerTeam, player: selectedPlayer }),
+        disabled: !selectedPlayer
+      }
     },
     {
       id: "league",
@@ -1414,14 +1404,12 @@ export default function LandingPage({
             )}
           </div>
           
-          <button 
-            onClick={() => onNavigate("standings", { mode: selectedTableMode })}
-            className="px-3 h-12 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
-          >
-            Go
-          </button>
         </div>
-      )
+      ),
+      goButton: {
+        onClick: () => onNavigate("standings", { mode: selectedTableMode }),
+        disabled: false
+      }
     },
     {
       id: "comparison",
@@ -1430,28 +1418,23 @@ export default function LandingPage({
       description: "Averages, Per-40",
       color: "#E0E0E0",
       content: (
-        <div className="w-full flex items-center gap-2" style={{height: "100px"}}>
-          <div className="flex-1">
-            <ComparisonSelector />
-          </div>
-          <button 
-            onClick={() => onNavigate("comparison", { 
-              players: [
-                compSelectedPlayerIds[0] && compSelectedTeams[0] 
-                  ? compPlayersByTeam[compSelectedTeams[0]]?.find(p => p.player_id === compSelectedPlayerIds[0])
-                  : null,
-                compSelectedPlayerIds[1] && compSelectedTeams[1]
-                  ? compPlayersByTeam[compSelectedTeams[1]]?.find(p => p.player_id === compSelectedPlayerIds[1])
-                  : null
-              ].filter(Boolean)
-            })}
-            disabled={!compSelectedPlayerIds[0] || !compSelectedPlayerIds[1]}
-            className="px-3 h-12 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
-          >
-            Go
-          </button>
+        <div className="w-full flex items-center" style={{height: "100px"}}>
+          <ComparisonSelector />
         </div>
-      )
+      ),
+      goButton: {
+        onClick: () => onNavigate("comparison", { 
+          players: [
+            compSelectedPlayerIds[0] && compSelectedTeams[0] 
+              ? compPlayersByTeam[compSelectedTeams[0]]?.find(p => p.player_id === compSelectedPlayerIds[0])
+              : null,
+            compSelectedPlayerIds[1] && compSelectedTeams[1]
+              ? compPlayersByTeam[compSelectedTeams[1]]?.find(p => p.player_id === compSelectedPlayerIds[1])
+              : null
+          ].filter(Boolean)
+        }),
+        disabled: !compSelectedPlayerIds[0] || !compSelectedPlayerIds[1]
+      }
     }
   ]
 
@@ -1533,6 +1516,15 @@ export default function LandingPage({
                   </div>
                   
                   {/* Go Button */}
+                  {category.goButton && (
+                    <button 
+                      onClick={category.goButton.onClick}
+                      disabled={category.goButton.disabled}
+                      className="px-3 h-10 bg-gray-200 text-blue-900 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold text-xs border border-gray-300 shadow-sm"
+                    >
+                      Go
+                    </button>
+                  )}
                   
                 </div>
                 
