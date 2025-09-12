@@ -291,9 +291,15 @@ function YamagataTeamStats({
   const [playerSortDirection, setPlayerSortDirection] = useState("desc")
   const [playerSearchQuery, setPlayerSearchQuery] = useState("")
   // Update the default selected team to use initialTeam from landing page:
-  const [selectedTeam, setSelectedTeam] = useState(
+  const [selectedTeam, setSelectedTeamInternal] = useState(
     typeof initialTeam === 'string' ? initialTeam : initialTeam?.name || "Olympiacos"
   )
+  
+  // Wrapped setSelectedTeam with debugging
+  const setSelectedTeam = (teamName: string) => {
+    console.log("YamagataTeamStats: setSelectedTeam called with:", teamName, "from:", selectedTeam)
+    setSelectedTeamInternal(teamName)
+  }
   // Add this new state for the player stats view mode
   const [playerStatsMode, setPlayerStatsMode] = useState("pergame") // "pergame", "per100", "total"
   const [selectedStat, setSelectedStat] = useState<StatType>("points")
@@ -355,17 +361,17 @@ function YamagataTeamStats({
     }
   }, [propSelectedLeague, currentLeague])
 
-  // Handle initialTeam prop from landing page
+  // Handle initialTeam prop from landing page - only on initial load
   useEffect(() => {
     const teamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
     if (teamName && teamStats.length > 0) {
       const teamExists = teamStats.some((team) => team.name === teamName)
-      if (teamExists && selectedTeam !== teamName) {
+      if (teamExists && (!selectedTeam || selectedTeam === "Olympiacos")) { // Only set if no team selected or default
         console.log("Setting team from landing page initialTeam:", teamName)
         setSelectedTeam(teamName)
       }
     }
-  }, [initialTeam, teamStats, selectedTeam])
+  }, [initialTeam, teamStats]) // Removed selectedTeam from dependencies
 
   // Fetch seasons on component mount
   useEffect(() => {
@@ -422,16 +428,17 @@ function YamagataTeamStats({
           console.log("Team stats fetched:", stats.length, "teams for league:", currentLeague)
           setTeamStats(stats)
 
-          // Auto-select the first team if no team is selected or if selected team doesn't exist
+          // Only auto-select if truly no team is selected or selected team doesn't exist in new data
           if (stats.length > 0) {
             const teamExists = stats.some((team) => team.name === selectedTeam)
-            if (!teamExists || !selectedTeam) {
-              // Check if we have an initialTeam from landing page
+            if (!teamExists) {
+              // Only reset if the current team doesn't exist in the new data
               const teamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
               if (teamName && stats.some((team) => team.name === teamName)) {
-                console.log("Auto-selecting team from landing page:", teamName)
+                console.log("Team doesn't exist in new data, using initialTeam:", teamName)
                 setSelectedTeam(teamName)
-              } else {
+              } else if (!selectedTeam || selectedTeam === "" || selectedTeam === "Olympiacos") {
+                // Only set first team if no team is selected or it's the default
                 console.log("Auto-selecting first team:", stats[0].name)
                 setSelectedTeam(stats[0].name)
               }
