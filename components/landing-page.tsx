@@ -561,9 +561,14 @@ export default function LandingPage({
     newSelectedTeams[playerIndex] = teamId
     setCompSelectedTeams(newSelectedTeams)
     
-    // Reset player selection when team changes
+    // Auto-select first player from the newly selected team
     const newSelectedPlayerIds = [...compSelectedPlayerIds]
-    newSelectedPlayerIds[playerIndex] = null
+    const teamPlayers = compPlayersByTeam[teamId]
+    if (teamPlayers && teamPlayers.length > 0) {
+      newSelectedPlayerIds[playerIndex] = teamPlayers[0].player_id
+    } else {
+      newSelectedPlayerIds[playerIndex] = null
+    }
     setCompSelectedPlayerIds(newSelectedPlayerIds)
   }
 
