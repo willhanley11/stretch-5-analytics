@@ -301,8 +301,21 @@ export default function LandingPage({
   const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   const [isPlayerDataLoading, setIsPlayerDataLoading] = useState(false)
 
-  // League section state (for League/Players toggle)
+  // League section state (for League/Players dropdown)
   const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">("league")
+  const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
+
+  // Function to close all dropdowns
+  const closeAllDropdowns = () => {
+    setIsTeamDropdownOpen(false)
+    setIsPlayerTeamDropdownOpen(false)
+    setIsPlayerDropdownOpen(false)
+    setIsCompPlayer1TeamDropdownOpen(false)
+    setIsCompPlayer1PlayerDropdownOpen(false)
+    setIsCompPlayer2TeamDropdownOpen(false)
+    setIsCompPlayer2PlayerDropdownOpen(false)
+    setIsLeagueDropdownOpen(false)
+  }
 
   // Comparison section state (matching comparison tab exactly)
   const [compSelectedTeams, setCompSelectedTeams] = useState<(string | null)[]>([null, null])
@@ -353,15 +366,13 @@ export default function LandingPage({
           // Set random team for initial load or league change
           const teamNames = stats.map(team => team.name)
           
-          // Select random team only on initial load or league change
-          console.log(`Team loading check: teamNames.length=${teamNames.length}, selectedTeam='${selectedTeam}', currentLeague=${currentLeague}`)
-          if (teamNames.length > 0 && (!selectedTeam || selectedTeam === "")) {
+          // Always select a random team when team data loads (after league/season change)
+          console.log(`Team loading for ${currentLeague}: ${teamNames.length} teams available`)
+          if (teamNames.length > 0) {
             const randomIndex = Math.floor(Math.random() * teamNames.length)
             const randomTeam = teamNames[randomIndex]
             console.log(`Auto-selecting random team for ${currentLeague}: ${randomTeam}`)
             setSelectedTeam(randomTeam)
-          } else {
-            console.log(`Skipping team selection: selectedTeam='${selectedTeam}', teamNames available: ${teamNames.length > 0}`)
           }
           
           // Reset player selections when league changes - they'll be set in loadPlayerData
@@ -400,15 +411,15 @@ export default function LandingPage({
           const combinedPlayers = [...rsPlayers, ...poPlayers]
           setAllPlayers(combinedPlayers)
 
-          // Random team and player selection from top 40 only on initial load or league change
-          if (rsPlayers.length > 0 && (!selectedPlayer || selectedPlayer === null)) {
+          // Always select random team and player from top 40 when player data loads (after league/season change)
+          if (rsPlayers.length > 0) {
             // Get top 40 players by total points
             const top40Players = rsPlayers
               .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))
               .slice(0, Math.min(40, rsPlayers.length))
             
             if (top40Players.length > 0) {
-              // Select random player from top 40 only when none selected
+              // Select random player from top 40
               const randomIndex = Math.floor(Math.random() * top40Players.length)
               const randomPlayer = top40Players[randomIndex]
               
@@ -445,9 +456,9 @@ export default function LandingPage({
     }
 
     loadPlayerData()
-  }, [selectedSeason, selectedLeague, selectedPlayerTeam, teamStats])
+  }, [selectedSeason, selectedLeague])
 
-  // Update team players when selectedPlayerTeam changes
+  // Update team players when selectedPlayerTeam changes (filtering only, no data reload)
   useEffect(() => {
     if (selectedPlayerTeam && allPlayers.length > 0) {
       const currentTeam = teamStats.find(t => t.name === selectedPlayerTeam)
@@ -579,7 +590,10 @@ export default function LandingPage({
         {/* Simple looking button that mimics a select */}
         <button 
           className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
-          onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}
+          onClick={() => {
+            closeAllDropdowns()
+            setIsTeamDropdownOpen(!isTeamDropdownOpen)
+          }}
         >
           <div className="flex items-center">
             {selectedTeam ? (
@@ -589,7 +603,7 @@ export default function LandingPage({
                     {getTeamLogo(selectedTeam, getSelectedTeamData(selectedTeam), selectedSeason)}
                   </div>
                 </div>
-                <span>{selectedTeam}</span>
+                <span className="truncate">{selectedTeam}</span>
               </>
             ) : (
               <span>Select Team</span>
@@ -600,7 +614,7 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1">
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
@@ -611,6 +625,8 @@ export default function LandingPage({
                   onClick={(e) => {
                     e.stopPropagation()
                     setSelectedTeam(teamName)
+                    setSelectedPlayerTeam(teamName)
+                    setSelectedPlayer(null)
                     setIsTeamDropdownOpen(false)
                   }}
                   className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
@@ -647,14 +663,14 @@ export default function LandingPage({
     }
 
     return (
-      <div className="flex gap-2 w-full relative">
+      <div className="flex gap-2 w-full relative min-w-0">
         {/* Team Select Button */}
-        <div className="flex-.3 relative">
+        <div className="flex-.3 relative min-w-0" style={{maxWidth: '80px'}}>
           <button 
             className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
             onClick={() => {
+              closeAllDropdowns()
               setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
-              setIsPlayerDropdownOpen(false)
             }}
           >
             <div className="flex items-center">
@@ -673,7 +689,7 @@ export default function LandingPage({
 
           {/* Team dropdown menu with logos */}
           {isPlayerTeamDropdownOpen && (
-            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto mt-1 min-w-64">
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
               {availableTeams.map((teamName) => {
                 const teamData = getSelectedTeamData(teamName)
                 const isSelected = selectedPlayerTeam === teamName
@@ -706,28 +722,28 @@ export default function LandingPage({
         </div>
 
         {/* Player Select Button */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
           <button 
             className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             onClick={() => {
+              closeAllDropdowns()
               setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
-              setIsPlayerTeamDropdownOpen(false)
             }}
             disabled={!selectedPlayerTeam}
           >
-            <span>{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
+            <span className="truncate">{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
           {/* Player dropdown menu */}
           {isPlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
-              {teamPlayers.map((player) => {
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1">
+              {teamPlayers.map((player, index) => {
                 const isSelected = player.player_id === selectedPlayer?.player_id
 
                 return (
                   <button
-                    key={player.player_id}
+                    key={`${player.player_id}-${player.player_name}-${index}`}
                     onClick={(e) => {
                       e.stopPropagation()
                       setSelectedPlayer(player)
@@ -772,9 +788,7 @@ export default function LandingPage({
               {/* Team Logo Section - Clickable - Fixed width */}
               <button 
                 onClick={() => {
-                  setIsCompPlayer2TeamDropdownOpen(false)
-                  setIsCompPlayer2PlayerDropdownOpen(false)
-                  setIsCompPlayer1PlayerDropdownOpen(false)
+                  closeAllDropdowns()
                   setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
@@ -820,9 +834,7 @@ export default function LandingPage({
               {/* Player Name Section - Clickable - Takes remaining space */}
               <button 
                 onClick={() => {
-                  setIsCompPlayer2TeamDropdownOpen(false)
-                  setIsCompPlayer2PlayerDropdownOpen(false)
-                  setIsCompPlayer1TeamDropdownOpen(false)
+                  closeAllDropdowns()
                   setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
@@ -853,7 +865,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -895,13 +907,13 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player) => {
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto">
+            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
               return (
                 <button
-                  key={player.player_id}
+                  key={`comp1-${player.player_id}-${player.player_name}-${index}`}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleCompPlayerSelect(0, player.player_id)
@@ -945,9 +957,7 @@ export default function LandingPage({
               {/* Team Logo Section - Clickable - Fixed width */}
               <button 
                 onClick={() => {
-                  setIsCompPlayer1TeamDropdownOpen(false)
-                  setIsCompPlayer1PlayerDropdownOpen(false)
-                  setIsCompPlayer2PlayerDropdownOpen(false)
+                  closeAllDropdowns()
                   setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
@@ -993,9 +1003,7 @@ export default function LandingPage({
               {/* Player Name Section - Clickable - Takes remaining space */}
               <button 
                 onClick={() => {
-                  setIsCompPlayer1TeamDropdownOpen(false)
-                  setIsCompPlayer1PlayerDropdownOpen(false)
-                  setIsCompPlayer2TeamDropdownOpen(false)
+                  closeAllDropdowns()
                   setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
@@ -1026,7 +1034,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1068,13 +1076,13 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player) => {
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto">
+            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
               return (
                 <button
-                  key={player.player_id}
+                  key={`comp2-${player.player_id}-${player.player_name}-${index}`}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleCompPlayerSelect(1, player.player_id)
@@ -1107,91 +1115,203 @@ export default function LandingPage({
       : null
 
     return (
-      <div className="flex gap-2 w-full relative">
-        {/* Player 1 Select Button */}
-        <div className="flex-1 relative">
-          <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between text-sm"
-            onClick={() => {
-              setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
-              setIsCompPlayer2PlayerDropdownOpen(false)
-            }}
-          >
-            <span>{selectedPlayer1?.player_name ? `${selectedPlayer1.player_name} (${selectedPlayer1.player_team_code})` : "Select Player 1"}</span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`} />
-          </button>
+      <div className="flex flex-col gap-1 w-full relative">
+        {/* Player 1 Team + Player Selection */}
+        <div className="flex gap-2 w-full relative min-w-0">
+          {/* Player 1 Team Button */}
+          <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
+            <button 
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              onClick={() => {
+                closeAllDropdowns()
+                setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
+              }}
+            >
+              <div className="flex items-center">
+                {selectedPlayer1 ? (
+                  <div className="w-8 h-8 mr-2 flex-shrink-0">
+                    <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
+                      {getTeamLogo(selectedPlayer1.player_team_name, getSelectedTeamData(selectedPlayer1.player_team_name), selectedSeason)}
+                    </div>
+                  </div>
+                ) : (
+                  <span>Select Team</span>
+                )}
+              </div>
+              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1TeamDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
 
-          {/* Player 1 dropdown menu */}
-          {isCompPlayer1PlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
-              {Object.values(compPlayersByTeam).flat().map((player) => {
-                const isSelected = player.player_id === selectedPlayer1?.player_id
+            {/* Player 1 Team dropdown menu */}
+            {isCompPlayer1TeamDropdownOpen && (
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+                {compTeamsList.map((team) => {
+                  const isSelected = compSelectedTeams[0] === team.id
+                  const teamName = team.name
+                  const teamData = getSelectedTeamData(teamName)
 
-                return (
-                  <button
-                    key={player.player_id}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      const teamId = compTeamsList.find(t => t.teamCode === player.player_team_code)?.id
-                      if (teamId) {
-                        handleCompTeamSelect(0, teamId)
+                  return (
+                    <button
+                      key={team.id}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCompTeamSelect(0, team.id)
+                        setIsCompPlayer1TeamDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                      }`}
+                    >
+                      <div className="w-6 h-6 mr-2 flex-shrink-0">
+                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
+                          {getTeamLogo(teamName, teamData, selectedSeason)}
+                        </div>
+                      </div>
+                      <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Player 1 Player Button */}
+          <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
+            <button 
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              onClick={() => {
+                closeAllDropdowns()
+                setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
+              }}
+              disabled={!compSelectedTeams[0]}
+            >
+              <span className="truncate">{selectedPlayer1?.player_name || (!compSelectedTeams[0] ? "Select Team First" : "Select Player 1")}</span>
+              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Player 1 Player dropdown menu */}
+            {isCompPlayer1PlayerDropdownOpen && compSelectedTeams[0] && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1">
+                {(compPlayersByTeam[compSelectedTeams[0]] || []).map((player, index) => {
+                  const isSelected = player.player_id === selectedPlayer1?.player_id
+
+                  return (
+                    <button
+                      key={`newcomp1-${player.player_id}-${player.player_name}-${index}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
                         handleCompPlayerSelect(0, player.player_id)
-                      }
-                      setIsCompPlayer1PlayerDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                      isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                    }`}
-                  >
-                    <span className="font-medium text-sm text-gray-900 truncate">{player.player_name} ({player.player_team_code})</span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
+                        setIsCompPlayer1PlayerDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                      }`}
+                    >
+                      <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Player 2 Select Button */}
-        <div className="flex-1 relative">
-          <button 
-            className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between text-sm"
-            onClick={() => {
-              setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
-              setIsCompPlayer1PlayerDropdownOpen(false)
-            }}
-          >
-            <span>{selectedPlayer2?.player_name ? `${selectedPlayer2.player_name} (${selectedPlayer2.player_team_code})` : "Select Player 2"}</span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`} />
-          </button>
+        {/* Player 2 Team + Player Selection */}
+        <div className="flex gap-2 w-full relative min-w-0">
+          {/* Player 2 Team Button */}
+          <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
+            <button 
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              onClick={() => {
+                closeAllDropdowns()
+                setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
+              }}
+            >
+              <div className="flex items-center">
+                {selectedPlayer2 ? (
+                  <div className="w-8 h-8 mr-2 flex-shrink-0">
+                    <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
+                      {getTeamLogo(selectedPlayer2.player_team_name, getSelectedTeamData(selectedPlayer2.player_team_name), selectedSeason)}
+                    </div>
+                  </div>
+                ) : (
+                  <span>Select Team</span>
+                )}
+              </div>
+              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2TeamDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
 
-          {/* Player 2 dropdown menu */}
-          {isCompPlayer2PlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
-              {Object.values(compPlayersByTeam).flat().map((player) => {
-                const isSelected = player.player_id === selectedPlayer2?.player_id
+            {/* Player 2 Team dropdown menu */}
+            {isCompPlayer2TeamDropdownOpen && (
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+                {compTeamsList.map((team) => {
+                  const isSelected = compSelectedTeams[1] === team.id
+                  const teamName = team.name
+                  const teamData = getSelectedTeamData(teamName)
 
-                return (
-                  <button
-                    key={player.player_id}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      const teamId = compTeamsList.find(t => t.teamCode === player.player_team_code)?.id
-                      if (teamId) {
-                        handleCompTeamSelect(1, teamId)
+                  return (
+                    <button
+                      key={team.id}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCompTeamSelect(1, team.id)
+                        setIsCompPlayer2TeamDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                      }`}
+                    >
+                      <div className="w-6 h-6 mr-2 flex-shrink-0">
+                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
+                          {getTeamLogo(teamName, teamData, selectedSeason)}
+                        </div>
+                      </div>
+                      <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Player 2 Player Button */}
+          <div className="flex-1 relative min-w-0" style={{maxWidth: '280px'}}>
+            <button 
+              className="w-full h-12 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              onClick={() => {
+                closeAllDropdowns()
+                setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
+              }}
+              disabled={!compSelectedTeams[1]}
+            >
+              <span className="truncate">{selectedPlayer2?.player_name || (!compSelectedTeams[1] ? "Select Team First" : "Select Player 2")}</span>
+              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Player 2 Player dropdown menu */}
+            {isCompPlayer2PlayerDropdownOpen && compSelectedTeams[1] && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1">
+                {(compPlayersByTeam[compSelectedTeams[1]] || []).map((player, index) => {
+                  const isSelected = player.player_id === selectedPlayer2?.player_id
+
+                  return (
+                    <button
+                      key={`newcomp2-${player.player_id}-${player.player_name}-${index}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
                         handleCompPlayerSelect(1, player.player_id)
-                      }
-                      setIsCompPlayer2PlayerDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                      isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                    }`}
-                  >
-                    <span className="font-medium text-sm text-gray-900 truncate">{player.player_name} ({player.player_team_code})</span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
+                        setIsCompPlayer2PlayerDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                      }`}
+                    >
+                      <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -1248,50 +1368,50 @@ export default function LandingPage({
       color: "#E0E0E0",
       content: (
         <div className="w-full flex items-center gap-2 h-12">
-          {/* League/Players Toggle (matching standings tab exactly) */}
-          <div className="bg-black shadow-md rounded-xl overflow-hidden border border-black flex-1 h-full">
-            <div className="flex items-center h-full">
-              {/* Toggle Buttons */}
-              <div className="flex flex-1 h-full">
-                <div
-                  className={`flex-1 transition-opacity duration-200 ${
-                    selectedTableMode === "league" ? "opacity-100" : "opacity-40"
+          {/* League Standings Dropdown */}
+          <div className="relative w-full h-full flex-1">
+            <button 
+              className="shadow w-full h-12 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between"
+              onClick={() => {
+                closeAllDropdowns()
+                setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
+              }}
+            >
+              <span className="truncate">
+                {selectedTableMode === "league" ? "League Standings" : "Player Statistics"}
+              </span>
+              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Dropdown menu */}
+            {isLeagueDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-60 overflow-y-auto mt-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedTableMode("league")
+                    setIsLeagueDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    selectedTableMode === "league" ? "bg-gray-50 border-l-4 border-blue-500" : ""
                   }`}
-                  style={{ backgroundColor: selectedLeague.includes('eurocup') ? '#3979D1' : '#D37000' }}
                 >
-                  <button
-                    onClick={() => {
-                      setSelectedTableMode("league")
-                      // Navigation handled by Go button now
-                    }}
-                    className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
-                  >
-                    <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                      League
-                    </h2>
-                  </button>
-                </div>
-                
-                <div
-                  className={`flex-1 transition-opacity duration-200 ${
-                    selectedTableMode === "player" ? "opacity-100" : "opacity-40"
+                  <span className="truncate">League Standings</span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedTableMode("player")
+                    setIsLeagueDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    selectedTableMode === "player" ? "bg-gray-50 border-l-4 border-blue-500" : ""
                   }`}
-                  style={{ backgroundColor: selectedLeague.includes('eurocup') ? '#3979D1' : '#D37000' }}
                 >
-                  <button
-                    onClick={() => {
-                      setSelectedTableMode("player")
-                      // Navigation handled by Go button now
-                    }}
-                    className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
-                  >
-                    <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                      Players
-                    </h2>
-                  </button>
-                </div>
+                  <span className="truncate">Player Statistics</span>
+                </button>
               </div>
-            </div>
+            )}
           </div>
           
           <button 
@@ -1310,7 +1430,7 @@ export default function LandingPage({
       description: "Averages, Per-40",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-12 flex items-center gap-2">
+        <div className="w-full flex items-center gap-2" style={{height: "100px"}}>
           <div className="flex-1">
             <ComparisonSelector />
           </div>
@@ -1339,52 +1459,11 @@ export default function LandingPage({
     <div className="min-h-screen bg-light-beige from-slate-50 to-slate-100 fixed inset-0 z-50 overflow-auto">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-3 pt-5 pb-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-            
+        <div className="max-w-6xl mx-auto px-3 pt-5 pb-4">
+          <div className="flex justify-center">
             {/* Logo */}
-            <div className="flex justify-center sm:justify-start">
-              <div className="relative h-8 w-36">
-                <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
-              </div>
-            </div>
-
-            {/* Divider Line */}
-            <div className="w-full h-0.5 bg-black -mt-3"></div>
-
-            {/* League and Season Selection */}
-            <div className="flex gap-4 -mt-2 mb-3">
-              {/* League Dropdown */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600 ml-1">Select League</label>
-                <select 
-                  value={selectedLeague} 
-                  onChange={(e) => onLeagueChange(e.target.value)}
-                  className="w-52 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
-                >
-                  {leagues.map((league) => (
-                    <option key={league.id} value={league.id}>
-                      {league.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* Season Dropdown */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600 ml-1">Select Year</label>
-                <select 
-                  value={selectedSeason.toString()} 
-                  onChange={(e) => onSeasonChange(parseInt(e.target.value))}
-                  className="w-36 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
-                >
-                  {seasons.map((season) => (
-                    <option key={season.id} value={season.id.toString()}>
-                      {season.display}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="relative h-8 w-36">
+              <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
             </div>
           </div>
         </div>
@@ -1392,6 +1471,41 @@ export default function LandingPage({
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-2 py-4 bg-warm-beige">
+        {/* League and Season Selection */}
+        <div className="flex justify-center gap-4 mb-6">
+          {/* League Dropdown */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-600 ml-1">Select League</label>
+            <select 
+              value={selectedLeague} 
+              onChange={(e) => onLeagueChange(e.target.value)}
+              className="w-52 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
+            >
+              {leagues.map((league) => (
+                <option key={league.id} value={league.id}>
+                  {league.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Season Dropdown */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-600 ml-1">Select Year</label>
+            <select 
+              value={selectedSeason.toString()} 
+              onChange={(e) => onSeasonChange(parseInt(e.target.value))}
+              className="w-36 h-10 border border-gray-300 bg-light-beige shadow-sm rounded-md px-3 font-medium"
+            >
+              {seasons.map((season) => (
+                <option key={season.id} value={season.id.toString()}>
+                  {season.display}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ">
           {categories.map((category) => {
             const IconComponent = category.icon

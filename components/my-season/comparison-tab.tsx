@@ -108,7 +108,16 @@ const getPercentileTextColor = (percentile: number) => {
 const ComparisonTab = ({
   selectedSeason = 2024,
   selectedLeague = "euroleague", // Changed from 'league' to 'selectedLeague' to match parent prop
-}: { selectedSeason?: number; selectedLeague?: string }) => {
+  initialPlayers, // Add initialPlayers prop from landing page
+}: { selectedSeason?: number; selectedLeague?: string; initialPlayers?: PlayerStatsFromGameLogs[] }) => {
+  // Debug logging
+  console.log("=== COMPARISON TAB DEBUG ===", {
+    selectedSeason,
+    selectedLeague,
+    initialPlayers: initialPlayers?.map(p => p.player_name),
+    initialPlayersLength: initialPlayers?.length
+  })
+  
   // Updated interface to use 'selectedLeague'
   const [currentPhase, setCurrentPhase] = useState<string>("Regular Season")
   const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
@@ -126,8 +135,28 @@ const ComparisonTab = ({
   const [isPlayer4PlayerDropdownOpen, setIsPlayer4PlayerDropdownOpen] = useState(false)
 
   // State for team and player selection - 4 players for large screens, 2 for mobile
-  const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>([null, null, null, null])
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<(string | null)[]>([null, null, null, null])
+  const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>(() => {
+    if (initialPlayers && initialPlayers.length >= 2) {
+      return [
+        initialPlayers[0]?.player_team_code || null,
+        initialPlayers[1]?.player_team_code || null,
+        null,
+        null
+      ]
+    }
+    return [null, null, null, null]
+  })
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<(string | null)[]>(() => {
+    if (initialPlayers && initialPlayers.length >= 2) {
+      return [
+        initialPlayers[0]?.player_id || null,
+        initialPlayers[1]?.player_id || null,
+        null,
+        null
+      ]
+    }
+    return [null, null, null, null]
+  })
   
   // Track screen size for responsive comparison logic
   const [isLargeScreen, setIsLargeScreen] = useState(false)
@@ -151,6 +180,25 @@ const ComparisonTab = ({
     // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
+
+  // Handle initialPlayers prop from landing page
+  useEffect(() => {
+    if (initialPlayers && initialPlayers.length >= 2) {
+      console.log("Setting initial players from landing page:", initialPlayers[0]?.player_name, "vs", initialPlayers[1]?.player_name)
+      setSelectedTeams([
+        initialPlayers[0]?.player_team_code || null,
+        initialPlayers[1]?.player_team_code || null,
+        null,
+        null
+      ])
+      setSelectedPlayerIds([
+        initialPlayers[0]?.player_id || null,
+        initialPlayers[1]?.player_id || null,
+        null,
+        null
+      ])
+    }
+  }, [initialPlayers])
 
   // Load all players data using the same data source as statistics tab
   useEffect(() => {
@@ -189,37 +237,43 @@ const ComparisonTab = ({
         setPlayersByTeam(playersByTeamMap)
         
         // Set default players from different teams - 4 players for large screens
-        if (teamsMap.size >= 4) {
-          const teamCodes = Array.from(teamsMap.keys())
-          const firstTeam = teamCodes[0]
-          const secondTeam = teamCodes[1]
-          const thirdTeam = teamCodes[2]
-          const fourthTeam = teamCodes[3]
-          
-          // Get first player from each team
-          const firstTeamPlayer = playersByTeamMap[firstTeam]?.[0]
-          const secondTeamPlayer = playersByTeamMap[secondTeam]?.[0]
-          const thirdTeamPlayer = playersByTeamMap[thirdTeam]?.[0]
-          const fourthTeamPlayer = playersByTeamMap[fourthTeam]?.[0]
-          
-          if (firstTeamPlayer && secondTeamPlayer && thirdTeamPlayer && fourthTeamPlayer) {
-            setSelectedTeams([firstTeam, secondTeam, thirdTeam, fourthTeam])
-            setSelectedPlayerIds([firstTeamPlayer.player_id, secondTeamPlayer.player_id, thirdTeamPlayer.player_id, fourthTeamPlayer.player_id])
+        // Only auto-select if we don't have initial players from landing page
+        if (!initialPlayers || initialPlayers.length < 2) {
+          console.log("Auto-selecting default players")
+          if (teamsMap.size >= 4) {
+            const teamCodes = Array.from(teamsMap.keys())
+            const firstTeam = teamCodes[0]
+            const secondTeam = teamCodes[1]
+            const thirdTeam = teamCodes[2]
+            const fourthTeam = teamCodes[3]
+            
+            // Get first player from each team
+            const firstTeamPlayer = playersByTeamMap[firstTeam]?.[0]
+            const secondTeamPlayer = playersByTeamMap[secondTeam]?.[0]
+            const thirdTeamPlayer = playersByTeamMap[thirdTeam]?.[0]
+            const fourthTeamPlayer = playersByTeamMap[fourthTeam]?.[0]
+            
+            if (firstTeamPlayer && secondTeamPlayer && thirdTeamPlayer && fourthTeamPlayer) {
+              setSelectedTeams([firstTeam, secondTeam, thirdTeam, fourthTeam])
+              setSelectedPlayerIds([firstTeamPlayer.player_id, secondTeamPlayer.player_id, thirdTeamPlayer.player_id, fourthTeamPlayer.player_id])
+            }
+          } else if (teamsMap.size >= 2) {
+            // Fallback to 2 players if less than 4 teams available
+            const teamCodes = Array.from(teamsMap.keys())
+            const firstTeam = teamCodes[0]
+            const secondTeam = teamCodes[1]
+            
+            // Get first player from each team
+            const firstTeamPlayer = playersByTeamMap[firstTeam]?.[0]
+            const secondTeamPlayer = playersByTeamMap[secondTeam]?.[0]
+            
+            if (firstTeamPlayer && secondTeamPlayer) {
+              setSelectedTeams([firstTeam, secondTeam, null, null])
+              setSelectedPlayerIds([firstTeamPlayer.player_id, secondTeamPlayer.player_id, null, null])
+            }
           }
-        } else if (teamsMap.size >= 2) {
-          // Fallback to 2 players if less than 4 teams available
-          const teamCodes = Array.from(teamsMap.keys())
-          const firstTeam = teamCodes[0]
-          const secondTeam = teamCodes[1]
-          
-          // Get first player from each team
-          const firstTeamPlayer = playersByTeamMap[firstTeam]?.[0]
-          const secondTeamPlayer = playersByTeamMap[secondTeam]?.[0]
-          
-          if (firstTeamPlayer && secondTeamPlayer) {
-            setSelectedTeams([firstTeam, secondTeam, null, null])
-            setSelectedPlayerIds([firstTeamPlayer.player_id, secondTeamPlayer.player_id, null, null])
-          }
+        } else {
+          console.log("Skipping auto-selection - using initial players from landing page")
         }
       } catch (error) {
         console.error("Error loading players:", error)

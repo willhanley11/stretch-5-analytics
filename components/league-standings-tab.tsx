@@ -26,6 +26,7 @@ interface LeagueStandingsTabProps {
   league: string
   teamNameToCode: Record<string, string>
   team_logo_mapping: Record<string, string>
+  initialTableMode?: "league" | "player" // Add prop for initial table mode from landing page
 }
 
 type ViewMode = "team" | "off-4factors" | "off-shooting" | "off-ptdist" | "off-misc" | "def-4factors" | "def-shooting" | "def-ptdist" | "def-misc"
@@ -55,6 +56,7 @@ export function LeagueStandingsTab({
   league,
   teamNameToCode,
   team_logo_mapping,
+  initialTableMode,
 }: LeagueStandingsTabProps) {
   const [allTeamsAdvancedStats, setAllTeamsAdvancedStats] = useState<any[]>([])
   const [standingsData, setStandingsData] = useState<any[]>([])
@@ -64,8 +66,16 @@ export function LeagueStandingsTab({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [viewMode, setViewMode] = useState<ViewMode>("team")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("rank")
-  const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">("league")
+  const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">(initialTableMode || "league")
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false)
+  
+  // Debug logging
+  console.log("=== LEAGUE STANDINGS TAB DEBUG ===", {
+    initialTableMode,
+    selectedTableMode,
+    league
+  })
+  
   const [playerSearch, setPlayerSearch] = useState("")
   const [activeDesktopTable, setActiveDesktopTable] = useState<"standings" | "statistics">("standings")
 
@@ -88,6 +98,14 @@ export function LeagueStandingsTab({
       textColorClass: getTextColor(bgColor),
     }
   }
+
+  // Handle initialTableMode prop changes
+  useEffect(() => {
+    if (initialTableMode && initialTableMode !== selectedTableMode) {
+      console.log("Updating selectedTableMode from", selectedTableMode, "to", initialTableMode)
+      setSelectedTableMode(initialTableMode)
+    }
+  }, [initialTableMode])
 
   useEffect(() => {
     const loadAdvancedStats = async () => {

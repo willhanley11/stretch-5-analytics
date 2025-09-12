@@ -311,6 +311,7 @@ export function ProLeagueNav() {
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
                 initialTeam={landingPageSelections?.team}
+                initialTableMode={landingPageSelections?.mode}
               />
             </div>
           </div>

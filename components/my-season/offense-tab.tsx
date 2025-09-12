@@ -550,12 +550,25 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     player_team_code: string
     season: number
     phase: string
-  } | null>(initialTeam ? {
-    player_team_name: initialTeam.name,
-    player_team_code: initialTeam.teamcode,
-    season: selectedSeason,
-    phase: "RS"
-  } : null)
+  } | null>(() => {
+    if (initialPlayer && initialPlayer.player_team_code) {
+      return {
+        player_team_name: initialPlayer.player_team_name,
+        player_team_code: initialPlayer.player_team_code,
+        season: selectedSeason,
+        phase: "RS"
+      }
+    }
+    if (initialTeam && typeof initialTeam === 'object') {
+      return {
+        player_team_name: initialTeam.name,
+        player_team_code: initialTeam.teamcode,
+        season: selectedSeason,
+        phase: "RS"
+      }
+    }
+    return null
+  })
   const [teamPlayers, setTeamPlayers] = useState<PlayerStatsFromGameLogs[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerStatsFromGameLogs | null>(initialPlayer || null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -566,8 +579,8 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     selectedSeason,
     league,
     initialPlayer: initialPlayer?.player_name,
-    initialTeam: initialTeam?.name,
-    initialTeamCode: initialTeam?.teamcode,
+    initialTeam: typeof initialTeam === 'string' ? initialTeam : initialTeam?.name,
+    initialTeamCode: typeof initialTeam === 'object' ? initialTeam?.teamcode : 'N/A',
     selectedPlayer: selectedPlayer?.player_name,
     selectedTeam: selectedTeam?.player_team_name
   })
@@ -629,12 +642,12 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
         })
         setAvailableTeams(teams)
 
-        // Auto-select based on initialPlayer/initialTeam or random selection
+        // Auto-select based on initialPlayer or random selection
         if (teams.length > 0 && !selectedTeam) {
           // Check if we have initialPlayer from landing page
-          if (initialPlayer && initialTeam) {
-            // Find the team and player from landing page selections
-            const landingTeam = teams.find(team => team.player_team_code === initialTeam.teamcode)
+          if (initialPlayer) {
+            // Find the team from player's team code
+            const landingTeam = teams.find(team => team.player_team_code === initialPlayer.player_team_code)
             if (landingTeam) {
               console.log(`Auto-selecting team from landing page: ${landingTeam.player_team_name}`)
               setSelectedTeam(landingTeam)
@@ -688,8 +701,8 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
 
   // Handle initialPlayer and initialTeam props from landing page
   useEffect(() => {
-    if (initialPlayer && initialTeam && availableTeams.length > 0) {
-      const landingTeam = availableTeams.find(team => team.player_team_code === initialTeam.teamcode)
+    if (initialPlayer && availableTeams.length > 0) {
+      const landingTeam = availableTeams.find(team => team.player_team_code === initialPlayer.player_team_code)
       if (landingTeam && selectedPlayer?.player_id !== initialPlayer.player_id) {
         console.log("Setting team and player from landing page:", landingTeam.player_team_name, initialPlayer.player_name)
         setSelectedTeam(landingTeam)
@@ -697,7 +710,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
         loadPlayerData(initialPlayer)
       }
     }
-  }, [initialPlayer, initialTeam, availableTeams, selectedPlayer])
+  }, [initialPlayer, availableTeams, selectedPlayer])
 
   // Load players when team is selected
   useEffect(() => {
