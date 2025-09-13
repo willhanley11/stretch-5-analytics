@@ -7,7 +7,8 @@ import { fetchTeamStats } from "@/app/actions/standings"
 import { fetchAllPlayerStatsFromGameLogs } from "@/app/actions/player-stats"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
 import Image from "next/image"
-import { Footer } from "./footer" 
+import { Footer } from "./footer"
+import { LeagueSpinner } from "./ui/league-spinner" 
 
 interface LandingPageProps {
   onNavigate: (tab: string, selections?: any) => void
@@ -312,6 +313,7 @@ export default function LandingPage({
   // League section state (for League/Players dropdown)
   const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">("league")
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
+  const [isLeadersDataLoading, setIsLeadersDataLoading] = useState(true)
 
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
@@ -338,6 +340,7 @@ export default function LandingPage({
   // Track initialization state to prevent continuous random switching
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentLeagueKey, setCurrentLeagueKey] = useState("")
+  const [isComparisonDataLoading, setIsComparisonDataLoading] = useState(true)
 
   // Reset all state when league changes
   useEffect(() => {
@@ -354,6 +357,8 @@ export default function LandingPage({
       setCompTeamsList([])
       setCompPlayersByTeam({})
       setIsInitialized(false)
+      setIsLeadersDataLoading(true)
+      setIsComparisonDataLoading(true)
     }
     if (currentLeagueKey !== newLeagueKey) {
       setCurrentLeagueKey(newLeagueKey)
@@ -393,6 +398,7 @@ export default function LandingPage({
           setTeamStats([])
         } finally {
           setIsTeamDataLoading(false)
+          setIsLeadersDataLoading(false)
         }
       }
     }
@@ -540,6 +546,8 @@ export default function LandingPage({
 
         } catch (error) {
           console.error("Error loading comparison data:", error)
+        } finally {
+          setIsComparisonDataLoading(false)
         }
       }
     }
@@ -607,7 +615,7 @@ export default function LandingPage({
       return (
         <select 
           disabled 
-          className="w-full h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed"
+          className="w-full h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-sm"
         >
           <option>Loading teams...</option>
         </select>
@@ -618,7 +626,7 @@ export default function LandingPage({
       <div className="relative w-full h-full">
         {/* Simple looking button that mimics a select */}
         <button 
-          className="shadow w-full h-10 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+          className=" text-sm shadow w-full h-8 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
             setIsTeamDropdownOpen(!isTeamDropdownOpen)
@@ -632,8 +640,8 @@ export default function LandingPage({
           <div className="flex items-center pl-2">
             {selectedTeam ? (
               <>
-                <div className="w-8 h-8 mr-2 flex-shrink-0">
-                  <div className="w-8 h-8  rounded flex items-center justify-center p-0.5">
+                <div className="w-6 h-6 mr-2 flex-shrink-0">
+                  <div className="w-6 h-6  rounded flex items-center justify-center p-0.5">
                     {getTeamLogo(selectedTeam, getSelectedTeamData(selectedTeam), selectedSeason)}
                   </div>
                 </div>
@@ -686,10 +694,10 @@ export default function LandingPage({
     if (isPlayerDataLoading) {
       return (
         <div className="flex gap-2 w-full">
-          <button disabled className="flex-1 h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
+          <button disabled className="flex-1 h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-left text-sm">
             Loading...
           </button>
-          <button disabled className="flex-1 h-10 border border-gray-200 bg-gray-100 rounded-md px-3 text-gray-500 cursor-not-allowed text-left">
+          <button disabled className="flex-1 h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-left text-sm">
             Loading...
           </button>
         </div>
@@ -701,7 +709,7 @@ export default function LandingPage({
         {/* Team Select Button */}
         <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
           <button 
-            className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+            className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
@@ -714,8 +722,8 @@ export default function LandingPage({
             />
             <div className="flex items-center pl-2">
               {selectedPlayerTeam ? (
-                <div className="w-8 h-8 mr-2 flex-shrink-0">
-                  <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
+                <div className="w-6 h-6 mr-2 flex-shrink-0">
+                  <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
                     {getTeamLogo(selectedPlayerTeam, getSelectedTeamData(selectedPlayerTeam), selectedSeason)}
                   </div>
                 </div>
@@ -763,7 +771,7 @@ export default function LandingPage({
         {/* Player Select Button */}
         <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
           <button 
-            className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+            className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
             onClick={() => {
               closeAllDropdowns()
               setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
@@ -835,7 +843,7 @@ export default function LandingPage({
                   closeAllDropdowns()
                   setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
                 }}
-                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
+                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-6"
               >
                 <div className="flex-shrink-0 mr-0.5">
                   {selectedPlayer && selectedPlayer.teamlogo ? (
@@ -1165,7 +1173,7 @@ export default function LandingPage({
           {/* Player 1 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
@@ -1178,8 +1186,8 @@ export default function LandingPage({
               />
               <div className="flex items-center pl-2">
                 {selectedPlayer1 ? (
-                  <div className="w-8 h-8 mr-2 flex-shrink-0">
-                    <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
+                  <div className="w-6 h-6 mr-2 flex-shrink-0">
+                    <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
                       {getTeamLogo(selectedPlayer1.player_team_name, getSelectedTeamData(selectedPlayer1.player_team_name), selectedSeason)}
                     </div>
                   </div>
@@ -1226,7 +1234,7 @@ export default function LandingPage({
           {/* Player 1 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
@@ -1274,7 +1282,7 @@ export default function LandingPage({
           {/* Player 2 Team Button */}
           <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
             <button 
-              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
+              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
@@ -1287,8 +1295,8 @@ export default function LandingPage({
               />
               <div className="flex items-center pl-2">
                 {selectedPlayer2 ? (
-                  <div className="w-8 h-8 mr-2 flex-shrink-0">
-                    <div className="w-8 h-8 rounded flex items-center justify-center p-0.5">
+                  <div className="w-6 h-6 mr-2 flex-shrink-0">
+                    <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
                       {getTeamLogo(selectedPlayer2.player_team_name, getSelectedTeamData(selectedPlayer2.player_team_name), selectedSeason)}
                     </div>
                   </div>
@@ -1335,7 +1343,7 @@ export default function LandingPage({
           {/* Player 2 Player Button */}
           <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
             <button 
-              className="w-full h-10 border border-gray-200 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative"
+              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
@@ -1389,8 +1397,18 @@ export default function LandingPage({
       description: "Reports, Schedule/Results, Rosters",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-10 flex items-center">
-          <TeamDropdown />
+        <div className="w-full h-8 md:h-10 flex items-center">
+          {isTeamDataLoading ? (
+            <div className="w-full flex justify-center items-center">
+              <LeagueSpinner 
+                league={selectedLeague as "euroleague" | "eurocup"} 
+                size="sm" 
+                message="Loading teams..."
+              />
+            </div>
+          ) : (
+            <TeamDropdown />
+          )}
         </div>
       ),
       goButton: {
@@ -1405,8 +1423,18 @@ export default function LandingPage({
       description: "Profiles, Shot Charts, Gamelogs, Radar",
       color: "#E0E0E0",
       content: (
-        <div className="w-full h-10 flex items-center">
-          <PlayerTeamSelector />
+        <div className="w-full h-8 md:h-10 flex items-center">
+          {isPlayerDataLoading || isTeamDataLoading ? (
+            <div className="w-full flex justify-center items-center">
+              <LeagueSpinner 
+                league={selectedLeague as "euroleague" | "eurocup"} 
+                size="sm" 
+                message="Loading players..."
+              />
+            </div>
+          ) : (
+            <PlayerTeamSelector />
+          )}
         </div>
       ),
       goButton: {
@@ -1421,11 +1449,21 @@ export default function LandingPage({
       description: "League Standings, Player Statistics",
       color: "#E0E0E0",
       content: (
-        <div className="w-full flex items-center gap-2 h-10">
+        <div className="w-full flex items-center gap-2 h-8 md:h-10">
+          {isLeadersDataLoading ? (
+            <div className="w-full flex justify-center items-center">
+              <LeagueSpinner 
+                league={selectedLeague as "euroleague" | "eurocup"} 
+                size="sm" 
+                message="Loading standings..."
+              />
+            </div>
+          ) : (
+            <>
           {/* League Standings Dropdown */}
           <div className="relative w-full h-full flex-1">
             <button 
-              className="shadow w-full h-10 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+              className="shadow w-full h-8 md:h-10 border border-gray-300 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
@@ -1473,6 +1511,8 @@ export default function LandingPage({
             )}
           </div>
           
+            </>
+          )}
         </div>
       ),
       goButton: {
@@ -1487,8 +1527,18 @@ export default function LandingPage({
       description: "Averages, Per-40",
       color: "#E0E0E0",
       content: (
-        <div className="w-full flex items-center" style={{height: "80px"}}>
-          <ComparisonSelector />
+        <div className="w-full flex items-center" style={{height: "60px"}}>
+          {isComparisonDataLoading ? (
+            <div className="w-full flex justify-center items-center">
+              <LeagueSpinner 
+                league={selectedLeague as "euroleague" | "eurocup"} 
+                size="sm" 
+                message="Loading players..."
+              />
+            </div>
+          ) : (
+            <ComparisonSelector />
+          )}
         </div>
       ),
       goButton: {
@@ -1508,13 +1558,13 @@ export default function LandingPage({
   ]
 
   return (
-    <div className="min-h-screen bg-light-beige from-slate-50 to-slate-100 fixed inset-0 z-50 overflow-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-50 overflow-auto">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-3 pt-3 pb-2">
+      <div className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/60">
+        <div className="max-w-6xl mx-auto px-3 pt-2 pb-1 md:pt-3 md:pb-2">
           <div className="flex justify-center">
             {/* Logo */}
-            <div className="relative h-8 w-36">
+            <div className="relative h-6 w-28 md:h-8 md:w-36">
               <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
             </div>
           </div>
@@ -1522,16 +1572,16 @@ export default function LandingPage({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-3 py-3 pb-40 bg-warm-beige overflow-visible">
+      <div className="max-w-6xl mx-auto px-2 py-2 pb-20 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
         {/* League and Season Selection */}
-        <div className="flex justify-center gap-4 mb-3">
+        <div className="flex justify-center gap-2 mb-2 md:gap-4 md:mb-3">
           {/* League Dropdown */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <label className="text-xs font-medium text-gray-600 ml-1">Select League</label>
             <select 
               value={selectedLeague} 
               onChange={(e) => onLeagueChange(e.target.value)}
-              className="w-52 h-10 border border-gray-300 bg-white shadow-sm rounded-md px-3 font-medium"
+              className="w-40 h-8 md:w-52 md:h-10 border border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-xl px-2 md:px-3 font-medium text-sm focus:border-gray-300 focus:ring-2 focus:ring-gray-100 transition-all"
             >
               {leagues.map((league) => (
                 <option key={league.id} value={league.id}>
@@ -1542,12 +1592,12 @@ export default function LandingPage({
           </div>
           
           {/* Season Dropdown */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <label className="text-xs font-medium text-gray-600 ml-1">Select Year</label>
             <select 
               value={selectedSeason.toString()} 
               onChange={(e) => onSeasonChange(parseInt(e.target.value))}
-              className="w-36 h-10 border border-gray-300 bg-white shadow-sm rounded-md px-3 font-medium"
+              className="w-28 h-8 md:w-36 md:h-10 border border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-xl px-2 md:px-3 font-medium text-sm focus:border-gray-300 focus:ring-2 focus:ring-gray-100 transition-all"
             >
               {seasons.map((season) => (
                 <option key={season.id} value={season.id.toString()}>
@@ -1558,39 +1608,39 @@ export default function LandingPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-visible">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 overflow-visible">
           {categories.map((category, index) => {
             const IconComponent = category.icon
-            // All sections use the same formatting as Teams
+            // Modern clean styling for all sections
             const sectionStyles = {
-              bg: "bg-gradient-to-br from-white to-gray-50",
-              border: "border-gray-300",
-              headerBg: "bg-gray-100",
+              bg: "bg-white",
+              border: "border-gray-400/60",
+              headerBg: "bg-gray-100/70",
               accent: "border-l-gray-500"
             }
             
             return (
               <motion.div
                 key={category.id}
-                className={`${sectionStyles.bg} rounded-xl shadow-lg ${sectionStyles.border} border-2 ${sectionStyles.accent} border-l-4 relative overflow-visible`}
+                className={`${sectionStyles.bg} rounded-2xl ${sectionStyles.border} border ${sectionStyles.accent} border-l-2 relative overflow-visible backdrop-blur-sm`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -2, boxShadow: "0 8px 25px -3px rgba(0, 0, 0, 0.15)" }}
-                style={{ boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.1)" }}
+                whileHover={{ y: -1, boxShadow: "0 6px 20px -4px rgba(0, 0, 0, 0.08)" }}
+                style={{ boxShadow: "0 2px 8px -2px rgba(0, 0, 0, 0.04)" }}
               >
                 {/* Header Line: Icon + Title + Description + Go Button */}
-                <div className={`px-3 py-2 pb-2 ${sectionStyles.headerBg} rounded-t-lg mb-2`}>
-                  <div className="flex items-center gap-3">
+                <div className={`px-2 py-1.5 pb-1.5 md:px-3 md:py-2 md:pb-2 ${sectionStyles.headerBg} rounded-t-2xl mb-1.5 md:mb-2 border-b border-gray-100/50`}>
+                  <div className="flex items-center gap-2 md:gap-3">
                     <div 
-                      className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0 border bg-white shadow-sm"
+                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-xl flex-shrink-0 border border-gray-200/60 bg-white/80"
                     >
-                      <IconComponent className="h-5 w-5 text-gray-700" />
+                      <IconComponent className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
                     </div>
                     
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900">{category.title}</h3>
-                      <p className="text-xs text-gray-700 -mt-0.5 font-medium">{category.description}</p>
+                      <h3 className="text-sm md:text-lg font-semibold text-gray-800">{category.title}</h3>
+                      <p className="text-xs text-gray-500 -mt-0.5 font-medium">{category.description}</p>
                     </div>
                     
                     {/* Go Button */}
@@ -1598,7 +1648,7 @@ export default function LandingPage({
                       <button 
                         onClick={category.goButton.onClick}
                         disabled={category.goButton.disabled}
-                        className="px-3 h-10 bg-white text-gray-800 rounded-lg hover:bg-gray-50 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold text-xs border border-gray-400 shadow-sm transition-colors"
+                        className="px-2 h-8 md:px-3 md:h-10 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed font-medium text-xs border border-gray-200/60 transition-all duration-200"
                       >
                         Go
                       </button>
@@ -1607,12 +1657,9 @@ export default function LandingPage({
                 </div>
                 
                 {/* Content Below */}
-                <div className="px-3 pb-3">
+                <div className="px-2 pb-2 md:px-3 md:pb-3">
                   {category.content}
                 </div>
-                
-                {/* Bottom accent line */}
-                <div className={`absolute bottom-0 left-0 right-0 h-1 ${sectionStyles.accent.replace('border-l-', 'bg-')}`}></div>
               </motion.div>
             )
           })}
