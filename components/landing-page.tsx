@@ -326,8 +326,6 @@ export default function LandingPage({
   const [isWelcomeLeagueDropdownOpen, setIsWelcomeLeagueDropdownOpen] = useState(false)
   const [isWelcomeYearDropdownOpen, setIsWelcomeYearDropdownOpen] = useState(false)
 
-  // State for dynamic container height extension
-  const [categoryHeights, setCategoryHeights] = useState<{[key: string]: number}>({})
   
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
@@ -343,16 +341,6 @@ export default function LandingPage({
     setIsLandingYearDropdownOpen(false)
     setIsWelcomeLeagueDropdownOpen(false)
     setIsWelcomeYearDropdownOpen(false)
-    // Reset all category heights when closing dropdowns
-    setCategoryHeights({})
-  }
-  
-  // Function to set category height when dropdown opens
-  const setCategoryHeight = (categoryId: string, extraHeight: number) => {
-    setCategoryHeights(prev => ({
-      ...prev,
-      [categoryId]: extraHeight
-    }))
   }
 
   // Comparison section state (matching comparison tab exactly)
@@ -657,10 +645,7 @@ export default function LandingPage({
           className=" text-sm shadow w-full h-8 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
-            if (!isTeamDropdownOpen) {
-              setIsTeamDropdownOpen(true)
-              setCategoryHeight('teams', 200) // Add 200px for dropdown
-            }
+            setIsTeamDropdownOpen(!isTeamDropdownOpen)
           }}
         >
           {/* Color strip */}
@@ -687,7 +672,7 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
@@ -743,10 +728,7 @@ export default function LandingPage({
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
             onClick={() => {
               closeAllDropdowns()
-              if (!isPlayerTeamDropdownOpen) {
-                setIsPlayerTeamDropdownOpen(true)
-                setCategoryHeight('players', 200) // Add 200px for dropdown
-              }
+              setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
             }}
           >
             {/* Color strip */}
@@ -770,7 +752,7 @@ export default function LandingPage({
 
           {/* Team dropdown menu with logos */}
           {isPlayerTeamDropdownOpen && (
-            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
               {availableTeams.map((teamName) => {
                 const teamData = getSelectedTeamData(teamName)
                 const isSelected = selectedPlayerTeam === teamName
@@ -808,10 +790,7 @@ export default function LandingPage({
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
             onClick={() => {
               closeAllDropdowns()
-              if (!isPlayerDropdownOpen) {
-                setIsPlayerDropdownOpen(true)
-                setCategoryHeight('players', 200) // Add 200px for dropdown
-              }
+              setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
             }}
             disabled={!selectedPlayerTeam}
           >
@@ -826,7 +805,7 @@ export default function LandingPage({
 
           {/* Player dropdown menu */}
           {isPlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
               {teamPlayers.map((player, index) => {
                 const isSelected = player.player_id === selectedPlayer?.player_id
 
@@ -878,10 +857,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isCompPlayer1TeamDropdownOpen) {
-                    setIsCompPlayer1TeamDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
+                  setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-6"
               >
@@ -927,10 +903,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isCompPlayer1PlayerDropdownOpen) {
-                    setIsCompPlayer1PlayerDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
+                  setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
               >
@@ -960,7 +933,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1002,7 +975,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1053,10 +1026,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isCompPlayer2TeamDropdownOpen) {
-                    setIsCompPlayer2TeamDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
+                  setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
               >
@@ -1102,10 +1072,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isCompPlayer2PlayerDropdownOpen) {
-                    setIsCompPlayer2PlayerDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
+                  setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
               >
@@ -1135,7 +1102,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1177,7 +1144,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1515,10 +1482,7 @@ export default function LandingPage({
               className="shadow w-full h-8 md:h-10 border border-gray-300 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                if (!isLeagueDropdownOpen) {
-                  setIsLeagueDropdownOpen(true)
-                  setCategoryHeight('league', 200) // Add 200px for dropdown
-                }
+                setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
               }}
             >
               {/* Color strip */}
@@ -1534,7 +1498,7 @@ export default function LandingPage({
 
             {/* Dropdown menu */}
             {isLeagueDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -1676,7 +1640,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeLeagueDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
                     {leagues.map((league) => (
                       <button
                         key={league.id}
@@ -1714,7 +1678,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeYearDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
                     {seasons.map((season) => (
                       <button
                         key={season.id}
@@ -1846,7 +1810,7 @@ export default function LandingPage({
               </button>
               
               {isLandingLeagueDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
                   {leagues.map((league) => (
                     <button
                       key={league.id}
@@ -1884,7 +1848,7 @@ export default function LandingPage({
               </button>
               
               {isLandingYearDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
                   {seasons.map((season) => (
                     <button
                       key={season.id}
@@ -1915,11 +1879,11 @@ export default function LandingPage({
             return (
               <motion.div
                 key={category.id}
-                className="bg-white rounded-2xl border-2 border-gray-300 relative backdrop-blur-sm"
+                className="bg-white rounded-2xl border-2 border-gray-300 backdrop-blur-sm"
                 style={{ 
-                  overflow: 'visible',
-                  paddingBottom: categoryHeights[category.id] ? `${categoryHeights[category.id]}px` : '0px',
-                  transition: 'padding-bottom 0.2s ease-in-out'
+                  position: 'relative',
+                  zIndex: 1,
+                  overflow: 'visible'
                 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
