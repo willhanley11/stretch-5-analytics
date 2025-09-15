@@ -671,7 +671,12 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+          <div className="fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[200px]" 
+               style={{
+                 top: '120px',
+                 left: '50%',
+                 transform: 'translateX(-50%)'
+               }}>
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
