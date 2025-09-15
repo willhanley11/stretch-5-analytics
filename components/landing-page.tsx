@@ -671,12 +671,7 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[200px]" 
-               style={{
-                 top: '120px',
-                 left: '50%',
-                 transform: 'translateX(-50%)'
-               }}>
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
@@ -756,7 +751,7 @@ export default function LandingPage({
 
           {/* Team dropdown menu with logos */}
           {isPlayerTeamDropdownOpen && (
-            <div className="fixed border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px', top: '180px', left: '50%', transform: 'translateX(-50%)'}}>
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
               {availableTeams.map((teamName) => {
                 const teamData = getSelectedTeamData(teamName)
                 const isSelected = selectedPlayerTeam === teamName
@@ -809,7 +804,7 @@ export default function LandingPage({
 
           {/* Player dropdown menu */}
           {isPlayerDropdownOpen && (
-            <div className="fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]" style={{top: '220px', left: '50%', transform: 'translateX(-50%)'}}>
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
               {teamPlayers.map((player, index) => {
                 const isSelected = player.player_id === selectedPlayer?.player_id
 
@@ -1883,7 +1878,8 @@ export default function LandingPage({
             return (
               <motion.div
                 key={category.id}
-                className="bg-white rounded-2xl border-2 border-gray-300 relative overflow-visible backdrop-blur-sm"
+                className="bg-white rounded-2xl border-2 border-gray-300 relative backdrop-blur-sm"
+                style={{ overflow: 'visible' }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -1950,7 +1946,7 @@ export default function LandingPage({
                 </div>
                 
                 {/* Content Below */}
-                <div className="px-2 pb-3 md:px-3 md:pb-3">
+                <div className="px-2 pb-3 md:px-3 md:pb-3" style={{ overflow: 'visible' }}>
                   {category.content}
                 </div>
               </motion.div>
