@@ -322,6 +322,10 @@ export default function LandingPage({
   const [isLandingLeagueDropdownOpen, setIsLandingLeagueDropdownOpen] = useState(false)
   const [isLandingYearDropdownOpen, setIsLandingYearDropdownOpen] = useState(false)
 
+  // Welcome screen dropdown state
+  const [isWelcomeLeagueDropdownOpen, setIsWelcomeLeagueDropdownOpen] = useState(false)
+  const [isWelcomeYearDropdownOpen, setIsWelcomeYearDropdownOpen] = useState(false)
+
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
     setIsTeamDropdownOpen(false)
@@ -334,6 +338,8 @@ export default function LandingPage({
     setIsLeagueDropdownOpen(false)
     setIsLandingLeagueDropdownOpen(false)
     setIsLandingYearDropdownOpen(false)
+    setIsWelcomeLeagueDropdownOpen(false)
+    setIsWelcomeYearDropdownOpen(false)
   }
 
   // Comparison section state (matching comparison tab exactly)
@@ -1619,26 +1625,37 @@ export default function LandingPage({
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
               <div className="relative">
-                <select 
-                  value={selectedLeague} 
-                  onChange={(e) => onLeagueChange(e.target.value)}
-                  className="w-full h-12 md:h-14 border-2 border-gray-300 bg-white rounded-2xl px-5 md:px-6 font-semibold text-base md:text-lg text-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 transition-all duration-200 shadow-lg hover:shadow-xl hover:border-gray-400 cursor-pointer appearance-none"
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)'
+                <button 
+                  onClick={() => {
+                    closeAllDropdowns()
+                    setIsWelcomeLeagueDropdownOpen(!isWelcomeLeagueDropdownOpen)
                   }}
+                  className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
                 >
-                  {leagues.map((league) => (
-                    <option key={league.id} value={league.id}>
-                      {league.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                  <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
+                  <svg className={`h-5 w-5 text-gray-500 transition-transform ${isWelcomeLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                </div>
+                </button>
+                
+                {isWelcomeLeagueDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                    {leagues.map((league) => (
+                      <button
+                        key={league.id}
+                        onClick={() => {
+                          onLeagueChange(league.id)
+                          setIsWelcomeLeagueDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
+                          selectedLeague === league.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                        }`}
+                      >
+                        <span className="truncate">{league.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -1646,26 +1663,37 @@ export default function LandingPage({
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide -mt-2">Select Season</label>
               <div className="relative">
-                <select 
-                  value={selectedSeason.toString()} 
-                  onChange={(e) => onSeasonChange(parseInt(e.target.value))}
-                  className="w-full h-12 md:h-14 border-2 border-gray-300 bg-white rounded-2xl px-5 md:px-6 font-semibold text-base md:text-lg text-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 transition-all duration-200 shadow-lg hover:shadow-xl hover:border-gray-400 cursor-pointer appearance-none"
-                  style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)'
+                <button 
+                  onClick={() => {
+                    closeAllDropdowns()
+                    setIsWelcomeYearDropdownOpen(!isWelcomeYearDropdownOpen)
                   }}
+                  className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
                 >
-                  {seasons.map((season) => (
-                    <option key={season.id} value={season.id.toString()}>
-                      {season.display}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                  <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
+                  <svg className={`h-5 w-5 text-gray-500 transition-transform ${isWelcomeYearDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                </div>
+                </button>
+                
+                {isWelcomeYearDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                    {seasons.map((season) => (
+                      <button
+                        key={season.id}
+                        onClick={() => {
+                          onSeasonChange(season.id)
+                          setIsWelcomeYearDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
+                          selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                        }`}
+                      >
+                        <span className="truncate">{season.display}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1694,9 +1722,9 @@ export default function LandingPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-50 overflow-auto">
-      {/* Header */}
-      <div className=" backdrop-blur-md shadow-lg border-b border-gray-200/60">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-50 flex flex-col">
+      {/* Fixed Header - Stays on top during scroll */}
+      <div className="backdrop-blur-md shadow-lg border-b border-gray-200/60 relative z-[1001] bg-white/80">
         <div className="max-w-6xl mx-auto px-3 pt-2 pb-1 md:pt-3 md:pb-2">
           <div className="flex justify-center">
             {/* Logo */}
@@ -1707,8 +1735,59 @@ export default function LandingPage({
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
+      {/* Elastic Scrollable Content - Only this part moves */}
+      <motion.div
+        className="flex-1 overflow-hidden relative"
+        drag="y"
+        dragConstraints={{ top: -120, bottom: 120 }}
+        dragElastic={0.2}
+        dragMomentum={false}
+        onDragStart={() => {
+          // Close any open dropdowns when starting to drag
+          closeAllDropdowns()
+          // Optional: Add haptic feedback on supported devices
+          if (navigator.vibrate) {
+            navigator.vibrate(10)
+          }
+        }}
+        onDragEnd={(_, info) => {
+          // Smooth spring back to original position
+          return { y: 0 }
+        }}
+        initial={{ y: 0 }}
+        animate={{ y: 0 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 25,
+          restDelta: 0.01
+        }}
+        style={{
+          cursor: 'grab',
+          touchAction: 'pan-y'
+        }}
+        whileDrag={{
+          cursor: 'grabbing',
+          scale: 0.99
+        }}
+      >
+        {/* Pull Indicator - Shows when dragging */}
+        <motion.div
+          className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 0, scale: 0.8 }}
+          whileDrag={{ opacity: 0.7, scale: 1, y: 4 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="flex space-x-1 mb-1">
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+          </div>
+          <p className="text-xs text-gray-500 font-medium bg-white/80 px-2 py-1 rounded-full">Pull to see more</p>
+        </motion.div>
+        {/* Main Content */}
+        <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible min-h-screen">
         {/* League and Season Selection */}
         <div className="flex justify-center gap-3 mb-3 mt-1 md:gap-6 md:mb-4">
           {/* League Dropdown */}
@@ -1720,7 +1799,7 @@ export default function LandingPage({
                   closeAllDropdowns()
                   setIsLandingLeagueDropdownOpen(!isLandingLeagueDropdownOpen)
                 }}
-                className="h-10 md:w-52 md:h-12 w-full border border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+                className="h-10 md:w-52 md:h-12 w-full border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
                 <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
                 <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1758,7 +1837,7 @@ export default function LandingPage({
                   closeAllDropdowns()
                   setIsLandingYearDropdownOpen(!isLandingYearDropdownOpen)
                 }}
-                className="w-32 h-10 md:w-40 md:h-12 border border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+                className="w-32 h-10 md:w-40 md:h-12 border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
                 <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
                 <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingYearDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1872,7 +1951,8 @@ export default function LandingPage({
             )
           })}
         </div>
-      </div>
+        </div>
+      </motion.div>
       
       {/* Footer */}
       <Footer />
