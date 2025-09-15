@@ -1740,8 +1740,9 @@ export default function LandingPage({
         className="flex-1 overflow-hidden relative"
         drag="y"
         dragConstraints={{ top: -120, bottom: 120 }}
-        dragElastic={0.2}
+        dragElastic={0.15}
         dragMomentum={false}
+        dragSnapToOrigin={true}
         onDragStart={() => {
           // Close any open dropdowns when starting to drag
           closeAllDropdowns()
@@ -1750,17 +1751,17 @@ export default function LandingPage({
             navigator.vibrate(10)
           }
         }}
-        onDragEnd={(_, info) => {
-          // Smooth spring back to original position
-          return { y: 0 }
+        onDragEnd={() => {
+          // Force immediate snap back to original position - no gaps allowed
         }}
         initial={{ y: 0 }}
         animate={{ y: 0 }}
         transition={{ 
           type: "spring", 
-          stiffness: 400, 
-          damping: 25,
-          restDelta: 0.01
+          stiffness: 600, 
+          damping: 35,
+          restDelta: 0.001,
+          restSpeed: 0.01
         }}
         style={{
           cursor: 'grab',
