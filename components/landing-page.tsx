@@ -326,6 +326,9 @@ export default function LandingPage({
   const [isWelcomeLeagueDropdownOpen, setIsWelcomeLeagueDropdownOpen] = useState(false)
   const [isWelcomeYearDropdownOpen, setIsWelcomeYearDropdownOpen] = useState(false)
 
+  // State for dynamic container height extension
+  const [categoryHeights, setCategoryHeights] = useState<{[key: string]: number}>({})
+  
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
     setIsTeamDropdownOpen(false)
@@ -340,6 +343,16 @@ export default function LandingPage({
     setIsLandingYearDropdownOpen(false)
     setIsWelcomeLeagueDropdownOpen(false)
     setIsWelcomeYearDropdownOpen(false)
+    // Reset all category heights when closing dropdowns
+    setCategoryHeights({})
+  }
+  
+  // Function to set category height when dropdown opens
+  const setCategoryHeight = (categoryId: string, extraHeight: number) => {
+    setCategoryHeights(prev => ({
+      ...prev,
+      [categoryId]: extraHeight
+    }))
   }
 
   // Comparison section state (matching comparison tab exactly)
@@ -644,7 +657,10 @@ export default function LandingPage({
           className=" text-sm shadow w-full h-8 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
-            setIsTeamDropdownOpen(!isTeamDropdownOpen)
+            if (!isTeamDropdownOpen) {
+              setIsTeamDropdownOpen(true)
+              setCategoryHeight('teams', 200) // Add 200px for dropdown
+            }
           }}
         >
           {/* Color strip */}
@@ -727,7 +743,10 @@ export default function LandingPage({
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
             onClick={() => {
               closeAllDropdowns()
-              setIsPlayerTeamDropdownOpen(!isPlayerTeamDropdownOpen)
+              if (!isPlayerTeamDropdownOpen) {
+                setIsPlayerTeamDropdownOpen(true)
+                setCategoryHeight('players', 200) // Add 200px for dropdown
+              }
             }}
           >
             {/* Color strip */}
@@ -789,7 +808,10 @@ export default function LandingPage({
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
             onClick={() => {
               closeAllDropdowns()
-              setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+              if (!isPlayerDropdownOpen) {
+                setIsPlayerDropdownOpen(true)
+                setCategoryHeight('players', 200) // Add 200px for dropdown
+              }
             }}
             disabled={!selectedPlayerTeam}
           >
@@ -856,7 +878,10 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
+                  if (!isCompPlayer1TeamDropdownOpen) {
+                    setIsCompPlayer1TeamDropdownOpen(true)
+                    setCategoryHeight('comparison', 200)
+                  }
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-6"
               >
@@ -902,7 +927,10 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
+                  if (!isCompPlayer1PlayerDropdownOpen) {
+                    setIsCompPlayer1PlayerDropdownOpen(true)
+                    setCategoryHeight('comparison', 200)
+                  }
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
               >
@@ -1025,7 +1053,10 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
+                  if (!isCompPlayer2TeamDropdownOpen) {
+                    setIsCompPlayer2TeamDropdownOpen(true)
+                    setCategoryHeight('comparison', 200)
+                  }
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
               >
@@ -1071,7 +1102,10 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
+                  if (!isCompPlayer2PlayerDropdownOpen) {
+                    setIsCompPlayer2PlayerDropdownOpen(true)
+                    setCategoryHeight('comparison', 200)
+                  }
                 }}
                 className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
               >
@@ -1481,7 +1515,10 @@ export default function LandingPage({
               className="shadow w-full h-8 md:h-10 border border-gray-300 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                setIsLeagueDropdownOpen(!isLeagueDropdownOpen)
+                if (!isLeagueDropdownOpen) {
+                  setIsLeagueDropdownOpen(true)
+                  setCategoryHeight('league', 200) // Add 200px for dropdown
+                }
               }}
             >
               {/* Color strip */}
@@ -1879,7 +1916,11 @@ export default function LandingPage({
               <motion.div
                 key={category.id}
                 className="bg-white rounded-2xl border-2 border-gray-300 relative backdrop-blur-sm"
-                style={{ overflow: 'visible' }}
+                style={{ 
+                  overflow: 'visible',
+                  paddingBottom: categoryHeights[category.id] ? `${categoryHeights[category.id]}px` : '0px',
+                  transition: 'padding-bottom 0.2s ease-in-out'
+                }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
