@@ -156,24 +156,26 @@ const ComparisonTab = ({
     closeAllDropdowns()
     dropdownSetter(true)
     
-    // Calculate if we need extra height
-    if (containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect()
+    // Calculate if we need extra height with delay to allow dropdown to render
+    setTimeout(() => {
       const viewportHeight = window.innerHeight
-      const containerBottom = containerRect.bottom
-      const spaceBelow = viewportHeight - containerBottom
+      const documentHeight = document.documentElement.scrollHeight
+      const scrollTop = window.scrollY
+      const currentBottom = scrollTop + viewportHeight
+      const spaceNeeded = dropdownHeight + 40 // Extra padding
       
-      if (spaceBelow < dropdownHeight + 20) {
-        const neededHeight = dropdownHeight + 20 - spaceBelow
+      if (documentHeight - currentBottom < spaceNeeded) {
+        const neededHeight = spaceNeeded - (documentHeight - currentBottom)
+        console.log('Setting extra height:', neededHeight)
         setExtraHeight(neededHeight)
         
-        // Scroll to show the dropdown
+        // Scroll to ensure dropdown is visible
         setTimeout(() => {
-          const scrollAmount = window.scrollY + neededHeight
+          const scrollAmount = window.scrollY + Math.min(neededHeight, 200)
           window.scrollTo({ top: scrollAmount, behavior: 'smooth' })
-        }, 100)
+        }, 50)
       }
-    }
+    }, 10)
   }
 
   // State for team and player selection - 4 players for large screens, 2 for mobile
@@ -625,7 +627,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2PlayerDropdownOpen(false)
                 }
-                openDropdownWithHeight(() => setIsTeamDropdownOpen(true))
+                openDropdownWithHeight(setIsTeamDropdownOpen)
               }}
               className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
             >
@@ -683,7 +685,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2TeamDropdownOpen(false)
                 }
-                openDropdownWithHeight(() => setIsPlayerDropdownOpen(true))
+                openDropdownWithHeight(setIsPlayerDropdownOpen)
               }}
               className="flex items-center flex-1 pl-1 cursor-pointer min-w-0 overflow-hidden"
             >
@@ -825,7 +827,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2PlayerDropdownOpen(false)
                 }
-                openDropdownWithHeight(() => setIsTeamDropdownOpen(true))
+                openDropdownWithHeight(setIsTeamDropdownOpen)
               }}
               className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
             >
@@ -883,7 +885,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2TeamDropdownOpen(false)
                 }
-                openDropdownWithHeight(() => setIsPlayerDropdownOpen(true))
+                openDropdownWithHeight(setIsPlayerDropdownOpen)
               }}
               className="flex items-left flex-1  pl-1 cursor-pointer min-w-0 overflow-hidden"
             >

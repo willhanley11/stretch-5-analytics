@@ -671,7 +671,7 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
@@ -751,7 +751,7 @@ export default function LandingPage({
 
           {/* Team dropdown menu with logos */}
           {isPlayerTeamDropdownOpen && (
-            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
               {availableTeams.map((teamName) => {
                 const teamData = getSelectedTeamData(teamName)
                 const isSelected = selectedPlayerTeam === teamName
@@ -804,7 +804,7 @@ export default function LandingPage({
 
           {/* Player dropdown menu */}
           {isPlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
               {teamPlayers.map((player, index) => {
                 const isSelected = player.player_id === selectedPlayer?.player_id
 
@@ -932,7 +932,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -974,7 +974,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1101,7 +1101,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1143,7 +1143,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1215,7 +1215,7 @@ export default function LandingPage({
 
             {/* Player 1 Team dropdown menu */}
             {isCompPlayer1TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[0] === team.id
                   const teamName = team.name
@@ -1267,7 +1267,7 @@ export default function LandingPage({
 
             {/* Player 1 Player dropdown menu */}
             {isCompPlayer1PlayerDropdownOpen && compSelectedTeams[0] && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                 {(compPlayersByTeam[compSelectedTeams[0]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer1?.player_id
 
@@ -1324,7 +1324,7 @@ export default function LandingPage({
 
             {/* Player 2 Team dropdown menu */}
             {isCompPlayer2TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[1] === team.id
                   const teamName = team.name
@@ -1376,7 +1376,7 @@ export default function LandingPage({
 
             {/* Player 2 Player dropdown menu */}
             {isCompPlayer2PlayerDropdownOpen && compSelectedTeams[1] && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                 {(compPlayersByTeam[compSelectedTeams[1]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer2?.player_id
 
@@ -1497,7 +1497,7 @@ export default function LandingPage({
 
             {/* Dropdown menu */}
             {isLeagueDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -1639,7 +1639,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeLeagueDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                     {leagues.map((league) => (
                       <button
                         key={league.id}
@@ -1677,7 +1677,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeYearDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                     {seasons.map((season) => (
                       <button
                         key={season.id}
@@ -1809,7 +1809,7 @@ export default function LandingPage({
               </button>
               
               {isLandingLeagueDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                   {leagues.map((league) => (
                     <button
                       key={league.id}
@@ -1847,7 +1847,7 @@ export default function LandingPage({
               </button>
               
               {isLandingYearDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1002] max-h-48 overflow-y-auto mt-1">
                   {seasons.map((season) => (
                     <button
                       key={season.id}
