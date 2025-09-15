@@ -81,6 +81,14 @@ export function ProLeagueNav() {
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState<number>(2024)
   
+  // Function to close all dropdowns
+  const closeAllDropdowns = () => {
+    setIsSeasonDropdownOpen(false)
+    setIsLeagueDropdownOpen(false)
+    setIsUserMenuOpen(false)
+    setIsMobileSeasonOpen(false)
+  }
+  
   // State for landing page selections
   const [landingPageSelections, setLandingPageSelections] = useState<any>(null)
 
@@ -428,7 +436,10 @@ export function ProLeagueNav() {
                   {/* League Dropdown */}
                   <div className="relative" ref={leagueDropdownRef}>
                     <button
-                      onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsLeagueDropdownOpen(true)
+                      }}
                       className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm"
                     >
                       <span className="text-sm font-medium">
@@ -440,7 +451,7 @@ export function ProLeagueNav() {
                     </button>
                     
                     {isLeagueDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                      <div className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
                         <div className="py-2">
                           {allLeagues.map((league) => (
                             <button
@@ -471,7 +482,10 @@ export function ProLeagueNav() {
                   {/* Season Selector */}
                   <div className="relative" ref={seasonDropdownRef}>
                     <button
-                      onClick={() => setIsSeasonDropdownOpen(!isSeasonDropdownOpen)}
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsSeasonDropdownOpen(true)
+                      }}
                       className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm"
                     >
                       <span className="text-sm font-medium">
@@ -482,7 +496,7 @@ export function ProLeagueNav() {
                     <AnimatePresence>
                       {isSeasonDropdownOpen && (
                         <motion.div
-                          className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
+                          className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -5 }}
@@ -540,7 +554,10 @@ export function ProLeagueNav() {
                 {/* League Dropdown - Mobile */}
                 <div className="relative">
                   <button
-                    onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+                    onClick={() => {
+                      closeAllDropdowns()
+                      setIsLeagueDropdownOpen(true)
+                    }}
                     className="flex items-center space-x-1 px-2 py-1 rounded-md text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 text-xs"
                   >
                     <span className="font-medium text-xs">
@@ -552,7 +569,7 @@ export function ProLeagueNav() {
                   </button>
                   
                   {isLeagueDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                    <div className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
                       <div className="py-2 max-h-40 overflow-y-auto">
                         {allLeagues.map((league) => (
                           <button
@@ -650,7 +667,10 @@ export function ProLeagueNav() {
                 {/* Right - Season Selector */}
                 <div className="relative ml-2 flex-shrink-0" ref={mobileSeasonRef}>
                   <button
-                    onClick={() => setIsMobileSeasonOpen(!isMobileSeasonOpen)}
+                    onClick={() => {
+                      closeAllDropdowns()
+                      setIsMobileSeasonOpen(true)
+                    }}
                     className="flex items-center space-x-1 px-2 py-1 rounded-md text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 text-xs"
                   >
                     <span className="font-medium text-xs">
@@ -661,7 +681,7 @@ export function ProLeagueNav() {
                   <AnimatePresence>
                     {isMobileSeasonOpen && (
                       <motion.div
-                        className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
+                        className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}

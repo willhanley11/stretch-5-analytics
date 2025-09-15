@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Users, BarChart3, Target, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
@@ -133,6 +133,48 @@ const ComparisonTab = ({
   const [isPlayer3PlayerDropdownOpen, setIsPlayer3PlayerDropdownOpen] = useState(false)
   const [isPlayer4TeamDropdownOpen, setIsPlayer4TeamDropdownOpen] = useState(false)
   const [isPlayer4PlayerDropdownOpen, setIsPlayer4PlayerDropdownOpen] = useState(false)
+  
+  // Page height management for dropdown visibility
+  const [extraHeight, setExtraHeight] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // Function to close all dropdowns
+  const closeAllDropdowns = () => {
+    setIsPlayer1TeamDropdownOpen(false)
+    setIsPlayer1PlayerDropdownOpen(false)
+    setIsPlayer2TeamDropdownOpen(false)
+    setIsPlayer2PlayerDropdownOpen(false)
+    setIsPlayer3TeamDropdownOpen(false)
+    setIsPlayer3PlayerDropdownOpen(false)
+    setIsPlayer4TeamDropdownOpen(false)
+    setIsPlayer4PlayerDropdownOpen(false)
+    setExtraHeight(0)
+  }
+  
+  // Function to handle dropdown opening with height management
+  const openDropdownWithHeight = (dropdownSetter: (open: boolean) => void, dropdownHeight = 240) => {
+    closeAllDropdowns()
+    dropdownSetter(true)
+    
+    // Calculate if we need extra height
+    if (containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+      const containerBottom = containerRect.bottom
+      const spaceBelow = viewportHeight - containerBottom
+      
+      if (spaceBelow < dropdownHeight + 20) {
+        const neededHeight = dropdownHeight + 20 - spaceBelow
+        setExtraHeight(neededHeight)
+        
+        // Scroll to show the dropdown
+        setTimeout(() => {
+          const scrollAmount = window.scrollY + neededHeight
+          window.scrollTo({ top: scrollAmount, behavior: 'smooth' })
+        }, 100)
+      }
+    }
+  }
 
   // State for team and player selection - 4 players for large screens, 2 for mobile
   const [selectedTeams, setSelectedTeams] = useState<(string | null)[]>(() => {
@@ -583,7 +625,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2PlayerDropdownOpen(false)
                 }
-                setIsTeamDropdownOpen(!isTeamDropdownOpen)
+                openDropdownWithHeight(() => setIsTeamDropdownOpen(true))
               }}
               className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
             >
@@ -641,7 +683,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2TeamDropdownOpen(false)
                 }
-                setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+                openDropdownWithHeight(() => setIsPlayerDropdownOpen(true))
               }}
               className="flex items-center flex-1 pl-1 cursor-pointer min-w-0 overflow-hidden"
             >
@@ -671,7 +713,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
       
       {/* Team dropdown menu */}
       {isTeamDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-[1001] max-h-60 overflow-y-auto">
           {teamsList.map((team) => {
             const isSelected = team.id === selectedTeamId
             
@@ -717,7 +759,7 @@ const PlayerSelectorLeft = ({ playerIndex }: { playerIndex: number }) => {
       
       {/* Player dropdown menu */}
       {isPlayerDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-[1001] max-h-60 overflow-y-auto">
           {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
             const isSelected = player.player_id === selectedPlayerId
             
@@ -783,7 +825,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2PlayerDropdownOpen(false)
                 }
-                setIsTeamDropdownOpen(!isTeamDropdownOpen)
+                openDropdownWithHeight(() => setIsTeamDropdownOpen(true))
               }}
               className="flex items-center flex-shrink-0 border-r border-gray-200 pr-2 cursor-pointer w-10"
             >
@@ -841,7 +883,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
                   setIsPlayer1PlayerDropdownOpen(false)
                   setIsPlayer2TeamDropdownOpen(false)
                 }
-                setIsPlayerDropdownOpen(!isPlayerDropdownOpen)
+                openDropdownWithHeight(() => setIsPlayerDropdownOpen(true))
               }}
               className="flex items-left flex-1  pl-1 cursor-pointer min-w-0 overflow-hidden"
             >
@@ -871,7 +913,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
       
       {/* Team dropdown menu */}
       {isTeamDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-[1001] max-h-60 overflow-y-auto">
           {teamsList.map((team) => {
             const isSelected = team.id === selectedTeamId
             
@@ -917,7 +959,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
       
       {/* Player dropdown menu */}
       {isPlayerDropdownOpen && (
-        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-[1001] max-h-60 overflow-y-auto">
           {selectedTeamId && playersByTeam[selectedTeamId]?.map((player) => {
             const isSelected = player.player_id === selectedPlayerId
             
@@ -956,7 +998,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
   }
 
   return (
-    <div className="space-y-3">
+    <div ref={containerRef} className="space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile, only shows first 2 players */}
       <div className="md:hidden flex gap-0">
         <div className="flex-1 w-[35px]">
@@ -2024,6 +2066,11 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
           </div>
           </div>
         </div>
+      )}
+      
+      {/* Extra height div for dropdown visibility */}
+      {extraHeight > 0 && (
+        <div style={{ height: extraHeight }} className="w-full" />
       )}
     </div>
   )
