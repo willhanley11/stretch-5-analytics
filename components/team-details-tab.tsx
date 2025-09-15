@@ -163,7 +163,7 @@ export function TeamDetailsTab({
   const [isScheduleLoading, setIsScheduleLoading] = useState(true)
   const [gameLogsData, setGameLogsData] = useState<EuroleagueGameLog[]>([])
   const [isGameLogsLoading, setIsGameLogsLoading] = useState(true)
-  const [selectedGameLogPhase, setSelectedGameLogPhase] = useState<string>("All")
+  const [selectedGameLogPhase, setSelectedGameLogPhase] = useState<string>("Regular")
   const [isTeamDropdownOpen, setIsTeamDropdownOpen] = useState(false)
   const [playerSortColumnLocal, setPlayerSortColumn] = useState<string>("points_scored")
   const [playerSortDirectionLocal, setPlayerSortDirection] = useState<"asc" | "desc">("desc")

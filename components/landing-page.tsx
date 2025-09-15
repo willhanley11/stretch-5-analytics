@@ -293,6 +293,9 @@ export default function LandingPage({
   onLeagueChange 
 }: LandingPageProps) {
 
+  // Welcome screen state
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true)
+
   // Real team data state
   const [teamStats, setTeamStats] = useState<any[]>([])
   const [isTeamDataLoading, setIsTeamDataLoading] = useState(true)
@@ -315,6 +318,10 @@ export default function LandingPage({
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [isLeadersDataLoading, setIsLeadersDataLoading] = useState(true)
 
+  // Landing page league/year dropdown state
+  const [isLandingLeagueDropdownOpen, setIsLandingLeagueDropdownOpen] = useState(false)
+  const [isLandingYearDropdownOpen, setIsLandingYearDropdownOpen] = useState(false)
+
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
     setIsTeamDropdownOpen(false)
@@ -325,6 +332,8 @@ export default function LandingPage({
     setIsCompPlayer2TeamDropdownOpen(false)
     setIsCompPlayer2PlayerDropdownOpen(false)
     setIsLeagueDropdownOpen(false)
+    setIsLandingLeagueDropdownOpen(false)
+    setIsLandingYearDropdownOpen(false)
   }
 
   // Comparison section state (matching comparison tab exactly)
@@ -656,7 +665,7 @@ export default function LandingPage({
 
         {/* Styled dropdown menu with logos */}
         {isTeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
             {availableTeams.map((teamName) => {
               const teamData = getSelectedTeamData(teamName)
               const isSelected = teamName === selectedTeam
@@ -736,7 +745,7 @@ export default function LandingPage({
 
           {/* Team dropdown menu with logos */}
           {isPlayerTeamDropdownOpen && (
-            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
               {availableTeams.map((teamName) => {
                 const teamData = getSelectedTeamData(teamName)
                 const isSelected = selectedPlayerTeam === teamName
@@ -789,7 +798,7 @@ export default function LandingPage({
 
           {/* Player dropdown menu */}
           {isPlayerDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1">
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
               {teamPlayers.map((player, index) => {
                 const isSelected = player.player_id === selectedPlayer?.player_id
 
@@ -917,7 +926,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -959,7 +968,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1086,7 +1095,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1128,7 +1137,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1200,7 +1209,7 @@ export default function LandingPage({
 
             {/* Player 1 Team dropdown menu */}
             {isCompPlayer1TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[0] === team.id
                   const teamName = team.name
@@ -1252,7 +1261,7 @@ export default function LandingPage({
 
             {/* Player 1 Player dropdown menu */}
             {isCompPlayer1PlayerDropdownOpen && compSelectedTeams[0] && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
                 {(compPlayersByTeam[compSelectedTeams[0]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer1?.player_id
 
@@ -1309,7 +1318,7 @@ export default function LandingPage({
 
             {/* Player 2 Team dropdown menu */}
             {isCompPlayer2TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[1] === team.id
                   const teamName = team.name
@@ -1361,7 +1370,7 @@ export default function LandingPage({
 
             {/* Player 2 Player dropdown menu */}
             {isCompPlayer2PlayerDropdownOpen && compSelectedTeams[1] && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
                 {(compPlayersByTeam[compSelectedTeams[1]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer2?.player_id
 
@@ -1395,7 +1404,7 @@ export default function LandingPage({
       title: "Teams",
       icon: BarChart,
       description: "Reports, Schedule/Results, Rosters",
-      color: "#E0E0E0",
+      color: "#3B82F6",
       content: (
         <div className="w-full h-8 md:h-10 flex items-center">
           {isTeamDataLoading ? (
@@ -1421,7 +1430,7 @@ export default function LandingPage({
       title: "Players",
       icon: Users,
       description: "Profiles, Shot Charts, Gamelogs, Radar",
-      color: "#E0E0E0",
+      color: "#10B981",
       content: (
         <div className="w-full h-8 md:h-10 flex items-center">
           {isPlayerDataLoading || isTeamDataLoading ? (
@@ -1447,7 +1456,7 @@ export default function LandingPage({
       title: "Leaders", 
       icon: Trophy,
       description: "League Standings, Player Statistics",
-      color: "#E0E0E0",
+      color: "#F59E0B",
       content: (
         <div className="w-full flex items-center gap-2 h-8 md:h-10">
           {isLeadersDataLoading ? (
@@ -1482,7 +1491,7 @@ export default function LandingPage({
 
             {/* Dropdown menu */}
             {isLeagueDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] max-h-48 overflow-y-auto mt-1">
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -1525,7 +1534,7 @@ export default function LandingPage({
       title: "Player Comparison", 
       icon: Scale,
       description: "Averages, Per-40",
-      color: "#E0E0E0",
+      color: "#8B5CF6",
       content: (
         <div className="w-full flex items-center" style={{height: "60px"}}>
           {isComparisonDataLoading ? (
@@ -1557,14 +1566,141 @@ export default function LandingPage({
     }
   ]
 
+  // Welcome screen handler
+  const handleWelcomeGo = () => {
+    setShowWelcomeScreen(false)
+  }
+
+  // Show welcome screen first
+  if (showWelcomeScreen) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-50 flex items-center justify-center">
+        <motion.div 
+          className="max-w-lg w-full mx-auto px-6 -mt-20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          {/* Logo */}
+          <motion.div 
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="relative h-16 w-48 md:h-20 md:w-56">
+              <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
+            </div>
+          </motion.div>
+
+          {/* Welcome Text */}
+          <motion.div 
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-3">
+              Welcome to Stretch 5 Analytics
+            </h1>
+            <p className="text-gray-600 text-md">
+              Select your league and season to get started
+            </p>
+          </motion.div>
+
+          {/* League and Season Selection */}
+          <motion.div 
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            {/* League Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
+              <div className="relative">
+                <select 
+                  value={selectedLeague} 
+                  onChange={(e) => onLeagueChange(e.target.value)}
+                  className="w-full h-12 md:h-14 border-2 border-gray-300 bg-white rounded-2xl px-5 md:px-6 font-semibold text-base md:text-lg text-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 transition-all duration-200 shadow-lg hover:shadow-xl hover:border-gray-400 cursor-pointer appearance-none"
+                  style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  {leagues.map((league) => (
+                    <option key={league.id} value={league.id}>
+                      {league.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                  <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            {/* Season Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide -mt-2">Select Season</label>
+              <div className="relative">
+                <select 
+                  value={selectedSeason.toString()} 
+                  onChange={(e) => onSeasonChange(parseInt(e.target.value))}
+                  className="w-full h-12 md:h-14 border-2 border-gray-300 bg-white rounded-2xl px-5 md:px-6 font-semibold text-base md:text-lg text-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/50 transition-all duration-200 shadow-lg hover:shadow-xl hover:border-gray-400 cursor-pointer appearance-none"
+                  style={{
+                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  {seasons.map((season) => (
+                    <option key={season.id} value={season.id.toString()}>
+                      {season.display}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                  <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Go Button */}
+            <motion.button
+              onClick={handleWelcomeGo}
+              className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
+              style={{
+                boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              Get Started
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.button>
+          </motion.div>
+        </motion.div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-50 overflow-auto">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/60">
+      <div className=" backdrop-blur-md shadow-lg border-b border-gray-200/60">
         <div className="max-w-6xl mx-auto px-3 pt-2 pb-1 md:pt-3 md:pb-2">
           <div className="flex justify-center">
             {/* Logo */}
-            <div className="relative h-6 w-28 md:h-8 md:w-36">
+            <div className="relative h-10 w-36 md:h-8 md:w-36">
               <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
             </div>
           </div>
@@ -1572,75 +1708,128 @@ export default function LandingPage({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-2 py-2 pb-20 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
+      <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
         {/* League and Season Selection */}
-        <div className="flex justify-center gap-2 mb-2 md:gap-4 md:mb-3">
+        <div className="flex justify-center gap-3 mb-3 mt-1 md:gap-6 md:mb-4">
           {/* League Dropdown */}
-          <div className="flex flex-col gap-0.5">
-            <label className="text-xs font-medium text-gray-600 ml-1">Select League</label>
-            <select 
-              value={selectedLeague} 
-              onChange={(e) => onLeagueChange(e.target.value)}
-              className="w-40 h-8 md:w-52 md:h-10 border border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-xl px-2 md:px-3 font-medium text-sm focus:border-gray-300 focus:ring-2 focus:ring-gray-100 transition-all"
-            >
-              {leagues.map((league) => (
-                <option key={league.id} value={league.id}>
-                  {league.name}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col gap-1 w-full max-w-xs relative">
+            <label className="text-[11px] font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  closeAllDropdowns()
+                  setIsLandingLeagueDropdownOpen(!isLandingLeagueDropdownOpen)
+                }}
+                className="h-10 md:w-52 md:h-12 w-full border border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+              >
+                <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
+                <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isLandingLeagueDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                  {leagues.map((league) => (
+                    <button
+                      key={league.id}
+                      onClick={() => {
+                        onLeagueChange(league.id)
+                        setIsLandingLeagueDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        selectedLeague === league.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                      }`}
+                    >
+                      <span className="truncate">{league.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Season Dropdown */}
-          <div className="flex flex-col gap-0.5">
-            <label className="text-xs font-medium text-gray-600 ml-1">Select Year</label>
-            <select 
-              value={selectedSeason.toString()} 
-              onChange={(e) => onSeasonChange(parseInt(e.target.value))}
-              className="w-28 h-8 md:w-36 md:h-10 border border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-xl px-2 md:px-3 font-medium text-sm focus:border-gray-300 focus:ring-2 focus:ring-gray-100 transition-all"
-            >
-              {seasons.map((season) => (
-                <option key={season.id} value={season.id.toString()}>
-                  {season.display}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-col gap-1 relative">
+            <label className="text-[11px] font-semibold text-gray-700 ml-1 tracking-wide">Select Year</label>
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  closeAllDropdowns()
+                  setIsLandingYearDropdownOpen(!isLandingYearDropdownOpen)
+                }}
+                className="w-32 h-10 md:w-40 md:h-12 border border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+              >
+                <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
+                <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingYearDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isLandingYearDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1000] max-h-48 overflow-y-auto mt-1">
+                  {seasons.map((season) => (
+                    <button
+                      key={season.id}
+                      onClick={() => {
+                        onSeasonChange(season.id)
+                        setIsLandingYearDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                        selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                      }`}
+                    >
+                      <span className="truncate">{season.display}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 overflow-visible">
+        {/* Mobile Divider */}
+        <div className="block md:hidden w-full h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mb-3"></div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 overflow-visible">
           {categories.map((category, index) => {
             const IconComponent = category.icon
-            // Modern clean styling for all sections
-            const sectionStyles = {
-              bg: "bg-white",
-              border: "border-gray-400/60",
-              headerBg: "bg-gray-100/70",
-              accent: "border-l-gray-500"
-            }
             
             return (
               <motion.div
                 key={category.id}
-                className={`${sectionStyles.bg} rounded-2xl ${sectionStyles.border} border ${sectionStyles.accent} border-l-2 relative overflow-visible backdrop-blur-sm`}
+                className="bg-white rounded-2xl border-2 border-gray-300 relative overflow-visible backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -1, boxShadow: "0 6px 20px -4px rgba(0, 0, 0, 0.08)" }}
-                style={{ boxShadow: "0 2px 8px -2px rgba(0, 0, 0, 0.04)" }}
+                whileHover={{ 
+                  y: -2, 
+                  scale: 1.02,
+                  boxShadow: "0 12px 25px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08)" 
+                }}
+                style={{ 
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.06)'
+                }}
               >
                 {/* Header Line: Icon + Title + Description + Go Button */}
-                <div className={`px-2 py-1.5 pb-1.5 md:px-3 md:py-2 md:pb-2 ${sectionStyles.headerBg} rounded-t-2xl mb-1.5 md:mb-2 border-b border-gray-100/50`}>
-                  <div className="flex items-center gap-2 md:gap-3">
+                <div className="px-3 py-2 pb-2 md:px-4 md:py-3 md:pb-2.5 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-t-3xl mb-2 md:mb-3 border-b border-gray-200/60">
+                  <div className="flex items-center gap-3 md:gap-3">
                     <div 
-                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-xl flex-shrink-0 border border-gray-200/60 bg-white/80"
+                      className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 rounded-2xl flex-shrink-0 border-2 shadow-md"
+                      style={{
+                        backgroundColor: category.color,
+                        borderColor: category.color,
+                        background: `linear-gradient(135deg, ${category.color} 0%, ${category.color}dd 100%)`,
+                        boxShadow: `0 3px 12px ${category.color}40, inset 0 1px 0 rgba(255, 255, 255, 0.3)`
+                      }}
                     >
-                      <IconComponent className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
+                      <IconComponent className="h-6 w-6 md:h-6 md:w-6 text-white" />
                     </div>
                     
                     <div className="flex-1">
-                      <h3 className="text-sm md:text-lg font-semibold text-gray-800">{category.title}</h3>
-                      <p className="text-xs text-gray-500 -mt-0.5 font-medium">{category.description}</p>
+                      <h3 className="text-md md:text-lg font-bold text-gray-900">{category.title}</h3>
+                      <p className="text-[11px] text-gray-600 font-semibold">{category.description}</p>
                     </div>
                     
                     {/* Go Button */}
@@ -1648,16 +1837,35 @@ export default function LandingPage({
                       <button 
                         onClick={category.goButton.onClick}
                         disabled={category.goButton.disabled}
-                        className="px-2 h-8 md:px-3 md:h-10 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed font-medium text-xs border border-gray-200/60 transition-all duration-200"
+                        className="group relative px-2 h-9 md:px-5 md:h-10 text-white rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-md"
+                        style={{
+                          background: category.goButton.disabled 
+                            ? 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)'
+                            : `linear-gradient(135deg, ${category.color} 0%, ${category.color}dd 100%)`,
+                          boxShadow: category.goButton.disabled 
+                            ? '0 2px 6px rgba(0, 0, 0, 0.1)'
+                            : `0 4px 15px ${category.color}40, inset 0 1px 0 rgba(255, 255, 255, 0.2)`,
+                          border: `1px solid ${category.goButton.disabled ? '#6B7280' : category.color}`
+                        }}
                       >
-                        Go
+                        <span className="relative z-10 flex items-center gap-1">
+                          Go
+                          <svg 
+                            className="w-3 h-3 transition-transform group-hover:translate-x-0.5" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
                       </button>
                     )}
                   </div>
                 </div>
                 
                 {/* Content Below */}
-                <div className="px-2 pb-2 md:px-3 md:pb-3">
+                <div className="px-2 pb-3 md:px-3 md:pb-3">
                   {category.content}
                 </div>
               </motion.div>

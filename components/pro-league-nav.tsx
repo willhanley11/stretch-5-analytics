@@ -78,6 +78,7 @@ export function ProLeagueNav() {
 
   const [selectedLeague, setSelectedLeague] = useState("international-euroleague")
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
+  const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState<number>(2024)
   
   // State for landing page selections
@@ -104,6 +105,7 @@ export function ProLeagueNav() {
 
   const userMenuRef = useRef<HTMLDivElement>(null)
   const seasonDropdownRef = useRef<HTMLDivElement>(null)
+  const leagueDropdownRef = useRef<HTMLDivElement>(null)
   const selectorsRef = useRef<HTMLDivElement>(null)
   const navigationRef = useRef<HTMLDivElement>(null)
   const rightActionsRef = useRef<HTMLDivElement>(null)
@@ -191,6 +193,9 @@ export function ProLeagueNav() {
       }
       if (seasonDropdownRef.current && !seasonDropdownRef.current.contains(event.target as Node)) {
         setIsSeasonDropdownOpen(false)
+      }
+      if (leagueDropdownRef.current && !leagueDropdownRef.current.contains(event.target as Node)) {
+        setIsLeagueDropdownOpen(false)
       }
       if (mobileSeasonRef.current && !mobileSeasonRef.current.contains(event.target as Node)) {
         setIsMobileSeasonOpen(false)
@@ -420,33 +425,44 @@ export function ProLeagueNav() {
                     <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                   </button>
 
-                  {/* League Buttons - Horizontal */}
-                  <div className="flex items-center space-x-6">
-                    {allLeagues.map((league) => (
-                      <button
-                        key={league.id}
-                        onClick={() => {
-                          setActiveLeague(league.id)
-                          setSelectedLeague(league.id)
-                        }}
-                        className={cn(
-                          "flex items-center space-x-2 px-1 py-1 text-sm transition-all duration-200 relative",
-                          league.id === activeLeague
-                            ? "text-gray-900 font-semibold"
-                            : "text-gray-600 hover:text-gray-800 font-medium",
-                        )}
-                      >
-                        <span>{league.name}</span>
-                        {league.id === activeLeague && (
-                          <motion.div
-                            layoutId="activeLeagueIndicator"
-                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gray-900"
-                            initial={false}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          />
-                        )}
-                      </button>
-                    ))}
+                  {/* League Dropdown */}
+                  <div className="relative" ref={leagueDropdownRef}>
+                    <button
+                      onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm"
+                    >
+                      <span className="text-sm font-medium">
+                        {allLeagues.find((l) => l.id === activeLeague)?.name || "Select League"}
+                      </span>
+                      <svg className={`h-4 w-4 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {isLeagueDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                        <div className="py-2">
+                          {allLeagues.map((league) => (
+                            <button
+                              key={league.id}
+                              onClick={() => {
+                                setActiveLeague(league.id)
+                                setSelectedLeague(league.id)
+                                setIsLeagueDropdownOpen(false)
+                              }}
+                              className={cn(
+                                "flex items-center w-full px-3 py-2 text-sm transition-colors",
+                                activeLeague === league.id
+                                  ? "bg-gray-100 text-gray-900 font-medium"
+                                  : "text-gray-600 hover:bg-gray-50",
+                              )}
+                            >
+                              {league.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -521,33 +537,44 @@ export function ProLeagueNav() {
                   <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                 </button>
 
-                {/* League Buttons - Right Aligned */}
-                <div className="flex items-center space-x-4">
-                  {allLeagues.map((league) => (
-                    <button
-                      key={league.id}
-                      onClick={() => {
-                        setActiveLeague(league.id)
-                        setSelectedLeague(league.id)
-                      }}
-                      className={cn(
-                        "flex items-center space-x-1 px-1 py-1 text-xs transition-all duration-200 relative",
-                        league.id === activeLeague
-                          ? "text-gray-900 font-semibold"
-                          : "text-gray-600 hover:text-gray-800 font-medium",
-                      )}
-                    >
-                      <span>{league.name}</span>
-                      {league.id === activeLeague && (
-                        <motion.div
-                          layoutId="mobileActiveLeagueIndicator"
-                          className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gray-900"
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        />
-                      )}
-                    </button>
-                  ))}
+                {/* League Dropdown - Mobile */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsLeagueDropdownOpen(!isLeagueDropdownOpen)}
+                    className="flex items-center space-x-1 px-2 py-1 rounded-md text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 text-xs"
+                  >
+                    <span className="font-medium text-xs">
+                      {allLeagues.find((l) => l.id === activeLeague)?.name || "League"}
+                    </span>
+                    <svg className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {isLeagueDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                      <div className="py-2 max-h-40 overflow-y-auto">
+                        {allLeagues.map((league) => (
+                          <button
+                            key={league.id}
+                            onClick={() => {
+                              setActiveLeague(league.id)
+                              setSelectedLeague(league.id)
+                              setIsLeagueDropdownOpen(false)
+                            }}
+                            className={cn(
+                              "flex items-center w-full px-2 py-1.5 text-xs transition-colors",
+                              activeLeague === league.id
+                                ? "bg-gray-100 text-gray-900 font-medium"
+                                : "text-gray-600 hover:bg-gray-50",
+                            )}
+                          >
+                            {league.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
