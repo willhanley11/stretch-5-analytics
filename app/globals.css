@@ -102,6 +102,80 @@ body {
   color: hsl(var(--foreground));
 }
 
+/* Disable elastic/bounce scrolling on mobile and ensure proper dropdown space */
+html {
+  /* Prevent overscroll bounce effect on all devices */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  overflow-x: hidden;
+  /* Prevent zoom on iOS */
+  -webkit-text-size-adjust: 100%;
+  /* Force hardware acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  overflow-x: hidden;
+  /* Disable elastic scrolling on iOS */
+  -webkit-overflow-scrolling: auto;
+  /* Prevent pull-to-refresh */
+  touch-action: pan-x pan-y;
+  /* Prevent selection during scroll */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Mobile viewport handling - Normal scrolling */
+@media screen and (max-width: 768px) {
+  html {
+    /* Normal mobile scrolling */
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow-x: hidden;
+  }
+  
+  body {
+    /* Normal mobile scrolling */
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  /* Ensure landing page container has proper height */
+  .min-h-screen.bg-gradient-to-br {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    position: relative !important;
+  }
+  
+  /* Only apply fixed positioning to welcome screen (different selector) */
+  body:has(.fixed.inset-0) {
+    position: fixed !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  
+  body:has(.fixed.inset-0) html {
+    position: fixed !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+}
+
 /* Enhanced card styling with cream borders */
 .card,
 [class*="card"],

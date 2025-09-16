@@ -9,7 +9,15 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Stretch5 Analytics",
   description: "Basketball Analytics Made Simple",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    // Prevent elastic scrolling on iOS
+    viewportFit: 'cover'
+  }
 }
 
 export default function RootLayout({
@@ -19,8 +27,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <main className="flex-1">{children}</main>
+      <body className={`${inter.className} min-h-screen`}>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>
