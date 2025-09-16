@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useLayoutEffect } from "react"
-import { createPortal } from "react-dom"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Trophy, Users, BarChart, Scale, ArrowRight, ChevronDown } from "lucide-react"
 import { fetchTeamStats } from "@/app/actions/standings"
@@ -327,197 +326,8 @@ export default function LandingPage({
   const [isWelcomeLeagueDropdownOpen, setIsWelcomeLeagueDropdownOpen] = useState(false)
   const [isWelcomeYearDropdownOpen, setIsWelcomeYearDropdownOpen] = useState(false)
 
-  // Button refs for positioning portaled dropdowns
-  const teamButtonRef = useRef<HTMLButtonElement>(null)
-  const playerTeamButtonRef = useRef<HTMLButtonElement>(null)
-  const playerButtonRef = useRef<HTMLButtonElement>(null)
-  const leagueButtonRef = useRef<HTMLButtonElement>(null)
-  const comp1TeamButtonRef = useRef<HTMLButtonElement>(null)
-  const comp1PlayerButtonRef = useRef<HTMLButtonElement>(null)
-  const comp2TeamButtonRef = useRef<HTMLButtonElement>(null)
-  const comp2PlayerButtonRef = useRef<HTMLButtonElement>(null)
-
-  // Dropdown positions
-  const [dropdownPositions, setDropdownPositions] = useState<{[key: string]: {top: number, left: number, width: number}}>({})
-
-  // Keep track of which dropdown is currently open and its button ref
-  const [activeDropdown, setActiveDropdown] = useState<{id: string, buttonRef: React.RefObject<HTMLButtonElement>} | null>(null)
-
-  // Function to calculate dropdown position
-  const calculateDropdownPosition = (buttonRef: React.RefObject<HTMLButtonElement>, dropdownId: string) => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect()
-      const viewportHeight = window.innerHeight
-      const viewportWidth = window.innerWidth
-      const dropdownHeight = 200 // Estimated dropdown height
-      
-      // Use scroll-aware positioning for both mobile and desktop
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
-      
-      let top: number
-      let left: number
-      
-      // Calculate position relative to document (accounting for scroll)
-      top = rect.bottom + scrollTop + 4 // 4px margin below button
-      left = rect.left + scrollLeft
-      
-      // If dropdown would go off bottom of viewport, position above
-      if (rect.bottom + dropdownHeight > viewportHeight) {
-        top = rect.top + scrollTop - dropdownHeight - 4
-      }
-      
-      // If dropdown would go off right edge, adjust left
-      const dropdownWidth = Math.max(rect.width, 200)
-      if (left + dropdownWidth - scrollLeft > viewportWidth) {
-        left = viewportWidth + scrollLeft - dropdownWidth - 10
-      }
-      
-      // Ensure dropdown doesn't go off left edge
-      if (left < scrollLeft + 10) {
-        left = scrollLeft + 10
-      }
-      
-      console.log(`Positioning ${dropdownId} dropdown:`, {
-        buttonRect: rect,
-        scrollTop,
-        scrollLeft,
-        calculatedTop: top,
-        calculatedLeft: left,
-        viewportHeight,
-        viewportWidth
-      })
-      
-      setDropdownPositions(prev => ({
-        ...prev,
-        [dropdownId]: {
-          top,
-          left,
-          width: Math.max(rect.width, 200) // Minimum width of 200px
-        }
-      }))
-      
-      // Track the active dropdown
-      setActiveDropdown({ id: dropdownId, buttonRef })
-    }
-  }
-
-  // Effect to handle repositioning on scroll/resize
-  useEffect(() => {
-    const handlePositionUpdate = () => {
-      if (activeDropdown) {
-        calculateDropdownPosition(activeDropdown.buttonRef, activeDropdown.id)
-      }
-    }
-
-    const handleScroll = () => {
-      handlePositionUpdate()
-    }
-
-    const handleResize = () => {
-      handlePositionUpdate()
-    }
-
-    if (activeDropdown) {
-      window.addEventListener('scroll', handleScroll, { passive: true })
-      window.addEventListener('resize', handleResize, { passive: true })
-      
-      return () => {
-        window.removeEventListener('scroll', handleScroll)
-        window.removeEventListener('resize', handleResize)
-      }
-    }
-  }, [activeDropdown])
-
-  // Portal dropdown component
-  const PortalDropdown = ({ isOpen, dropdownId, children, className = "" }: { 
-    isOpen: boolean
-    dropdownId: string
-    children: React.ReactNode
-    className?: string
-  }) => {
-    if (!isOpen || typeof window === 'undefined') return null
-    
-    const position = dropdownPositions[dropdownId]
-    if (!position) return null
-
-    return createPortal(
-      <div 
-        className={`fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto ${className}`}
-        style={{
-          top: `${position.top}px`,
-          left: `${position.left}px`,
-          width: `${position.width}px`,
-          minWidth: `${position.width}px`,
-          transform: 'translateZ(0)', // Force hardware acceleration for better positioning
-          willChange: 'transform' // Optimize for frequent position changes
-        }}
-        onClick={(e) => e.stopPropagation()} // Prevent click events from bubbling
-      >
-        {children}
-      </div>,
-      document.body
-    )
-  }
-
   // State for dynamic container height extension
   const [categoryHeights, setCategoryHeights] = useState<{[key: string]: number}>({})
-  
-  // Scroll state for hiding/showing selectors
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
-  const [hasScrolledDown, setHasScrolledDown] = useState(false)
-  
-  // Scroll event listener to hide/show league and season selectors
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout
-    
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      setScrollY(currentScrollY)
-      
-      // Clear any pending timeout
-      clearTimeout(timeoutId)
-      
-      // Once user has scrolled down significantly, mark it
-      if (currentScrollY > 150) {
-        setHasScrolledDown(true)
-      }
-      
-      // Hide selectors when scrolled down more than 100px
-      if (currentScrollY > 100 && !isScrolled) {
-        setIsScrolled(true)
-      }
-      
-      // Only allow showing again if user scrolls to very top AND hasn't scrolled down much in this session
-      // Add a delay to prevent immediate triggering during scroll bounce
-      if (currentScrollY === 0 && isScrolled) {
-        timeoutId = setTimeout(() => {
-          if (window.scrollY === 0) { // Double check position after delay
-            setIsScrolled(false)
-            setHasScrolledDown(false) // Reset for next interaction
-          }
-        }, 200) // 200ms delay to avoid bounce triggers
-      }
-    }
-
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      clearTimeout(timeoutId)
-    }
-  }, [isScrolled])
-  
-  // Function to set category height for dropdown visibility
-  const setCategoryHeight = (categoryId: string, extraHeight: number) => {
-    setCategoryHeights(prev => ({
-      ...prev,
-      [categoryId]: extraHeight
-    }))
-  }
   
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
@@ -535,10 +345,14 @@ export default function LandingPage({
     setIsWelcomeYearDropdownOpen(false)
     // Reset all category heights when closing dropdowns
     setCategoryHeights({})
-    // Reset dropdown positions
-    setDropdownPositions({})
-    // Clear active dropdown tracking
-    setActiveDropdown(null)
+  }
+  
+  // Function to set category height when dropdown opens
+  const setCategoryHeight = (categoryId: string, extraHeight: number) => {
+    setCategoryHeights(prev => ({
+      ...prev,
+      [categoryId]: extraHeight
+    }))
   }
 
   // Comparison section state (matching comparison tab exactly)
@@ -769,18 +583,6 @@ export default function LandingPage({
     loadComparisonData()
   }, [allPlayers, selectedSeason, selectedLeague])
 
-  // Scroll detection for hiding/showing selectors
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      setScrollY(currentScrollY)
-      setIsScrolled(currentScrollY > 50) // Hide selectors after 50px vertical scroll
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   // Helper functions matching team-details-tab.tsx
   const availableTeams = teamStats.map(team => team.name)
   const getSelectedTeamData = (teamName: string) => teamStats.find(team => team.name === teamName)
@@ -852,13 +654,12 @@ export default function LandingPage({
       <div className="relative w-full h-full">
         {/* Simple looking button that mimics a select */}
         <button 
-          ref={teamButtonRef}
           className=" text-sm shadow w-full h-8 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
           onClick={() => {
             closeAllDropdowns()
             if (!isTeamDropdownOpen) {
               setIsTeamDropdownOpen(true)
-              calculateDropdownPosition(teamButtonRef, 'team')
+              setCategoryHeight('teams', 200) // Add 200px for dropdown
             }
           }}
         >
@@ -884,36 +685,38 @@ export default function LandingPage({
           <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`} />
         </button>
 
-        {/* Portal dropdown menu with logos */}
-        <PortalDropdown isOpen={isTeamDropdownOpen} dropdownId="team">
-          {availableTeams.map((teamName) => {
-            const teamData = getSelectedTeamData(teamName)
-            const isSelected = teamName === selectedTeam
+        {/* Styled dropdown menu with logos */}
+        {isTeamDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+            {availableTeams.map((teamName) => {
+              const teamData = getSelectedTeamData(teamName)
+              const isSelected = teamName === selectedTeam
 
-            return (
-              <button
-                key={teamName}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTeam(teamName)
-                  setSelectedPlayerTeam(teamName)
-                  setSelectedPlayer(null)
-                  setIsTeamDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  isSelected ? "bg-gray-50 border-l-4 border-orange-500" : ""
-                }`}
-              >
-                <div className="w-6 h-6 mr-2 flex-shrink-0">
-                  <div className="w-6 h-6  rounded flex items-center justify-center p-0.5 ">
-                    {getTeamLogo(teamName, teamData, selectedSeason)}
+              return (
+                <button
+                  key={teamName}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedTeam(teamName)
+                    setSelectedPlayerTeam(teamName)
+                    setSelectedPlayer(null)
+                    setIsTeamDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    isSelected ? "bg-gray-50 border-l-4 border-orange-500" : ""
+                  }`}
+                >
+                  <div className="w-6 h-6 mr-2 flex-shrink-0">
+                    <div className="w-6 h-6  rounded flex items-center justify-center p-0.5 ">
+                      {getTeamLogo(teamName, teamData, selectedSeason)}
+                    </div>
                   </div>
-                </div>
-                <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-              </button>
-            )
-          })}
-        </PortalDropdown>
+                  <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
     )
   }
@@ -937,13 +740,12 @@ export default function LandingPage({
         {/* Team Select Button */}
         <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
           <button 
-            ref={playerTeamButtonRef}
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
             onClick={() => {
               closeAllDropdowns()
               if (!isPlayerTeamDropdownOpen) {
                 setIsPlayerTeamDropdownOpen(true)
-                calculateDropdownPosition(playerTeamButtonRef, 'playerTeam')
+                setCategoryHeight('players', 200) // Add 200px for dropdown
               }
             }}
           >
@@ -966,48 +768,49 @@ export default function LandingPage({
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerTeamDropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
-          {/* Portal team dropdown menu with logos */}
-          <PortalDropdown isOpen={isPlayerTeamDropdownOpen} dropdownId="playerTeam" className="min-w-64 max-w-96">
-            {availableTeams.map((teamName) => {
-              const teamData = getSelectedTeamData(teamName)
-              const isSelected = selectedPlayerTeam === teamName
+          {/* Team dropdown menu with logos */}
+          {isPlayerTeamDropdownOpen && (
+            <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              {availableTeams.map((teamName) => {
+                const teamData = getSelectedTeamData(teamName)
+                const isSelected = selectedPlayerTeam === teamName
 
-              return (
-                <button
-                  key={teamName}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedPlayerTeam(teamName)
-                    setSelectedPlayer(null)
-                    setIsPlayerTeamDropdownOpen(false)
-                    setIsPlayerDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
-                      {getTeamLogo(teamName, teamData, selectedSeason)}
+                return (
+                  <button
+                    key={teamName}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedPlayerTeam(teamName)
+                      setSelectedPlayer(null)
+                      setIsPlayerTeamDropdownOpen(false)
+                      setIsPlayerDropdownOpen(false)
+                    }}
+                    className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                      isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                    }`}
+                  >
+                    <div className="w-6 h-6 mr-2 flex-shrink-0">
+                      <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
+                        {getTeamLogo(teamName, teamData, selectedSeason)}
+                      </div>
                     </div>
-                  </div>
-                  <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-                </button>
-              )
-            })}
-          </PortalDropdown>
+                    <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Player Select Button */}
         <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
           <button 
-            ref={playerButtonRef}
             className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
             onClick={() => {
               closeAllDropdowns()
               if (!isPlayerDropdownOpen) {
                 setIsPlayerDropdownOpen(true)
-                calculateDropdownPosition(playerButtonRef, 'player')
+                setCategoryHeight('players', 200) // Add 200px for dropdown
               }
             }}
             disabled={!selectedPlayerTeam}
@@ -1021,29 +824,31 @@ export default function LandingPage({
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
-          {/* Portal player dropdown menu */}
-          <PortalDropdown isOpen={isPlayerDropdownOpen} dropdownId="player">
-            {teamPlayers.map((player, index) => {
-              const isSelected = player.player_id === selectedPlayer?.player_id
+          {/* Player dropdown menu */}
+          {isPlayerDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+              {teamPlayers.map((player, index) => {
+                const isSelected = player.player_id === selectedPlayer?.player_id
 
-              return (
-                <button
-                  key={`${player.player_id}-${player.player_name}-${index}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedPlayer(player)
-                    setIsPlayerDropdownOpen(false)
-                    setIsPlayerTeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
-                </button>
-              )
-            })}
-          </PortalDropdown>
+                return (
+                  <button
+                    key={`${player.player_id}-${player.player_name}-${index}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedPlayer(player)
+                      setIsPlayerDropdownOpen(false)
+                      setIsPlayerTeamDropdownOpen(false)
+                    }}
+                    className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                      isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                    }`}
+                  >
+                    <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1071,12 +876,11 @@ export default function LandingPage({
             <div className="flex flex-row items-center p-2 w-full">
               {/* Team Logo Section - Clickable - Fixed width */}
               <button 
-                ref={comp1TeamButtonRef}
                 onClick={() => {
                   closeAllDropdowns()
                   if (!isCompPlayer1TeamDropdownOpen) {
                     setIsCompPlayer1TeamDropdownOpen(true)
-                    calculateDropdownPosition(comp1TeamButtonRef, 'comp1Team')
+                    setCategoryHeight('comparison', 200)
                   }
                 }}
                 className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-6"
@@ -1156,7 +960,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1198,7 +1002,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1331,7 +1135,7 @@ export default function LandingPage({
         
         {/* Team dropdown menu */}
         {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
             {compTeamsList.map((team) => {
               const isSelected = team.id === selectedTeamId
               
@@ -1373,7 +1177,7 @@ export default function LandingPage({
         
         {/* Player dropdown menu */}
         {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto">
             {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
               const isSelected = player.player_id === selectedPlayerId
               
@@ -1421,10 +1225,7 @@ export default function LandingPage({
               className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                if (!isCompPlayer1TeamDropdownOpen) {
-                  setIsCompPlayer1TeamDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
+                setIsCompPlayer1TeamDropdownOpen(!isCompPlayer1TeamDropdownOpen)
               }}
             >
               {/* Color strip */}
@@ -1448,7 +1249,7 @@ export default function LandingPage({
 
             {/* Player 1 Team dropdown menu */}
             {isCompPlayer1TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="fixed border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px', top: '350px', left: '25%', transform: 'translateX(-50%)'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[0] === team.id
                   const teamName = team.name
@@ -1485,10 +1286,7 @@ export default function LandingPage({
               className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                if (!isCompPlayer1PlayerDropdownOpen) {
-                  setIsCompPlayer1PlayerDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
+                setIsCompPlayer1PlayerDropdownOpen(!isCompPlayer1PlayerDropdownOpen)
               }}
               disabled={!compSelectedTeams[0]}
             >
@@ -1503,7 +1301,7 @@ export default function LandingPage({
 
             {/* Player 1 Player dropdown menu */}
             {isCompPlayer1PlayerDropdownOpen && compSelectedTeams[0] && (
-              <div className="absolute top-full left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]">
+              <div className="fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]" style={{top: '390px', left: '25%', transform: 'translateX(-50%)'}}>
                 {(compPlayersByTeam[compSelectedTeams[0]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer1?.player_id
 
@@ -1536,10 +1334,7 @@ export default function LandingPage({
               className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                if (!isCompPlayer2TeamDropdownOpen) {
-                  setIsCompPlayer2TeamDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
+                setIsCompPlayer2TeamDropdownOpen(!isCompPlayer2TeamDropdownOpen)
               }}
             >
               {/* Color strip */}
@@ -1563,7 +1358,7 @@ export default function LandingPage({
 
             {/* Player 2 Team dropdown menu */}
             {isCompPlayer2TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
+              <div className="fixed border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px', top: '350px', left: '75%', transform: 'translateX(-50%)'}}>
                 {compTeamsList.map((team) => {
                   const isSelected = compSelectedTeams[1] === team.id
                   const teamName = team.name
@@ -1600,10 +1395,7 @@ export default function LandingPage({
               className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
-                if (!isCompPlayer2PlayerDropdownOpen) {
-                  setIsCompPlayer2PlayerDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
+                setIsCompPlayer2PlayerDropdownOpen(!isCompPlayer2PlayerDropdownOpen)
               }}
               disabled={!compSelectedTeams[1]}
             >
@@ -1618,7 +1410,7 @@ export default function LandingPage({
 
             {/* Player 2 Player dropdown menu */}
             {isCompPlayer2PlayerDropdownOpen && compSelectedTeams[1] && (
-              <div className="absolute top-full left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]">
+              <div className="fixed bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]" style={{top: '390px', left: '75%', transform: 'translateX(-50%)'}}>
                 {(compPlayersByTeam[compSelectedTeams[1]] || []).map((player, index) => {
                   const isSelected = player.player_id === selectedPlayer2?.player_id
 
@@ -1652,7 +1444,7 @@ export default function LandingPage({
       title: "Teams",
       icon: BarChart,
       description: "Reports, Schedule/Results, Rosters",
-      color: "#3E5C76",
+      color: "#3B82F6",
       content: (
         <div className="w-full h-8 md:h-10 flex items-center">
           {isTeamDataLoading ? (
@@ -1677,8 +1469,8 @@ export default function LandingPage({
       id: "players", 
       title: "Players",
       icon: Users,
-      description: "Profiles, Shot Charts, Game Logs ...",
-      color: "#3E5C76",
+      description: "Profiles, Shot Charts, Gamelogs, Radar",
+      color: "#10B981",
       content: (
         <div className="w-full h-8 md:h-10 flex items-center">
           {isPlayerDataLoading || isTeamDataLoading ? (
@@ -1704,7 +1496,7 @@ export default function LandingPage({
       title: "Leaders", 
       icon: Trophy,
       description: "League Standings, Player Statistics",
-      color: "#3E5C76",
+      color: "#F59E0B",
       content: (
         <div className="w-full flex items-center gap-2 h-8 md:h-10">
           {isLeadersDataLoading ? (
@@ -1720,13 +1512,12 @@ export default function LandingPage({
           {/* League Standings Dropdown */}
           <div className="relative w-full h-full flex-1">
             <button 
-              ref={leagueButtonRef}
               className="shadow w-full h-8 md:h-10 border border-gray-300 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               onClick={() => {
                 closeAllDropdowns()
                 if (!isLeagueDropdownOpen) {
                   setIsLeagueDropdownOpen(true)
-                  calculateDropdownPosition(leagueButtonRef, 'league')
+                  setCategoryHeight('league', 200) // Add 200px for dropdown
                 }
               }}
             >
@@ -1741,33 +1532,35 @@ export default function LandingPage({
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {/* Portal league dropdown menu */}
-            <PortalDropdown isOpen={isLeagueDropdownOpen} dropdownId="league">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTableMode("league")
-                  setIsLeagueDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  selectedTableMode === "league" ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                }`}
-              >
-                <span className="truncate text-sm">League Standings</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTableMode("player")
-                  setIsLeagueDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  selectedTableMode === "player" ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                }`}
-              >
-                <span className="truncate text-sm">Player Statistics</span>
-              </button>
-            </PortalDropdown>
+            {/* Dropdown menu */}
+            {isLeagueDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedTableMode("league")
+                    setIsLeagueDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    selectedTableMode === "league" ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                  }`}
+                >
+                  <span className="truncate">League Standings</span>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedTableMode("player")
+                    setIsLeagueDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                    selectedTableMode === "player" ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                  }`}
+                >
+                  <span className="truncate">Player Statistics</span>
+                </button>
+              </div>
+            )}
           </div>
           
             </>
@@ -1784,7 +1577,7 @@ export default function LandingPage({
       title: "Player Comparison", 
       icon: Scale,
       description: "Averages, Per-40",
-      color: "#3E5C76",
+      color: "#8B5CF6",
       content: (
         <div className="w-full flex items-center" style={{height: "60px"}}>
           {isComparisonDataLoading ? (
@@ -1838,16 +1631,29 @@ export default function LandingPage({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="relative h-11 w-64 md:h-20 md:w-56">
+            <div className="relative h-16 w-48 md:h-20 md:w-56">
               <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
             </div>
           </motion.div>
 
-          
+          {/* Welcome Text */}
+          <motion.div 
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-3">
+              Welcome to Stretch 5 Analytics
+            </h1>
+            <p className="text-gray-600 text-md">
+              Select your league and season to get started
+            </p>
+          </motion.div>
 
           {/* League and Season Selection */}
           <motion.div 
-            className="space-y-7"
+            className="space-y-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -1859,10 +1665,7 @@ export default function LandingPage({
                 <button 
                   onClick={() => {
                     closeAllDropdowns()
-                    if (!isWelcomeLeagueDropdownOpen) {
-                      setIsWelcomeLeagueDropdownOpen(true)
-                      setCategoryHeight('welcome', 200)
-                    }
+                    setIsWelcomeLeagueDropdownOpen(!isWelcomeLeagueDropdownOpen)
                   }}
                   className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
                 >
@@ -1873,7 +1676,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeLeagueDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
                     {leagues.map((league) => (
                       <button
                         key={league.id}
@@ -1900,10 +1703,7 @@ export default function LandingPage({
                 <button 
                   onClick={() => {
                     closeAllDropdowns()
-                    if (!isWelcomeYearDropdownOpen) {
-                      setIsWelcomeYearDropdownOpen(true)
-                      setCategoryHeight('welcome', 200)
-                    }
+                    setIsWelcomeYearDropdownOpen(!isWelcomeYearDropdownOpen)
                   }}
                   className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
                 >
@@ -1914,7 +1714,7 @@ export default function LandingPage({
                 </button>
                 
                 {isWelcomeYearDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
                     {seasons.map((season) => (
                       <button
                         key={season.id}
@@ -1937,7 +1737,7 @@ export default function LandingPage({
             {/* Go Button */}
             <motion.button
               onClick={handleWelcomeGo}
-              className="w-full h-12 md:h-14 bg-[#3E5C76] hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-sm hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
+              className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
               style={{
                 boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
               }}
@@ -1959,7 +1759,7 @@ export default function LandingPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white relative z-[1000]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-[1000] flex flex-col">
       {/* Fixed Header - Stays on top during scroll */}
       <div className="backdrop-blur-md shadow-lg border-b border-gray-200/60 relative z-[1003] bg-white/80">
         <div className="max-w-6xl mx-auto px-3 pt-2 pb-1 md:pt-3 md:pb-2">
@@ -1972,21 +1772,62 @@ export default function LandingPage({
         </div>
       </div>
 
-      {/* Regular Scrollable Content */}
-      <div className="relative">
-        {/* Main Content */}
-        <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
-        {/* League and Season Selection - Hidden when scrolled */}
-        <motion.div 
-          className="flex justify-center gap-3 mb-3 mt-1 md:gap-6 md:mb-4"
-          initial={{ opacity: 1, height: 'auto' }}
-          animate={{ 
-            opacity: isScrolled ? 0 : 1,
-            height: isScrolled ? 0 : 'auto',
-            marginBottom: isScrolled ? 0 : undefined
-          }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
+      {/* Elastic Scrollable Content - Only this part moves */}
+      <motion.div
+        className="flex-1 overflow-hidden relative"
+        drag="y"
+        dragConstraints={{ top: -120, bottom: 120 }}
+        dragElastic={0.15}
+        dragMomentum={false}
+        dragSnapToOrigin={true}
+        onDragStart={() => {
+          // Close any open dropdowns when starting to drag
+          closeAllDropdowns()
+          // Optional: Add haptic feedback on supported devices
+          if (navigator.vibrate) {
+            navigator.vibrate(10)
+          }
+        }}
+        onDragEnd={() => {
+          // Force immediate snap back to original position - no gaps allowed
+        }}
+        initial={{ y: 0 }}
+        animate={{ y: 0 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 600, 
+          damping: 35,
+          restDelta: 0.001,
+          restSpeed: 0.01
+        }}
+        style={{
+          cursor: 'grab',
+          touchAction: 'pan-y'
+        }}
+        whileDrag={{
+          cursor: 'grabbing',
+          scale: 0.99
+        }}
+      >
+        {/* Pull Indicator - Shows when dragging */}
+        <motion.div
+          className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 0, scale: 0.8 }}
+          whileDrag={{ opacity: 0.7, scale: 1, y: 4 }}
+          transition={{ duration: 0.2 }}
         >
+          <div className="flex space-x-1 mb-1">
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+          </div>
+          <p className="text-xs text-gray-500 font-medium bg-white/80 px-2 py-1 rounded-full">Pull to see more</p>
+        </motion.div>
+        {/* Main Content */}
+        <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible min-h-screen">
+        {/* League and Season Selection */}
+        <div className="flex justify-center gap-3 mb-3 mt-1 md:gap-6 md:mb-4">
           {/* League Dropdown */}
           <div className="flex flex-col gap-1 w-full max-w-xs relative">
             <label className="text-[11px] font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
@@ -1994,10 +1835,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isLandingLeagueDropdownOpen) {
-                    setIsLandingLeagueDropdownOpen(true)
-                    setCategoryHeight('landing', 200)
-                  }
+                  setIsLandingLeagueDropdownOpen(!isLandingLeagueDropdownOpen)
                 }}
                 className="h-10 md:w-52 md:h-12 w-full border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
@@ -2008,7 +1846,7 @@ export default function LandingPage({
               </button>
               
               {isLandingLeagueDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
                   {leagues.map((league) => (
                     <button
                       key={league.id}
@@ -2035,10 +1873,7 @@ export default function LandingPage({
               <button 
                 onClick={() => {
                   closeAllDropdowns()
-                  if (!isLandingYearDropdownOpen) {
-                    setIsLandingYearDropdownOpen(true)
-                    setCategoryHeight('landing', 200)
-                  }
+                  setIsLandingYearDropdownOpen(!isLandingYearDropdownOpen)
                 }}
                 className="w-32 h-10 md:w-40 md:h-12 border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
@@ -2049,7 +1884,7 @@ export default function LandingPage({
               </button>
               
               {isLandingYearDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[1004] max-h-48 overflow-y-auto mt-1">
                   {seasons.map((season) => (
                     <button
                       key={season.id}
@@ -2068,19 +1903,19 @@ export default function LandingPage({
               )}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Mobile Divider */}
         <div className="block md:hidden w-full h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mb-3"></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-5 pb-4 px-2 mb-4 md:mb-0" data-scroll-container>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 overflow-visible">
           {categories.map((category, index) => {
             const IconComponent = category.icon
             
             return (
               <motion.div
                 key={category.id}
-                className="bg-white rounded-2xl border-2 border-gray-300 relative backdrop-blur-sm w-full"
+                className="bg-white rounded-2xl border-2 border-gray-300 relative backdrop-blur-sm"
                 style={{ 
                   overflow: 'visible',
                   paddingBottom: categoryHeights[category.id] ? `${categoryHeights[category.id]}px` : '0px',
@@ -2103,7 +1938,7 @@ export default function LandingPage({
                 <div className="px-3 py-2 pb-2 md:px-4 md:py-3 md:pb-2.5 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-t-3xl mb-2 md:mb-3 border-b border-gray-200/60">
                   <div className="flex items-center gap-3 md:gap-3">
                     <div 
-                      className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-2xl flex-shrink-0 border-2 "
+                      className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 rounded-2xl flex-shrink-0 border-2 shadow-md"
                       style={{
                         backgroundColor: category.color,
                         borderColor: category.color,
@@ -2111,7 +1946,7 @@ export default function LandingPage({
                         boxShadow: `0 3px 12px ${category.color}40, inset 0 1px 0 rgba(255, 255, 255, 0.3)`
                       }}
                     >
-                      <IconComponent className="h-5 w-5 md:h-6 md:w-6 text-orange-200" />
+                      <IconComponent className="h-6 w-6 md:h-6 md:w-6 text-white" />
                     </div>
                     
                     <div className="flex-1">
@@ -2124,7 +1959,7 @@ export default function LandingPage({
                       <button 
                         onClick={category.goButton.onClick}
                         disabled={category.goButton.disabled}
-                        className="group relative px-2 h-9 md:px-5 md:h-10 text-orange-200 rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-md border border-black"
+                        className="group relative px-2 h-9 md:px-5 md:h-10 text-white rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none disabled:shadow-md"
                         style={{
                           background: category.goButton.disabled 
                             ? 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)'
@@ -2159,16 +1994,11 @@ export default function LandingPage({
             )
           })}
         </div>
-        
-        {/* Mobile spacer for dropdown visibility */}
-        <div className="block md:hidden w-full bg-transparent landing-page-spacer" style={{ height: '100px', minHeight: '100px' }}>
-          {/* This creates extra scrollable space on mobile for dropdown visibility */}
-          
         </div>
-        
-        </div>
-      </div>
+      </motion.div>
       
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
