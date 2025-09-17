@@ -1818,6 +1818,7 @@ export default function LandingPage({
 
   // State for showing the 4-box menu after welcome
   const [showMenu, setShowMenu] = useState(false)
+  const [isExiting, setIsExiting] = useState(false)
   
   // Refs for dropdown positioning
   const welcomeLeagueButtonRef = useRef<HTMLButtonElement>(null)
@@ -1853,7 +1854,8 @@ export default function LandingPage({
 
   // Menu selection handler
   const handleMenuSelection = (menuType: string) => {
-    setShowMenu(false)
+    // Start exit animation
+    setIsExiting(true)
     
     // Map menu selections to the appropriate tabs
     const tabMapping = {
@@ -1865,18 +1867,27 @@ export default function LandingPage({
     
     const targetTab = tabMapping[menuType]
     if (targetTab) {
-      // Navigate to the selected tab with current league/season selections
-      onNavigate(targetTab, {
-        league: selectedLeague,
-        season: selectedSeason
-      })
+      // Wait for exit animation to complete before navigating
+      setTimeout(() => {
+        onNavigate(targetTab, {
+          league: selectedLeague,
+          season: selectedSeason
+        })
+      }, 500) // Match the exit animation duration
     }
   }
 
   // Show welcome screen first
   if (showWelcomeScreen) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-[100] overflow-y-auto">
+      <motion.div 
+        className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-[100] overflow-y-auto"
+        animate={{ 
+          opacity: isExiting ? 0 : 1,
+          scale: isExiting ? 0.95 : 1
+        }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
         {/* Initial Content - Slides up when menu shows */}
         <motion.div 
           className="flex items-center justify-center px-6"
@@ -2320,7 +2331,7 @@ export default function LandingPage({
             </div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
     )
   }
 

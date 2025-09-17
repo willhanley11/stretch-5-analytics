@@ -1,6 +1,7 @@
 "use client"
 import React from "react"
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { ShootingProfileTable } from "@/components/shooting-profile-table"
 import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
 
@@ -870,15 +871,25 @@ export function TeamDetailsTab({
     if (rank === effectiveTotal) return "bg-red-500 text-white font-bold rounded px-0.5 md:px-1 py-0 md:py-0.5 w-full inline-block" // Worst
 
     return "bg-red-200 text-black rounded px-0.5 md:px-1 py-0 md:py-0.5 w-full inline-block"
-}
+  }
 
   return (
     <>
       {isAnyDataLoading ? (
         <div className="flex items-center justify-center h-full mt-6">
-          <div className="text-center">
-            {selectedTeam && teamStats.length > 0 && (
-              <div className="mb-6">
+          {selectedTeam && teamStats.length > 0 ? (
+            <motion.div 
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <motion.div 
+                className="mb-6"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 {(() => {
                   // First check if we have a direct logo URL from the database
                   const teamData = teamStats.find((team) => team.name === selectedTeam)
@@ -948,10 +959,23 @@ export function TeamDetailsTab({
                   )
                 })()}
                 <h2 className="text-md font-semibold text-gray-800 mb-2">{selectedTeam}</h2>
-              </div>
-            )}
-            <div className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
-          </div>
+              </motion.div>
+              <motion.div 
+                className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+            </motion.div>
+          )}
         </div>
       ) : (
         <div className="space-y-6 ">

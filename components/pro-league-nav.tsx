@@ -42,7 +42,7 @@ const leagueSections = [
   { id: "teams", label: "Teams", initial: "T", icon: BarChart },
   { id: "statistics", label: "Players", initial: "P", icon: Users },
 
-  { id: "standings", label: "League", initial: "S", icon: Trophy },
+  { id: "standings", label: "Leaders", initial: "S", icon: Trophy },
   { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
 ]
 
@@ -126,19 +126,14 @@ export function ProLeagueNav() {
   // Ref for the entire header container
   const headerRef = useRef<HTMLDivElement>(null)
   const topHeaderRowRef = useRef<HTMLDivElement>(null) // Ref for the top row
+  const bottomRowRef = useRef<HTMLDivElement>(null) // Ref for the bottom row
 
   const [headerHeight, setHeaderHeight] = useState(0) // Total header height
   const [topHeaderRowHeight, setTopHeaderRowHeight] = useState(0) // Height of the top row
+  const [bottomRowHeight, setBottomRowHeight] = useState(0) // Height of the bottom row
   const [scrollY, setScrollY] = useState(0)
 
-  // Update scrollY on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  // No scroll handling needed - header stays fixed
 
   // Get heights of header rows on mount and resize
   useEffect(() => {
@@ -148,6 +143,9 @@ export function ProLeagueNav() {
       }
       if (topHeaderRowRef.current) {
         setTopHeaderRowHeight(topHeaderRowRef.current.offsetHeight)
+      }
+      if (bottomRowRef.current) {
+        setBottomRowHeight(bottomRowRef.current.offsetHeight)
       }
     }
     updateHeaderHeights()
@@ -166,14 +164,15 @@ export function ProLeagueNav() {
         if (topHeaderRowRef.current) {
           setTopHeaderRowHeight(topHeaderRowRef.current.offsetHeight)
         }
+        if (bottomRowRef.current) {
+          setBottomRowHeight(bottomRowRef.current.offsetHeight)
+        }
       }, 50)
       return () => clearTimeout(timer)
     }
   }, [showLandingPage])
 
-  // Calculate the amount the *entire header* should translate up
-  // It should be 0 when scrollY is 0, and up to -topHeaderRowHeight when scrollY >= topHeaderRowHeight
-  const headerTranslateY = Math.max(-topHeaderRowHeight, -scrollY)
+  // Header stays fixed - no translation needed
 
   // --- END: Refined Changes for smooth shrink effect ---
 
@@ -269,11 +268,14 @@ export function ProLeagueNav() {
     switch (activeSection) {
       case "teams":
         return (
-          <div
+          <motion.div
             className=" px-2 pb-4 pt-6  md:px-8 md:pt-2"
             style={{
               background: "background-color: #f3f4f6"
             }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto ">
               <YamagataTeamStats
@@ -284,15 +286,18 @@ export function ProLeagueNav() {
                 initialTeam={landingPageSelections?.team}
               />
             </div>
-          </div>
+          </motion.div>
         );
       case "statistics":
         return (
-          <div
+          <motion.div
             className="px-2 pb-4 pt-6  md:px-8 md:pt-2"
             style={{
               background: "background-color: #ffffff",
             }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto ">
               <OffenseTab
@@ -307,15 +312,18 @@ export function ProLeagueNav() {
                 initialTeam={landingPageSelections?.team}
               />
             </div>
-          </div>
+          </motion.div>
         );
       case "standings":
         return (
-          <div
+          <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
               background: "background-color: #ffffff",
             }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto">
               <YamagataTeamStats
@@ -327,15 +335,18 @@ export function ProLeagueNav() {
                 initialTableMode={landingPageSelections?.mode}
               />
             </div>
-          </div>
+          </motion.div>
         );
       case "players":
         return (
-          <div
+          <motion.div
             className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
               background: "background-color: #ffffff",
             }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto ">
               <StatisticsTab
@@ -345,15 +356,18 @@ export function ProLeagueNav() {
                 league={selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"}
               />
             </div>
-          </div>
+          </motion.div>
         );
       case "comparison":
         return (
-          <div
+          <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
               background: "background-color: #ffffff",
             }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto ">
               <ComparisonTab 
@@ -362,7 +376,7 @@ export function ProLeagueNav() {
                 initialPlayers={landingPageSelections?.players}
               />
             </div>
-          </div>
+          </motion.div>
         );
       case "about":
         return (
@@ -403,22 +417,21 @@ export function ProLeagueNav() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <motion.div 
+      className="min-h-screen relative overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
       {/* Fixed header container that holds both rows */}
       <header
         ref={headerRef} // Attach ref to the entire header
-        style={{ transform: `translateY(${headerTranslateY}px)` }} // Apply dynamic translateY to the whole header
-        className={cn(
-          "fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-transform duration-100 ease-out",
-        )}
+        className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
       >
         {/* Top row - Logo + League Buttons + Season + Actions */}
         <div
           ref={topHeaderRowRef} // Attach ref here to measure its height
-          className={cn(
-            "w-full transition-all duration-100 ease-out", // Keep this for subtle transitions if content changes
-            // The actual slide-up is handled by the parent's translateY
-          )}
+          className="w-full"
         >
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation */}
@@ -540,58 +553,108 @@ export function ProLeagueNav() {
               </div>
             </div>
 
-            {/* Mobile Navigation - Single Level with Logo and Right-aligned League Buttons */}
+            {/* Mobile Navigation - Single Level with Logo and Right-aligned League/Season Buttons */}
             <div className="sm:hidden">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+              <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-100">
                 {/* Logo */}
                 <button 
                   onClick={() => setShowLandingPage(true)}
-                  className="relative h-6 w-20 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="relative h-7 w-24 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 >
                   <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                 </button>
 
-                {/* League Dropdown - Mobile */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      closeAllDropdowns()
-                      setIsLeagueDropdownOpen(true)
-                    }}
-                    className="flex items-center space-x-1 px-2 py-1 rounded-md text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 text-xs"
-                  >
-                    <span className="font-medium text-xs">
-                      {allLeagues.find((l) => l.id === activeLeague)?.name || "League"}
-                    </span>
-                    <svg className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  {isLeagueDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
-                      <div className="py-2 max-h-40 overflow-y-auto">
-                        {allLeagues.map((league) => (
-                          <button
-                            key={league.id}
-                            onClick={() => {
-                              setActiveLeague(league.id)
-                              setSelectedLeague(league.id)
-                              setIsLeagueDropdownOpen(false)
-                            }}
-                            className={cn(
-                              "flex items-center w-full px-2 py-1.5 text-xs transition-colors",
-                              activeLeague === league.id
-                                ? "bg-gray-100 text-gray-900 font-medium"
-                                : "text-gray-600 hover:bg-gray-50",
-                            )}
-                          >
-                            {league.name}
-                          </button>
-                        ))}
+                {/* League and Season Dropdowns - Mobile */}
+                <div className="flex items-center space-x-2">
+                  {/* League Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsLeagueDropdownOpen(true)
+                      }}
+                      className="flex items-center space-x-1 px-3 py-1 rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-all duration-200 text-[11px] font-semibold"
+                    >
+                      <span className="text-xs">
+                        {allLeagues.find((l) => l.id === activeLeague)?.name || "League"}
+                      </span>
+                      <svg className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {isLeagueDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-32 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                        <div className="py-2 max-h-40 overflow-y-auto">
+                          {allLeagues.map((league) => (
+                            <button
+                              key={league.id}
+                              onClick={() => {
+                                setActiveLeague(league.id)
+                                setSelectedLeague(league.id)
+                                setIsLeagueDropdownOpen(false)
+                              }}
+                              className={cn(
+                                "flex items-center w-full px-3 py-2 text-xs transition-colors",
+                                activeLeague === league.id
+                                  ? "bg-blue-50 text-blue-900 font-semibold"
+                                  : "text-gray-600 hover:bg-gray-50",
+                              )}
+                            >
+                              {league.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+
+                  {/* Season Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsMobileSeasonOpen(true)
+                      }}
+                      className="flex items-center space-x-1 px-3 py-1 rounded-md text-white bg-orange-600 hover:bg-orange-700 shadow-md transition-all duration-200 text-[11px] font-semibold"
+                    >
+                      <span className="text-xs">
+                        {seasons.find((s) => s.id === selectedSeason)?.display || "2024-25"}
+                      </span>
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    <AnimatePresence>
+                      {isMobileSeasonOpen && (
+                        <motion.div
+                          className="absolute right-0 mt-2 w-24 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <div className="py-2 max-h-40 overflow-y-auto">
+                            {seasons.map((season) => (
+                              <button
+                                key={season.id}
+                                onClick={() => {
+                                  setSelectedSeason(season.id)
+                                  setIsMobileSeasonOpen(false)
+                                }}
+                                className={cn(
+                                  "flex items-center w-full px-3 py-2 text-xs transition-colors",
+                                  selectedSeason === season.id
+                                    ? "bg-orange-50 text-orange-900 font-semibold"
+                                    : "text-gray-600 hover:bg-gray-50",
+                                )}
+                              >
+                                {season.display}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </div>
@@ -600,12 +663,8 @@ export function ProLeagueNav() {
 
         {/* Bottom row - Navigation tabs */}
         <div
-          className={cn(
-            "w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm transition-all duration-100 ease-out",
-            // The border-t will appear when the top row slides up, thanks to the main header's translateY
-            // If the border-t on desktop needs to only appear when sticky, you could conditionally apply it here
-            // based on `scrollY >= topHeaderRowHeight`
-          )}
+          ref={bottomRowRef}
+          className="w-full border-t border-gray-100"
         >
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation Tabs */}
@@ -634,11 +693,11 @@ export function ProLeagueNav() {
               </nav>
             </div>
 
-            {/* Mobile Navigation Tabs with Season Selector */}
-            <div className="sm:hidden px-4 py-1.5">
-              <div className="flex items-center justify-between">
-                {/* Left - Navigation Tabs */}
-                <nav className="flex items-center space-x-3 overflow-x-auto flex-1">
+            {/* Mobile Navigation Tabs */}
+            <div className="sm:hidden px-4 py-1">
+              <div className="flex items-center justify-center">
+                {/* Navigation Tabs */}
+                <nav className="flex items-center space-x-10 overflow-x-auto">
                   {leagueSections.map((section) => {
                     const IconComponent = section.icon
                     return (
@@ -646,11 +705,12 @@ export function ProLeagueNav() {
                         key={section.id}
                         onClick={() => handleTabClick(section.id)}
                         className={cn(
-                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1 flex-shrink-0 flex flex-col items-center rounded-md",
+                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1.5 flex-shrink-0 flex flex-col items-center rounded-md",
                           activeSection === section.id ? "text-gray-900" : "text-gray-600 hover:text-gray-900",
                         )}
                       >
-                        <IconComponent className="h-4 w-4 mb-1" />
+                        <IconComponent className="h-3.5 w-3.5 mb-0.5" />
+                        <span className="text-[10px]">{section.label}</span>
                         {activeSection === section.id && (
                           <motion.div
                             layoutId="mobileTabBackground"
@@ -663,53 +723,6 @@ export function ProLeagueNav() {
                     )
                   })}
                 </nav>
-
-                {/* Right - Season Selector */}
-                <div className="relative ml-2 flex-shrink-0" ref={mobileSeasonRef}>
-                  <button
-                    onClick={() => {
-                      closeAllDropdowns()
-                      setIsMobileSeasonOpen(true)
-                    }}
-                    className="flex items-center space-x-1 px-2 py-1 rounded-md text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 text-xs"
-                  >
-                    <span className="font-medium text-xs">
-                      {seasons.find((s) => s.id === selectedSeason)?.display || "2024-25"}
-                    </span>
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                  <AnimatePresence>
-                    {isMobileSeasonOpen && (
-                      <motion.div
-                        className="absolute right-0 mt-2 w-28 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <div className="py-2 max-h-40 overflow-y-auto">
-                          {seasons.map((season) => (
-                            <button
-                              key={season.id}
-                              onClick={() => {
-                                setSelectedSeason(season.id)
-                                setIsMobileSeasonOpen(false)
-              }}
-                              className={cn(
-                                "flex items-center w-full px-2 py-1.5 text-xs transition-colors",
-                                selectedSeason === season.id
-                                  ? "bg-gray-100 text-gray-900 font-medium"
-                                  : "text-gray-600 hover:bg-gray-50",
-                              )}
-                            >
-                              {season.display}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
               </div>
             </div>
           </div>
@@ -719,7 +732,6 @@ export function ProLeagueNav() {
       {/* Spacer to prevent content from hiding behind the sticky header */}
       <div
         style={{
-          // The height should always be the current calculated height of the entire header
           height: `${headerHeight}px`,
         }}
         className="w-full bg-transparent"
@@ -750,6 +762,6 @@ export function ProLeagueNav() {
         {/*  </motion.div>*/}
         {/*)}*/}
       </AnimatePresence>
-    </div>
+    </motion.div>
   )
 }
