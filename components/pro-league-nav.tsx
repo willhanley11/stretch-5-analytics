@@ -262,6 +262,14 @@ export function ProLeagueNav() {
     // Store landing page selections to pass to tabs
     console.log(`Landing page navigation: tab=${tab}, selections=`, selections)
     setLandingPageSelections({ tab, ...selections })
+    
+    // Update season and league from landing page selections if provided
+    if (selections?.season) {
+      setSelectedSeason(selections.season)
+    }
+    if (selections?.league) {
+      setSelectedLeague(selections.league)
+    }
   }
 
   const renderActiveContent = () => {
@@ -307,6 +315,7 @@ export function ProLeagueNav() {
                 onPlayerSelect={setSelectedPlayer}
                 filteredPlayers={filteredPlayerImages}
                 selectedSeason={selectedSeason}
+                onSeasonChange={setSelectedSeason}
                 league={selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"}
                 initialPlayer={landingPageSelections?.player}
                 initialTeam={landingPageSelections?.team}

@@ -1,6 +1,6 @@
 "use server"
 
-import { getPlayerStatsFromGameLogs } from "@/lib/db"
+import { getPlayerStatsFromGameLogs, getAllPlayersAcrossSeasons } from "@/lib/db"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
 
 export async function fetchAllPlayerStatsFromGameLogs(
@@ -29,6 +29,23 @@ export async function fetchAllPlayerStatsFromGameLogs(
     return result
   } catch (error) {
     console.error("Error in fetchAllPlayerStatsFromGameLogs:", error)
+    return []
+  }
+}
+
+export async function fetchAllPlayersAcrossSeasons(
+  league = "euroleague",
+): Promise<PlayerStatsFromGameLogs[]> {
+  console.log("=== fetchAllPlayersAcrossSeasons CALLED ===")
+  console.log("League:", league)
+
+  try {
+    const result = await getAllPlayersAcrossSeasons(league)
+    console.log("Fetched", result.length, "players across all seasons")
+
+    return result
+  } catch (error) {
+    console.error("Error in fetchAllPlayersAcrossSeasons:", error)
     return []
   }
 }

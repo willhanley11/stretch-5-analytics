@@ -315,7 +315,7 @@ function YamagataTeamStats({
   // Add state for seasons and phases
   const [seasons, setSeasons] = useState<number[]>([2024, 2023]) // Default seasons
   const [phases, setPhases] = useState<string[]>(["RS"]) // Default phase
-  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason || 2024)
+  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason)
   const [selectedPhase, setSelectedPhase] = useState<string>("RS")
   const [teamStats, setTeamStats] = useState<EuroleagueTeamStats[]>([])
   const [teamAdvancedStats, setTeamAdvancedStats] = useState<EuroleagueTeamAdvanced | null>(null)
@@ -604,10 +604,10 @@ function YamagataTeamStats({
 
   // Update selectedSeason when the prop changes
   useEffect(() => {
-    if (propSelectedSeason && propSelectedSeason !== selectedSeason) {
+    if (propSelectedSeason) {
       setSelectedSeason(propSelectedSeason)
     }
-  }, [propSelectedSeason, selectedSeason])
+  }, [propSelectedSeason])
 
   // Update the handleTabChange function
   const handleTabChange = (tab: string) => {

@@ -12,6 +12,7 @@ import { fetchAllPlayerStatsFromGameLogs } from "@/app/actions/player-stats"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
 import { ChevronDown } from 'lucide-react'
 import { LeagueLoadingScreen, LeagueSpinner } from "@/components/ui/league-spinner"
+import { PlayerSearch } from "@/components/player-search"
 
 // Team background colors (same as in StatisticsTab)
 const teamColors = {
@@ -275,6 +276,7 @@ interface OffenseTabProps {
   league?: string
   initialPlayer?: PlayerStatsFromGameLogs // Add initialPlayer prop from landing page
   initialTeam?: any // Add initialTeam prop from landing page
+  onSeasonChange?: (season: number) => void // Add callback for season changes
   // Keep existing props for backward compatibility
   playerSearch?: string
   onPlayerSearchChange?: (search: string) => void
@@ -288,6 +290,7 @@ const OffenseTab = ({
   league = "euroleague",
   initialPlayer,
   initialTeam,
+  onSeasonChange,
   // Keep existing props for backward compatibility
   playerSearch,
   onPlayerSearchChange, 
@@ -838,6 +841,56 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       setYearOverYearStats([])
     }
   }
+
+  // Handler for when a player is selected from the search
+  const handlePlayerSearchSelect = async (searchOption: {
+    player_id: string
+    player_name: string
+    season: number
+    phase: string
+    player_team_code: string
+    player_team_name: string
+    teamlogo: string
+    games_played: number
+  }) => {
+    console.log("🔥 PLAYER SEARCH SELECTION STARTED 🔥")
+    console.log("Selected player:", searchOption.player_name)
+    console.log("Selected team:", searchOption.player_team_name)
+
+    // Find the player in the current allPlayers (which contains current season data)
+    const selectedPlayerData = allPlayers.find(
+      p => p.player_id === searchOption.player_id && 
+           p.phase === "Regular Season" // Always use Regular Season for search selections
+    )
+
+    if (selectedPlayerData) {
+      console.log("✅ Player data found! Updating states...")
+      
+      // Find and set the team
+      const teamData = {
+        player_team_name: selectedPlayerData.player_team_name,
+        player_team_code: selectedPlayerData.player_team_code,
+        season: selectedPlayerData.season,
+        phase: selectedPlayerData.phase,
+        teamlogo: selectedPlayerData.teamlogo || "",
+      }
+      console.log("🏀 Setting team to:", teamData.player_team_name)
+      setSelectedTeam(teamData)
+
+      // Set the player and always default to Regular Season
+      console.log("👤 Setting selected player to:", selectedPlayerData.player_name)
+      setSelectedPlayer(selectedPlayerData)
+      setSelectedPhaseToggle("Regular Season")
+      
+      // Load the player data
+      console.log("📈 Loading player data...")
+      await loadPlayerData(selectedPlayerData)
+      console.log("🎉 PLAYER SELECTION COMPLETED SUCCESSFULLY!")
+    } else {
+      console.log("❌ ERROR: No player data found for:", searchOption)
+    }
+  }
+
 useEffect(() => {
   const handleClickOutside = (event) => {
     // Check if click is outside both dropdowns
@@ -872,6 +925,7 @@ useEffect(() => {
     setSelectedPlayer(null)
     setTeamPlayers([])
     setGameData([])
+
 
     // Auto-select first team and player for the new league
     const autoSelectFirstTeamAndPlayer = async () => {
@@ -962,6 +1016,8 @@ useEffect(() => {
 
     loadGameLogs()
   }, [selectedPlayer, selectedSeason, league])
+
+
 
   // Filter game logs by selected phase
   const getFilteredGameLogs = useMemo(() => {
@@ -3366,10 +3422,31 @@ const PlayerTeamSelector = () => {
       <div className="space-y-6">
   {/* Main Layout - New Structure */}
   <div className="flex flex-col gap-2 -mt-2 sm:-mt-3">
+    {/* Player Search - Above dropdown on mobile */}
+    <div className="md:hidden mb-2">
+      <PlayerSearch
+        onPlayerSelect={handlePlayerSearchSelect}
+        allPlayers={allPlayers}
+        placeholder="Search players..."
+        className="w-full"
+      />
+    </div>
+    
     {/* Filter Bar - Non-sticky */}
     <div className="-mt-2 mb-4 md:mb-0 md:mt-0 md:hidden">
       <PlayerTeamSelector />
     </div>
+    
+    {/* Player Search - Above FilterPlayerHeader on desktop */}
+    <div className="hidden md:block mb-2">
+      <PlayerSearch
+        onPlayerSelect={handlePlayerSearchSelect}
+        allPlayers={allPlayers}
+        placeholder="Search players..."
+        className="w-full max-w-md"
+      />
+    </div>
+    
     {FilterPlayerHeader()}
 
     {/* Player Info and Season Statistics - Sticky */}

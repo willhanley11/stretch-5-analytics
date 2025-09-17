@@ -1669,7 +1669,7 @@ export default function LandingPage({
         </div>
       ),
       goButton: {
-        onClick: () => onNavigate("teams", { team: selectedTeam }),
+        onClick: () => onNavigate("teams", { team: selectedTeam, league: selectedLeague, season: selectedSeason }),
         disabled: !selectedTeam
       }
     },
@@ -1695,7 +1695,7 @@ export default function LandingPage({
         </div>
       ),
       goButton: {
-        onClick: () => onNavigate("statistics", { team: selectedPlayerTeam, player: selectedPlayer }),
+        onClick: () => onNavigate("statistics", { team: selectedPlayerTeam, player: selectedPlayer, league: selectedLeague, season: selectedSeason }),
         disabled: !selectedPlayer
       }
     },
@@ -1775,7 +1775,7 @@ export default function LandingPage({
         </div>
       ),
       goButton: {
-        onClick: () => onNavigate("standings", { mode: selectedTableMode }),
+        onClick: () => onNavigate("standings", { mode: selectedTableMode, league: selectedLeague, season: selectedSeason }),
         disabled: false
       }
     },
@@ -1809,7 +1809,9 @@ export default function LandingPage({
             compSelectedPlayerIds[1] && compSelectedTeams[1]
               ? compPlayersByTeam[compSelectedTeams[1]]?.find(p => p.player_id === compSelectedPlayerIds[1])
               : null
-          ].filter(Boolean)
+          ].filter(Boolean),
+          league: selectedLeague,
+          season: selectedSeason
         }),
         disabled: !compSelectedPlayerIds[0] || !compSelectedPlayerIds[1]
       }
@@ -1922,6 +1924,10 @@ export default function LandingPage({
               </div>
             </motion.div>
 
+            {/* Mobile Divider */}
+        <div className="block md:hidden w-full h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mb-5 -mt-1"></div>
+
+
             {/* League and Season Selection */}
             <motion.div 
               className="space-y-5 relative"
@@ -1968,7 +1974,7 @@ export default function LandingPage({
                     
                     {isWelcomeLeagueDropdownOpen && (
                       <div 
-                        className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto mt-1"
+                        className="absolute top-full left-0 right-0 bg-white border-2 border-gray-300 rounded-b-xl rounded-t-md shadow-lg max-h-48 overflow-y-auto mt-1"
                         style={{ 
                           zIndex: 999999999
                         }}
@@ -1981,7 +1987,7 @@ export default function LandingPage({
                               setIsWelcomeLeagueDropdownOpen(false)
                             }}
                             className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
-                              selectedLeague === league.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                              selectedLeague === league.id ? "bg-gray-50 border-l-4 border-slate-500" : ""
                             }`}
                           >
                             <span className="truncate">{league.name}</span>
@@ -2024,7 +2030,7 @@ export default function LandingPage({
                     
                     {isWelcomeYearDropdownOpen && (
                       <div 
-                        className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto mt-1"
+                        className="absolute top-full left-0 right-0 bg-white border-2 border-gray-200 rounded-b-xl rounded-t-md shadow-lg max-h-48 overflow-y-auto mt-1"
                         style={{ 
                           zIndex: 999999999
                         }}
@@ -2037,7 +2043,7 @@ export default function LandingPage({
                               setIsWelcomeYearDropdownOpen(false)
                             }}
                             className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
-                              selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                              selectedSeason === season.id ? "bg-gray-50 border-l-4 border-slate-500" : ""
                             }`}
                           >
                             <span className="truncate">{season.display}</span>

@@ -1923,3 +1923,34 @@ export async function getUniqueTeamCodesFromGameLogs(season: number, league = "e
     return []
   }
 }
+
+// FUNCTION: Get all players across all seasons for search functionality
+export async function getAllPlayersAcrossSeasons(
+  league = "euroleague",
+): Promise<PlayerStatsFromGameLogs[]> {
+  try {
+    console.log("=== FETCHING ALL PLAYERS ACROSS SEASONS FOR SEARCH ===")
+    console.log("League:", league)
+
+    const tables = getTableNames(league)
+    const tableName = tables.playerStatsFromGameLogs
+
+    console.log("Using table name:", tableName)
+
+    const stats = await executeWithRetry(async () => {
+      return (await sql.query(
+        `SELECT DISTINCT ON (player_id, season, phase) 
+         player_id, player_name, season, phase, player_team_code, player_team_name, teamlogo, games_played
+         FROM ${tableName} 
+         WHERE games_played > 0
+         ORDER BY player_id, season DESC, phase, player_name`,
+      )) as PlayerStatsFromGameLogs[]
+    })
+
+    console.log("All players across seasons found:", stats.length)
+    return stats
+  } catch (error) {
+    console.error("Error fetching all players across seasons:", error)
+    return []
+  }
+}
