@@ -1677,7 +1677,7 @@ export default function LandingPage({
       id: "players", 
       title: "Players",
       icon: Users,
-      description: "Profiles, Shot Charts, Game Logs",
+      description: "Profiles, Shot Charts, Game Logs ...",
       color: "#3E5C76",
       content: (
         <div className="w-full h-8 md:h-10 flex items-center">
@@ -1704,7 +1704,7 @@ export default function LandingPage({
       title: "Leaders", 
       icon: Trophy,
       description: "League Standings, Player Statistics",
-      color: "#bf5050",
+      color: "#3E5C76",
       content: (
         <div className="w-full flex items-center gap-2 h-8 md:h-10">
           {isLeadersDataLoading ? (
@@ -1816,514 +1816,147 @@ export default function LandingPage({
     }
   ]
 
-  // State for showing the 4-box menu after welcome
-  const [showMenu, setShowMenu] = useState(false)
-  
-  // Refs for dropdown positioning
-  const welcomeLeagueButtonRef = useRef<HTMLButtonElement>(null)
-  const welcomeSeasonButtonRef = useRef<HTMLButtonElement>(null)
-  const [leagueDropdownPos, setLeagueDropdownPos] = useState({ top: 0, left: 0, width: 0 })
-  const [seasonDropdownPos, setSeasonDropdownPos] = useState({ top: 0, left: 0, width: 0 })
-
-  // Function to update dropdown positions
-  const updateDropdownPositions = () => {
-    if (welcomeLeagueButtonRef.current) {
-      const rect = welcomeLeagueButtonRef.current.getBoundingClientRect()
-      setLeagueDropdownPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width
-      })
-    }
-    if (welcomeSeasonButtonRef.current) {
-      const rect = welcomeSeasonButtonRef.current.getBoundingClientRect()
-      setSeasonDropdownPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width
-      })
-    }
-  }
-
-  // Welcome screen handler - shows 4-box menu below welcome content
+  // Welcome screen handler
   const handleWelcomeGo = () => {
-    // Show the menu after a brief delay without hiding the welcome screen
-    setTimeout(() => setShowMenu(true), 100)
-  }
-
-  // Menu selection handler
-  const handleMenuSelection = (menuType: string) => {
-    setShowMenu(false)
-    
-    // Map menu selections to the appropriate tabs
-    const tabMapping = {
-      'teams': 'teams',
-      'players': 'statistics', 
-      'leaders': 'standings',
-      'comparison': 'comparison'
-    }
-    
-    const targetTab = tabMapping[menuType]
-    if (targetTab) {
-      // Navigate to the selected tab with current league/season selections
-      onNavigate(targetTab, {
-        league: selectedLeague,
-        season: selectedSeason
-      })
-    }
+    setShowWelcomeScreen(false)
   }
 
   // Show welcome screen first
   if (showWelcomeScreen) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-[100] overflow-y-auto">
-        {/* Initial Content - Slides up when menu shows */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white fixed inset-0 z-[1000] flex items-center justify-center">
         <motion.div 
-          className="flex items-center justify-center px-6"
-          style={{ 
-            minHeight: showMenu ? 'auto' : '100vh',
-            paddingTop: showMenu ? '1rem' : '0',
-            paddingBottom: showMenu ? '1rem' : '0'
-          }}
+          className="max-w-lg w-full mx-auto px-6 -mt-20"
           initial={{ opacity: 0, y: 30 }}
-          animate={{ 
-            opacity: 1, 
-            y: showMenu ? -30 : 0
-          }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
+          {/* Logo */}
           <motion.div 
-            className="max-w-lg w-full mx-auto"
-            animate={{ 
-              marginTop: showMenu ? '2rem' : '-5rem'
-            }}
-            transition={{ duration: 0.6 }}
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {/* Logo */}
-            <motion.div 
-              className="flex justify-center mb-6"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <div className="relative h-11 w-64 md:h-20 md:w-56 mt-8">
-                <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
-              </div>
-            </motion.div>
-
-            {/* League and Season Selection */}
-            <motion.div 
-              className="space-y-5 relative"
-              style={{ 
-                zIndex: 999999999, 
-                isolation: 'isolate',
-                position: 'relative',
-                transform: 'translateZ(0)'
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              {/* League and Season Row */}
-              <div className={`gap-3 md:gap-4 ${showMenu ? 'flex' : 'flex flex-col space-y-4'}`}>
-                {/* League Dropdown */}
-                <div className="flex flex-col gap-2 flex-1">
-                  <label className={`font-semibold text-gray-700 ml-1 tracking-wide transition-all duration-300 ${
-                    showMenu ? 'text-xs' : 'text-sm'
-                  }`}>Select League</label>
-                  <div className="relative">
-                    <button 
-                      ref={welcomeLeagueButtonRef}
-                      onClick={() => {
-                        closeAllDropdowns()
-                        if (!isWelcomeLeagueDropdownOpen) {
-                          setIsWelcomeLeagueDropdownOpen(true)
-                          setCategoryHeight('welcome', 200)
-                        }
-                      }}
-                      className={`w-full border-2 border-gray-200 bg-white rounded-md text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative font-semibold transition-all duration-300 ${
-                        showMenu 
-                          ? 'h-8 md:h-10 px-2 md:px-3 text-xs md:text-sm' 
-                          : 'h-12 md:h-14 px-4 md:px-5 text-base md:text-lg'
-                      }`}
-                    >
-                      <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
-                      <svg className={`text-gray-500 transition-all duration-300 ${isWelcomeLeagueDropdownOpen ? "rotate-180" : ""} ${
-                        showMenu ? 'h-3 w-3' : 'h-5 w-5'
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    
-                    {isWelcomeLeagueDropdownOpen && (
-                      <div 
-                        className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto mt-1"
-                        style={{ 
-                          zIndex: 999999999
-                        }}
-                      >
-                        {leagues.map((league) => (
-                          <button
-                            key={league.id}
-                            onClick={() => {
-                              onLeagueChange(league.id)
-                              setIsWelcomeLeagueDropdownOpen(false)
-                            }}
-                            className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
-                              selectedLeague === league.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                            }`}
-                          >
-                            <span className="truncate">{league.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Season Dropdown */}
-                <div className="flex flex-col gap-2 flex-1">
-                  <label className={`font-semibold text-gray-700 ml-1 tracking-wide transition-all duration-300 ${
-                    showMenu ? 'text-xs' : 'text-sm'
-                  }`}>Select Season</label>
-                  <div className="relative">
-                    <button 
-                      ref={welcomeSeasonButtonRef}
-                      onClick={() => {
-                        closeAllDropdowns()
-                        if (!isWelcomeYearDropdownOpen) {
-                          updateDropdownPositions()
-                          setIsWelcomeYearDropdownOpen(true)
-                          setCategoryHeight('welcome', 200)
-                        }
-                      }}
-                      className={`w-full border-2 border-gray-200 bg-white rounded-md text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative font-semibold transition-all duration-300 ${
-                        showMenu 
-                          ? 'h-8 md:h-10 px-2 md:px-3 text-xs md:text-sm' 
-                          : 'h-12 md:h-14 px-4 md:px-5 text-base md:text-lg'
-                      }`}
-                    >
-                      <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
-                      <svg className={`text-gray-500 transition-all duration-300 ${isWelcomeYearDropdownOpen ? "rotate-180" : ""} ${
-                        showMenu ? 'h-3 w-3' : 'h-5 w-5'
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    
-                    {isWelcomeYearDropdownOpen && (
-                      <div 
-                        className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto mt-1"
-                        style={{ 
-                          zIndex: 999999999
-                        }}
-                      >
-                        {seasons.map((season) => (
-                          <button
-                            key={season.id}
-                            onClick={() => {
-                              onSeasonChange(season.id)
-                              setIsWelcomeYearDropdownOpen(false)
-                            }}
-                            className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
-                              selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                            }`}
-                          >
-                            <span className="truncate">{season.display}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Go Button - Hide when menu is shown */}
-              {!showMenu && (
-                <motion.button
-                  onClick={handleWelcomeGo}
-                  className="w-full h-12 md:h-14 bg-[#3E5C76] hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-sm hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
-                  style={{
-                    boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  Get Started
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </motion.button>
-              )}
-            </motion.div>
-          </motion.div>
-        </motion.div>
-
-        {/* 4-Box Menu - Appears below the welcome content */}
-        {showMenu && (
-          <motion.div 
-            className="px-6 pb-8"
-            style={{ zIndex: 1000 }}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="max-w-lg mx-auto">
-              {/* 4-Box Grid */}
-              <motion.div 
-                className="grid grid-cols-1 gap-3 md:gap-4"
-                style={{ zIndex: 100 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
-                {/* Teams Box */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="bg-black shadow-md rounded-xl relative"
-                  style={{ zIndex: 10, contain: 'layout style', willChange: 'opacity' }}
-                >
-                  <button 
-                    className="w-full text-left"
-                    onClick={() => handleMenuSelection('teams')}
-                  >
-                    <div
-                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                      style={{
-                        border: `1px solid black`,
-                        backgroundColor: '#3E5C76',
-                      }}
-                    >
-                      <div className="flex items-center p-3 gap-3">
-                        {/* Icon section */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
-                            <div
-                              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2"
-                              style={{
-                                border: "1px solid black",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <Users className="w-6 h-6 text-black" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3
-                            className="text-lg font-bold text-white mb-1"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Teams
-                          </h3>
-                          <p
-                            className="text-sm text-white opacity-90"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Reports, Schedule/Results, Rosters
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
-
-                {/* Players Box */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
-                  className="bg-black shadow-md rounded-xl relative"
-                  style={{ zIndex: 10, contain: 'layout style', willChange: 'opacity' }}
-                >
-                  <button 
-                    className="w-full text-left"
-                    onClick={() => handleMenuSelection('players')}
-                  >
-                    <div
-                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                      style={{
-                        border: `1px solid black`,
-                        backgroundColor: '#15803D',
-                      }}
-                    >
-                      <div className="flex items-center p-3 gap-3">
-                        {/* Icon section */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
-                            <div
-                              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2"
-                              style={{
-                                border: "1px solid black",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <Trophy className="w-6 h-6 text-black" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3
-                            className="text-lg font-bold text-white mb-1"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Players
-                          </h3>
-                          <p
-                            className="text-sm text-white opacity-90"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Profiles, Shot Charts, Game Logs
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
-
-                {/* Leaders Box */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                  className="bg-black shadow-md rounded-xl relative"
-                  style={{ zIndex: 10, contain: 'layout style', willChange: 'opacity' }}
-                >
-                  <button 
-                    className="w-full text-left"
-                    onClick={() => handleMenuSelection('leaders')}
-                  >
-                    <div
-                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                      style={{
-                        border: `1px solid black`,
-                        backgroundColor: '#CA8A04',
-                      }}
-                    >
-                      <div className="flex items-center p-3 gap-3">
-                        {/* Icon section */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
-                            <div
-                              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2"
-                              style={{
-                                border: "1px solid black",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <BarChart className="w-6 h-6 text-black" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3
-                            className="text-lg font-bold text-white mb-1"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Leaders
-                          </h3>
-                          <p
-                            className="text-sm text-white opacity-90"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            League Standings, Player Statistics
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
-
-                {/* Comparison Box */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.9 }}
-                  className="bg-black shadow-md rounded-xl relative"
-                  style={{ zIndex: 10, contain: 'layout style', willChange: 'opacity' }}
-                >
-                  <button 
-                    className="w-full text-left"
-                    onClick={() => handleMenuSelection('comparison')}
-                  >
-                    <div
-                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                      style={{
-                        border: `1px solid black`,
-                        backgroundColor: '#6D28D9',
-                      }}
-                    >
-                      <div className="flex items-center p-3 gap-3">
-                        {/* Icon section */}
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
-                            <div
-                              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2"
-                              style={{
-                                border: "1px solid black",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <Scale className="w-6 h-6 text-black" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3
-                            className="text-lg font-bold text-white mb-1"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Comparisons
-                          </h3>
-                          <p
-                            className="text-sm text-white opacity-90"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Player H2H: Averages, Per-40
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
-              </motion.div>
+            <div className="relative h-11 w-64 md:h-20 md:w-56">
+              <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
             </div>
           </motion.div>
-        )}
+
+          
+
+          {/* League and Season Selection */}
+          <motion.div 
+            className="space-y-7"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            {/* League Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
+              <div className="relative">
+                <button 
+                  onClick={() => {
+                    closeAllDropdowns()
+                    if (!isWelcomeLeagueDropdownOpen) {
+                      setIsWelcomeLeagueDropdownOpen(true)
+                      setCategoryHeight('welcome', 200)
+                    }
+                  }}
+                  className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
+                >
+                  <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
+                  <svg className={`h-5 w-5 text-gray-500 transition-transform ${isWelcomeLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {isWelcomeLeagueDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                    {leagues.map((league) => (
+                      <button
+                        key={league.id}
+                        onClick={() => {
+                          onLeagueChange(league.id)
+                          setIsWelcomeLeagueDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
+                          selectedLeague === league.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                        }`}
+                      >
+                        <span className="truncate">{league.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Season Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1 tracking-wide -mt-2">Select Season</label>
+              <div className="relative">
+                <button 
+                  onClick={() => {
+                    closeAllDropdowns()
+                    if (!isWelcomeYearDropdownOpen) {
+                      setIsWelcomeYearDropdownOpen(true)
+                      setCategoryHeight('welcome', 200)
+                    }
+                  }}
+                  className="w-full h-12 md:h-14 border-2 border-gray-200 bg-white rounded-md px-4 md:px-5 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-base md:text-lg font-semibold"
+                >
+                  <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
+                  <svg className={`h-5 w-5 text-gray-500 transition-transform ${isWelcomeYearDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {isWelcomeYearDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
+                    {seasons.map((season) => (
+                      <button
+                        key={season.id}
+                        onClick={() => {
+                          onSeasonChange(season.id)
+                          setIsWelcomeYearDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
+                          selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""
+                        }`}
+                      >
+                        <span className="truncate">{season.display}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Go Button */}
+            <motion.button
+              onClick={handleWelcomeGo}
+              className="w-full h-12 md:h-14 bg-[#3E5C76] hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg rounded-2xl transition-all duration-200 shadow-sm hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
+              style={{
+                boxShadow: '0 6px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              Get Started
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.button>
+          </motion.div>
+        </motion.div>
       </div>
     )
   }
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white relative z-[1000]">
@@ -2345,7 +1978,7 @@ export default function LandingPage({
         <div className="mx-auto px-3 pt-2 pb-6 md:px-3 md:py-3 md:pb-40 bg-gradient-to-b from-gray-50/30 to-gray-100/20 overflow-visible">
         {/* League and Season Selection - Hidden when scrolled */}
         <motion.div 
-          className="flex justify-center gap-2 mb-2 mt-1 md:gap-4 md:mb-3"
+          className="flex justify-center gap-3 mb-3 mt-1 md:gap-6 md:mb-4"
           initial={{ opacity: 1, height: 'auto' }}
           animate={{ 
             opacity: isScrolled ? 0 : 1,
@@ -2355,7 +1988,7 @@ export default function LandingPage({
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
           {/* League Dropdown */}
-          <div className="flex flex-col gap-1 flex-1 max-w-[200px] relative">
+          <div className="flex flex-col gap-1 w-full max-w-xs relative">
             <label className="text-[11px] font-semibold text-gray-700 ml-1 tracking-wide">Select League</label>
             <div className="relative">
               <button 
@@ -2366,7 +1999,7 @@ export default function LandingPage({
                     setCategoryHeight('landing', 200)
                   }
                 }}
-                className="h-10 md:h-12 w-full border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+                className="h-10 md:w-52 md:h-12 w-full border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
                 <span className="truncate">{leagues.find(l => l.id === selectedLeague)?.name}</span>
                 <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2396,7 +2029,7 @@ export default function LandingPage({
           </div>
           
           {/* Season Dropdown */}
-          <div className="flex flex-col gap-1 flex-1 max-w-[200px] relative">
+          <div className="flex flex-col gap-1 relative">
             <label className="text-[11px] font-semibold text-gray-700 ml-1 tracking-wide">Select Year</label>
             <div className="relative">
               <button 
@@ -2407,7 +2040,7 @@ export default function LandingPage({
                     setCategoryHeight('landing', 200)
                   }
                 }}
-                className="h-10 md:h-12 w-full border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
+                className="w-32 h-10 md:w-40 md:h-12 border-2 border-gray-200 bg-white rounded-md px-3 md:px-4 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
               >
                 <span className="truncate">{seasons.find(s => s.id === selectedSeason)?.display}</span>
                 <svg className={`h-4 w-4 text-gray-500 transition-transform ${isLandingYearDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2440,7 +2073,7 @@ export default function LandingPage({
         {/* Mobile Divider */}
         <div className="block md:hidden w-full h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent mb-3"></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-5 md:gap-5 pb-4 px-2 mb-4 md:mb-0" data-scroll-container>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-5 pb-4 px-2 mb-4 md:mb-0" data-scroll-container>
           {categories.map((category, index) => {
             const IconComponent = category.icon
             
