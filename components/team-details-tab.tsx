@@ -330,9 +330,18 @@ export function TeamDetailsTab({
     return scheduleData.filter((game) => {
       const phase = game.phase || "RS"
       const isRegularSeason = phase === "RS"
+      // For Eurocup, TS (Top Sixteen) is part of regular season display
+      // For Euroleague, TS would be considered playoffs if it exists
+      const isTopSixteen = phase === "TS"
       const isPlayoffs = ["PI", "PO", "FF", "2F", "8F", "4F", "Final"].includes(phase)
 
-      return selectedScheduleFilter === "regular" ? isRegularSeason : isPlayoffs
+      if (selectedScheduleFilter === "regular") {
+        // For regular season filter, include RS and TS (for Eurocup only)
+        return isRegularSeason || (league === "eurocup" && isTopSixteen)
+      } else {
+        // For playoff filter, include all playoff phases for all leagues
+        return isPlayoffs
+      }
     })
   }
   useEffect(() => {
@@ -628,6 +637,8 @@ export function TeamDetailsTab({
 
     // Define phase display names
     const phaseNames = {
+      RS: "REGULAR SEASON",
+      TS: "TOP SIXTEEN",
       PI: "PLAY-IN",
       PO: "PLAYOFFS",
       FF: "FINAL FOUR",
@@ -639,8 +650,8 @@ export function TeamDetailsTab({
 
     // Define phase order for proper display 
     // Euroleague: PI → PO → FF
-    // Eurocup: 8F → 4F → 2F → Final
-    const phaseOrder = ["RS", "PI", "PO", "FF", "8F", "4F", "2F", "Final"]
+    // Eurocup: RS → TS → 8F → 4F → 2F → Final
+    const phaseOrder = ["RS", "TS", "PI", "PO", "FF", "8F", "4F", "2F", "Final"]
     
     // Sort phases according to defined order
     const sortedPhases = Object.keys(gamesByPhase).sort((a, b) => {
@@ -958,7 +969,10 @@ export function TeamDetailsTab({
                     </div>
                   )
                 })()}
-                <h2 className="text-md font-semibold text-gray-800 mb-2">{selectedTeam}</h2>
+                <h2 className="text-md font-semibold text-gray-800 mb-1">{selectedTeam}</h2>
+                <p className="text-sm text-gray-600 mb-2">
+                  {seasons.find(s => s.id === selectedSeason)?.display || `${selectedSeason}-${(selectedSeason + 1).toString().slice(-2)}`}
+                </p>
               </motion.div>
               <motion.div 
                 className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"

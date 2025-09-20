@@ -315,7 +315,7 @@ function YamagataTeamStats({
   // Add state for seasons and phases
   const [seasons, setSeasons] = useState<number[]>([2024, 2023]) // Default seasons
   const [phases, setPhases] = useState<string[]>(["RS"]) // Default phase
-  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason)
+  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason || 2024)
   const [selectedPhase, setSelectedPhase] = useState<string>("RS")
   const [teamStats, setTeamStats] = useState<EuroleagueTeamStats[]>([])
   const [teamAdvancedStats, setTeamAdvancedStats] = useState<EuroleagueTeamAdvanced | null>(null)
@@ -323,6 +323,15 @@ function YamagataTeamStats({
 
   // Add state to track the current league
   const [currentLeague, setCurrentLeague] = useState<string>(getLeagueFromId(propSelectedLeague))
+
+  // Debug initial values
+  console.log("=== YamagataTeamStats INITIALIZATION ===")
+  console.log("propSelectedSeason (initial):", propSelectedSeason, "type:", typeof propSelectedSeason)
+  console.log("propSelectedLeague (initial):", propSelectedLeague, "type:", typeof propSelectedLeague)
+  console.log("selectedSeason (initial state):", selectedSeason, "type:", typeof selectedSeason)
+  console.log("currentLeague (initial state):", currentLeague)
+  console.log("Will data fetching wait for proper season?", !propSelectedSeason ? "YES (will wait)" : "NO (will use initial season)")
+  console.log("=== END INITIALIZATION ===")
 
   // Get the current team logo mapping based on selected season
   const currentTeamLogoMapping = useMemo(() => {
@@ -383,7 +392,13 @@ function YamagataTeamStats({
 
         if (seasonsData && seasonsData.length > 0) {
           setSeasons(seasonsData)
-          setSelectedSeason(seasonsData[0]) // Set the most recent season
+          // Only set the most recent season if no prop was provided
+          if (!propSelectedSeason) {
+            console.log("No propSelectedSeason provided, setting to most recent season:", seasonsData[0])
+            setSelectedSeason(seasonsData[0])
+          } else {
+            console.log("propSelectedSeason provided:", propSelectedSeason, "- NOT overriding with most recent season")
+          }
         }
       } catch (error) {
         console.error("Error fetching seasons:", error)
@@ -422,7 +437,9 @@ function YamagataTeamStats({
         setIsLoading(true)
         try {
           console.log("=== FETCHING TEAM STATS ===")
-          console.log("Season:", selectedSeason, "Phase:", selectedPhase, "League:", currentLeague)
+          console.log("Season:", selectedSeason, "type:", typeof selectedSeason)
+          console.log("Phase:", selectedPhase, "League:", currentLeague)
+          console.log("About to call fetchTeamStats with selectedSeason:", selectedSeason)
 
           const stats = await fetchTeamStats(selectedSeason, selectedPhase, currentLeague)
           console.log("Team stats fetched:", stats.length, "teams for league:", currentLeague)
@@ -604,9 +621,21 @@ function YamagataTeamStats({
 
   // Update selectedSeason when the prop changes
   useEffect(() => {
-    if (propSelectedSeason) {
+    console.log("=== YamagataTeamStats Season Tracking ===")
+    console.log("YamagataTeamStats - propSelectedSeason changed:", propSelectedSeason, "type:", typeof propSelectedSeason)
+    console.log("YamagataTeamStats - current internal selectedSeason:", selectedSeason, "type:", typeof selectedSeason)
+    console.log("YamagataTeamStats - propSelectedSeason truthy?", !!propSelectedSeason)
+    console.log("YamagataTeamStats - propSelectedSeason !== selectedSeason?", propSelectedSeason !== selectedSeason)
+    
+    if (propSelectedSeason && propSelectedSeason !== selectedSeason) {
+      console.log("YamagataTeamStats - updating internal selectedSeason from", selectedSeason, "to", propSelectedSeason)
       setSelectedSeason(propSelectedSeason)
+    } else if (!propSelectedSeason) {
+      console.log("YamagataTeamStats - NOT updating selectedSeason because propSelectedSeason is falsy")
+    } else {
+      console.log("YamagataTeamStats - NOT updating selectedSeason because it's already the same value")
     }
+    console.log("=== End Season Tracking ===")
   }, [propSelectedSeason])
 
   // Update the handleTabChange function

@@ -122,7 +122,7 @@ export async function fetchTeamPlayers(teamNameOrCode: string, season: number, p
 
     console.log("Using team code:", teamCode, "for input:", teamNameOrCode)
 
-    const players = await getTeamPlayers(teamCode, season, phase)
+    const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
     console.log("Server action received players:", players.length)
 
     if (players.length > 0) {
@@ -150,7 +150,7 @@ export async function fetchTeamPlayersDirectly(teamCode: string, season: number,
   console.log("Direct teamcode:", teamCode, "Season:", season, "Phase:", phase)
 
   try {
-    const players = await getTeamPlayers(teamCode, season, phase)
+    const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
     console.log("Direct fetch received players:", players.length)
     return players
   } catch (error) {
@@ -164,7 +164,7 @@ export async function fetchTeamSchedule(teamCode: string, season: number, league
 }
 
 export async function fetchDebugPlayerData(season: number): Promise<any> {
-  return await debugPlayerData(season)
+  return await debugPlayerData(season, "euroleague")
 }
 
 // Update the fetchAllPlayers function to handle rate limiting

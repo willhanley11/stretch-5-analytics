@@ -1669,7 +1669,15 @@ export default function LandingPage({
         </div>
       ),
       goButton: {
-        onClick: () => onNavigate("teams", { team: selectedTeam, league: selectedLeague, season: selectedSeason }),
+        onClick: () => {
+          console.log("=== LANDING PAGE TEAMS NAVIGATION ===")
+          console.log("selectedTeam:", selectedTeam)
+          console.log("selectedLeague:", selectedLeague) 
+          console.log("selectedSeason:", selectedSeason)
+          console.log("About to call onNavigate with season:", selectedSeason)
+          onNavigate("teams", { team: selectedTeam, league: selectedLeague, season: selectedSeason })
+          console.log("=== END TEAMS NAVIGATION ===")
+        },
         disabled: !selectedTeam
       }
     },
@@ -2039,8 +2047,12 @@ export default function LandingPage({
                           <button
                             key={season.id}
                             onClick={() => {
+                              console.log("=== LANDING PAGE SEASON CHANGE (WELCOME) ===")
+                              console.log("Changing season from", selectedSeason, "to", season.id)
+                              console.log("Season display:", season.display)
                               onSeasonChange(season.id)
                               setIsWelcomeYearDropdownOpen(false)
+                              console.log("=== END SEASON CHANGE ===")
                             }}
                             className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-base md:text-lg ${
                               selectedSeason === season.id ? "bg-gray-50 border-l-4 border-slate-500" : ""
@@ -2438,8 +2450,12 @@ export default function LandingPage({
                     <button
                       key={season.id}
                       onClick={() => {
+                        console.log("=== LANDING PAGE SEASON CHANGE (MAIN) ===")
+                        console.log("Changing season from", selectedSeason, "to", season.id)
+                        console.log("Season display:", season.display)
                         onSeasonChange(season.id)
                         setIsLandingYearDropdownOpen(false)
+                        console.log("=== END SEASON CHANGE ===")
                       }}
                       className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
                         selectedSeason === season.id ? "bg-gray-50 border-l-4 border-blue-500" : ""

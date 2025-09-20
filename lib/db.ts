@@ -938,10 +938,31 @@ export async function getTeamSchedule(
     console.log("Using table:", tableName, "for league:", league)
 
     const results = await executeWithRetry(async () => {
-      return (await sql.query(`SELECT * FROM ${tableName} WHERE teamcode = $1 AND season = $2 ORDER BY round ASC`, [
-        teamcode,
-        season,
-      ])) as ScheduleResult[]
+      // For Eurocup, include all phases but order them properly (RS first, then TS, then playoffs)
+      // For Euroleague, keep existing behavior (all phases)
+      if (league === "eurocup") {
+        return (await sql.query(
+          `SELECT * FROM ${tableName} 
+           WHERE teamcode = $1 AND season = $2 
+           ORDER BY 
+             CASE 
+               WHEN phase = 'RS' THEN 1 
+               WHEN phase = 'TS' THEN 2 
+               WHEN phase = '8F' THEN 3
+               WHEN phase = '4F' THEN 4
+               WHEN phase = '2F' THEN 5
+               WHEN phase = 'Final' THEN 6
+               ELSE 7 
+             END,
+             round ASC`, 
+          [teamcode, season]
+        )) as ScheduleResult[]
+      } else {
+        return (await sql.query(`SELECT * FROM ${tableName} WHERE teamcode = $1 AND season = $2 ORDER BY round ASC`, [
+          teamcode,
+          season,
+        ])) as ScheduleResult[]
+      }
     })
 
     console.log("Schedule results found:", results.length)
@@ -957,11 +978,17 @@ export async function getTeamPlayers(
   teamCode: string,
   season: number,
   phase: string,
+  league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
   try {
     console.log("=== PLAYER FETCH DEBUG ===")
-    console.log("Input - Team Code:", teamCode, "Season:", season, "Phase:", phase)
+    console.log("Input - Team Code:", teamCode, "Season:", season, "Phase:", phase, "League:", league)
     console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL)
+
+    // Get the correct table name using the table mapping
+    const tables = getTableNames(league)
+    const tableName = tables.playerStatsFromGameLogs
+    console.log("Using table name:", tableName)
 
     // Test basic connection first with retry
     try {
@@ -980,7 +1007,7 @@ export async function getTeamPlayers(
         const tableCheck = await sql`
           SELECT COUNT(*) as count 
           FROM information_schema.tables 
-          WHERE table_schema = 'public' AND table_name = 'euroleague_player_stats_with_logo'
+          WHERE table_schema = 'public' AND table_name = ${tableName}
         `
         console.log("Player stats table exists:", tableCheck[0]?.count > 0)
       })
@@ -990,34 +1017,37 @@ export async function getTeamPlayers(
 
     // First, let's see what teams are available in the player stats table with retry
     const availableTeams = await executeWithRetry(async () => {
-      return await sql<{ player_team_name: string; player_team_code: string; season: number; phase: string }[]>`
-        SELECT DISTINCT player_team_name, player_team_code, season, phase 
-        FROM public.euroleague_player_stats_with_logo 
-        WHERE season = ${season}
-        ORDER BY player_team_name
-      `
+      return await sql.query(
+        `SELECT DISTINCT player_team_name, player_team_code, season, phase 
+         FROM ${tableName} 
+         WHERE season = $1
+         ORDER BY player_team_name`,
+        [season]
+      ) as { player_team_name: string; player_team_code: string; season: number; phase: string }[]
     })
 
     console.log("Available teams in player stats:", availableTeams)
 
     // Let's also check what data exists for any team to see if the stats are populated with retry
     const sampleData = await executeWithRetry(async () => {
-      return await sql<EuroleaguePlayerStats[]>`
-        SELECT * FROM public.euroleague_player_stats_with_logo 
-        WHERE season = ${season} AND phase = ${phase}
-        LIMIT 3
-      `
+      return await sql.query(
+        `SELECT * FROM ${tableName} 
+         WHERE season = $1 AND phase = $2
+         LIMIT 3`,
+        [season, phase]
+      ) as EuroleaguePlayerStats[]
     })
 
     console.log("Sample player data from database:", sampleData)
 
     // Primary approach: Use team code directly with retry
     const players = await executeWithRetry(async () => {
-      return await sql<EuroleaguePlayerStats[]>`
-        SELECT * FROM public.euroleague_player_stats_with_logo 
-        WHERE player_team_code = ${teamCode} AND season = ${season} AND phase = ${phase}
-        ORDER BY points_scored DESC
-      `
+      return await sql.query(
+        `SELECT * FROM ${tableName} 
+         WHERE player_team_code = $1 AND season = $2 AND phase = $3
+         ORDER BY points_scored DESC`,
+        [teamCode, season, phase]
+      ) as EuroleaguePlayerStats[]
     })
 
     console.log("Team code query found:", players.length, "players")
@@ -1025,11 +1055,12 @@ export async function getTeamPlayers(
     // If no results with phase, try without phase filter with retry
     if (players.length === 0) {
       const playersNoPhase = await executeWithRetry(async () => {
-        return await sql<EuroleaguePlayerStats[]>`
-          SELECT * FROM public.euroleague_player_stats_with_logo 
-          WHERE player_team_code = ${teamCode} AND season = ${season}
-          ORDER BY points_scored DESC
-        `
+        return await sql.query(
+          `SELECT * FROM ${tableName} 
+           WHERE player_team_code = $1 AND season = $2
+           ORDER BY points_scored DESC`,
+          [teamCode, season]
+        ) as EuroleaguePlayerStats[]
       })
 
       console.log("Team code query (no phase filter) found:", playersNoPhase.length, "players")
@@ -1226,16 +1257,20 @@ export async function getPlayerTeamFromGameLogs(playerName: string, season: numb
 
 // Add a debug function to check what data exists
 // Update the debugPlayerData function to use the retry logic
-export async function debugPlayerData(season: number): Promise<any> {
+export async function debugPlayerData(season: number, league = "euroleague"): Promise<any> {
   try {
+    const tables = getTableNames(league)
+    const tableName = tables.playerStatsFromGameLogs
+    
     const teams = await executeWithRetry(async () => {
-      return await sql`
-        SELECT DISTINCT player_team_name, player_team_code, season, phase, COUNT(*) as player_count
-        FROM public.euroleague_player_stats 
-        WHERE season = ${season}
-        GROUP BY player_team_name, player_team_code, season, phase
-        ORDER BY player_team_name
-      `
+      return await sql.query(
+        `SELECT DISTINCT player_team_name, player_team_code, season, phase, COUNT(*) as player_count
+         FROM ${tableName} 
+         WHERE season = $1
+         GROUP BY player_team_name, player_team_code, season, phase
+         ORDER BY player_team_name`,
+        [season]
+      )
     })
 
     const teamStats = await executeWithRetry(async () => {

@@ -1353,6 +1353,28 @@ useEffect(() => {
 // Spider Chart Component
 const PlayerSpiderChart = ({ className }) => {
   const chartId = Math.random().toString(36).substr(2, 9) // Generate unique ID for gradients
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean
+    x: number
+    y: number
+    stat: string
+    label: string
+    playerValue: number
+    percentile: number
+  } | null>(null)
+  
+  // Close tooltip when clicking outside (for mobile)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tooltip && !(event.target as Element)?.closest('circle')) {
+        setTooltip(null)
+      }
+    }
+    
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [tooltip])
+  
   if (!selectedPlayer || !playerRanks) {
     return (
       <div className={`flex items-center justify-center h-full ${className}`}>
@@ -1546,6 +1568,80 @@ const PlayerSpiderChart = ({ className }) => {
 
   const teamColor = getTeamBorderColor(playerData.teamAbbr) || '#bf5050'
 
+  // Function to get actual stat values for tooltip
+  const getStatValueForTooltip = (statKey: string) => {
+    const statsToUse = playerData
+    switch (statKey) {
+      case "points":
+        return statsToUse.points_scored || 0
+      case "eFG":
+        return statsToUse.effective_field_goal_percentage || 0
+      case "pir":
+        return statsToUse.pir || 0
+      case "rebounds":
+        return statsToUse.total_rebounds || 0
+      case "stocks":
+        return (statsToUse.steals || 0) + (statsToUse.blocks || 0)
+      case "astToRatio":
+        return statsToUse.assists_to_turnovers_ratio || 0
+      default:
+        return 0
+    }
+  }
+
+  // Handle hover for desktop
+  const handleMouseEnter = (event: React.MouseEvent, category: any) => {
+    // Only show hover tooltip on desktop
+    if (window.innerWidth >= 768) {
+      const rect = event.currentTarget.getBoundingClientRect()
+      const containerRect = (event.currentTarget.closest('.relative') as HTMLElement)?.getBoundingClientRect()
+      
+      if (containerRect) {
+        setTooltip({
+          visible: true,
+          x: rect.left - containerRect.left + rect.width / 2,
+          y: rect.top - containerRect.top - 10,
+          stat: category.key,
+          label: category.label,
+          playerValue: getStatValueForTooltip(category.key),
+          percentile: playerSpiderData.stats[category.key]
+        })
+      }
+    }
+  }
+
+  const handleMouseLeave = () => {
+    // Only hide hover tooltip on desktop
+    if (window.innerWidth >= 768) {
+      setTooltip(null)
+    }
+  }
+
+  // Handle click for mobile
+  const handleClick = (event: React.MouseEvent, category: any) => {
+    event.preventDefault()
+    const rect = event.currentTarget.getBoundingClientRect()
+    const containerRect = (event.currentTarget.closest('.relative') as HTMLElement)?.getBoundingClientRect()
+    
+    if (containerRect) {
+      setTooltip(prev => {
+        // Toggle tooltip - close if same stat, open if different
+        if (prev && prev.stat === category.key) {
+          return null
+        }
+        return {
+          visible: true,
+          x: rect.left - containerRect.left + rect.width / 2,
+          y: rect.top - containerRect.top - 10,
+          stat: category.key,
+          label: category.label,
+          playerValue: getStatValueForTooltip(category.key),
+          percentile: playerSpiderData.stats[category.key]
+        }
+      })
+    }
+  }
+
   return (
     <div className={`flex items-start justify-center h-full w-full pt-12 md:pt-4 ${className}`}>
       <div className="bg-light-beige rounded-lg" style={{ width: "100%", height: "100%" }}>
@@ -1661,8 +1757,12 @@ const PlayerSpiderChart = ({ className }) => {
                     stroke="#000000"
                     strokeWidth="1.5"
                     style={{ fill: teamColor || '#bf5050', cursor: 'pointer' }}
+                    onMouseEnter={(e) => handleMouseEnter(e, category)}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={(e) => handleClick(e, category)}
+                    className="md:hover:opacity-80 transition-opacity"
                   >
-                    <title>{category.name}: {value}th percentile (higher = better performance)</title>
+                    <title>{category.label}: {value}th percentile</title>
                   </circle>
                   {/* Percentile label on the data point */}
                   <text
@@ -1722,6 +1822,40 @@ const PlayerSpiderChart = ({ className }) => {
             />
           </svg>
         </div>
+        
+        {/* Tooltip */}
+        {tooltip && (
+          <div
+            className="absolute z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 pointer-events-none"
+            style={{
+              left: tooltip.x,
+              top: tooltip.y,
+              transform: 'translateX(-50%)',
+              minWidth: '180px'
+            }}
+          >
+            <div className="text-sm font-semibold text-gray-800 mb-1">
+              {tooltip.label}
+            </div>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div className="flex justify-between">
+                <span>Player Average:</span>
+                <span className="font-medium">
+                  {tooltip.stat === 'eFG' || tooltip.stat === 'astToRatio' 
+                    ? tooltip.playerValue.toFixed(1) 
+                    : Math.round(tooltip.playerValue)}
+                  {tooltip.stat === 'eFG' ? '%' : ''}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>League Percentile:</span>
+                <span className="font-medium text-blue-600">
+                  {Math.round(tooltip.percentile)}th
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1917,7 +2051,7 @@ const PlayerTeamSelector = () => {
 
   const FilterPlayerHeader = () => {
     return (
-      <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige sm: mt-0 md:mt-5">
+      <div className="flex flex-col lg:flex-row gap-4 w-full bg-light-beige sm:mt-0 md:mt-5">
         {/* Main Content Container - 75% width */}
        
         <Card className="overflow-hidden bg-green-500 flex-[3] mb-2 relative">
@@ -1929,129 +2063,8 @@ const PlayerTeamSelector = () => {
                 }}
               />
           
-          {/* Phase Toggle - Positioned just below the team color stripe - Only show if player has playoff data and dropdown is closed */}
-          {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && !isPlayerDropdownOpen && (
-          <div className="absolute top-4 right-2 z-10">
-            <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5 shadow-md">
-              <button
-                onClick={() => {
-                  setSelectedPhaseToggle("Regular Season")
-                }}
-                className={`rounded-full px-2 py-0.5 text-[8px] md:text-xs font-medium transition-colors ${
-                  selectedPhaseToggle === "Regular Season"
-                    ? "bg-[#475569] text-white"
-                    : "text-[#475569] hover:bg-gray-300"
-                }`}
-              >
-                RS
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedPhaseToggle("Playoffs")
-                }}
-                className={`rounded-full px-2 py-0.5 text-[8px] md:text-xs font-medium transition-colors ${
-                  selectedPhaseToggle === "Playoffs"
-                    ? "bg-[#475569] text-white"
-                    : "text-[#475569] hover:bg-gray-300"
-                }`}
-              >
-                PO
-              </button>
-            </div>
-          </div>
-          )}
 
-          <div className="px-1 md:px-2 pb-1 pt-2">
-  {/* Filter Bar - Team, Player, Phase, and Stat Mode - Hidden on mobile */}
-  <div className="hidden md:block">
-    <div className="flex items-center gap-1 md:gap-4 mb-1 w-full">
-      <div className="flex items-center gap-4 w-full py-1">
-        {/* Team Selection */}
-        <div className="flex-1">
-          <Select
-            value={selectedTeam?.player_team_code || ""}
-            onValueChange={(value) => {
-              console.log("Team selection changed to:", value)
-              const team = availableTeams.find((t) => t.player_team_code === value)
-              console.log("Found team:", team)
-              setSelectedTeam(team || null)
-              setSelectedPlayer(null)
-              setSelectedPhaseToggle("Regular Season") // Always default to RS
-            }}
-          >
-            <SelectTrigger className="w-full h-7 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
-              <SelectValue placeholder="Select Team">
-                {selectedTeam && (
-                  <div className="flex items-center">
-                    {/* Team Logo in SelectTrigger */}
-                    <span className="text-[9px] md:text-xs font-medium">{selectedTeam.player_team_name}</span>
-                  </div>
-                )}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {availableTeams.map((team) => (
-                <SelectItem key={team.player_team_code} value={team.player_team_code}>
-                  <div className="flex items-center gap-2">
-                    {/* Team Logo in SelectItem */}
-                    
-                    <span className="text-[9px] md:text-xs">{team.player_team_name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Player Selection */}
-        <div className="flex-1">
-          <Select
-            value={selectedPlayer?.player_id || ""}
-            onValueChange={(value) => {
-              console.log("Player selection changed to:", value)
-              const player = teamPlayers.find((p) => p.player_id === value)
-              console.log("Found player:", player)
-              if (player) {
-                setSelectedPlayer(player)
-                setSelectedPhaseToggle("Regular Season") // Always default to RS
-                loadPlayerData(player)
-              }
-            }}
-            disabled={!selectedTeam}
-          >
-            <SelectTrigger
-              className={`w-full h-7 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md ${
-                !selectedTeam ? "opacity-50" : ""
-              }`}
-            >
-              <SelectValue placeholder="Select Player">
-                {selectedPlayer && (
-                  <div className="">
-                    <span className="text-[9px] md:text-xs font-medium">{selectedPlayer.player_name}</span>
-                  </div>
-                )}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {teamPlayers.map((player) => (
-                <SelectItem key={player.player_id} value={player.player_id}>
-                  <div className="">
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span className="text-[9px] md:text-xs font-medium">{player.player_name}</span>
-                    </div>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-    </div>
-
-    {/* Divider Line */}
-    <div className="w-full h-px bg-gray-300 mb-4"></div>
-  </div>
+          <div className="px-1 md:px-2 pb-3 pt-2">
             {/* Player Header - Full width */}
             <div className="w-full">
       {/* Main section for Player Image, Name, Team, and Basic Stats */}
@@ -2071,12 +2084,12 @@ const PlayerTeamSelector = () => {
               )}
 
               <div className="flex flex-col">
-                <h2 className="text-lg md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 leading-tight truncate">
+                <h2 className="text-lg md:text-lg lg:text-xl xl:text-xl font-bold text-gray-900 leading-tight truncate">
                   {playerData.name || "Select Player"}
                 </h2>
                 {/* Team Name */}
                 {playerData.teamAbbr && (
-                  <span className="text-[10px] md:text-md lg:text-lg xl:text-xl font-semibold text-gray-700 truncate mb-1 md:mb-0">
+                  <span className="text-[12px] md:text-md text-gray-700 truncate mb-1 md:mb-0">
                     {playerData.team}
                   </span>
                 )}
@@ -2130,7 +2143,7 @@ const PlayerTeamSelector = () => {
             </div>
 
             {/* Desktop Basic Stats - Keep original position and styling */}
-            <div className="hidden md:flex items-center gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 flex-wrap justify-end flex-shrink-0 absolute top-0 right-0">
+            <div className="hidden md:flex items-center gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 flex-wrap justify-end flex-shrink-0 absolute top-3 right-0">
               <div className="hidden md:block bg-gray-50 border-2 border-gray-300 rounded-lg py-0.5 px-1 sm:px-2 md:px-3 text-center shadow-sm">
                 <div className="text-[6px] sm:text-[8px] md:text-[10px] font-bold text-gray-600 uppercase tracking-wide">
                   GP
@@ -2198,7 +2211,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center sm:min-h-auto md:min-h-[60px] ${
                 selectedStat === "points"
-                  ? `border-2 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.points?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "points" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2222,7 +2235,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center sm:min-h-auto md:min-h-[60px] ${
                 selectedStat === "rebounds"
-                  ? `border-2 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.rebounds?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "rebounds" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2246,7 +2259,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "assists"
-                  ? `border-2 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.assists?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "assists" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2270,7 +2283,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "threePointers"
-                  ? `border-2 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.threePointers?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "threePointers" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2296,7 +2309,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "steals"
-                  ? `border-2 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.steals?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "steals" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2320,7 +2333,7 @@ const PlayerTeamSelector = () => {
             <div
               className={`border-2 rounded-lg sm:rounded-xl py-2 sm:py-1.5 px-0 sm:px-1 text-center shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col justify-center min-h-[60px] sm:min-h-auto ${
                 selectedStat === "blocks"
-                  ? `border-2 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
+                  ? `border-2 md:border-4${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
                   : `border-gray-300 ${playerRanks?.blocks?.isTopTier ? "bg-orange-100" : "bg-light-beige"}`
               }`}
               style={selectedStat === "blocks" ? { borderColor: getTeamBorderColor(playerData.teamAbbr) } : {}}
@@ -2685,7 +2698,7 @@ const PlayerTeamSelector = () => {
 
         {/* Right Side Container - 25% width */}
 {/* Right Side Container - 25% width */}
-<Card className="overflow-hidden lg:flex-[1.25] relative  hidden lg:block" style={{ minHeight: "390px" }}>
+<Card className="overflow-hidden lg:flex-[1.25] relative  hidden lg:block md:h-[421px]">
   {/* Team color accent stripe at top - matches main container */}
   <div
           className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
@@ -2697,7 +2710,7 @@ const PlayerTeamSelector = () => {
   {/* Place the SpiderChart as an absolutely positioned background element */}
   <PlayerSpiderChart
     key={`desktop-${selectedPlayer?.player_id}-${selectedPhaseToggle}`}
-    className="absolute inset-0 z-0 bg-light-beige"
+    className="absolute inset-0 z-0 bg-light-beige md:top-4 md:left-1"
   />
 
   <div className="relative z-10 p-1 md:p-4 "> 
@@ -2807,7 +2820,7 @@ const PlayerTeamSelector = () => {
     </div>
 
     {/* Mobile Per-40 Radar - Second */}
-    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative" style={{ minHeight: "350px" }}>
+    <div className="bg-light-beige rounded-lg border border-black shadow-lg relative" style={{ minHeight: "320px" }}>
       <div
         className="w-full h-2 rounded-t-lg border-b border-black -mb-1 relative z-20"
         style={{
@@ -2855,7 +2868,7 @@ const PlayerTeamSelector = () => {
           <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
             <div className="flex items-center gap-2">
               {playerData.teamAbbr && (
-                <div className="w-8 h-8 bg-light-beige rounded-lg border border-black shadow-lg">
+                <div className="w-8 h-8 bg-light-beige rounded-lg  shadow-lg">
                   {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                 </div>
               )}
@@ -2911,7 +2924,7 @@ const PlayerTeamSelector = () => {
           <div className="flex justify-between items-center pb-2 sticky top-0 z-10 bg-light-beige">
             <div className="flex items-center gap-2">
               {playerData.teamAbbr && (
-                <div className="w-8 h-8 bg-light-beige rounded-lg border border-black shadow-lg">
+                <div className="w-8 h-8 bg-light-beige rounded-lg shadow-lg">
                   {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
                 </div>
               )}
@@ -3421,14 +3434,14 @@ const PlayerTeamSelector = () => {
     return (
       <div className="space-y-6">
   {/* Main Layout - New Structure */}
-  <div className="flex flex-col gap-2 -mt-2 sm:-mt-3">
+  <div className="flex flex-col gap-2 sm:-mt-3">
     {/* Player Search - Above dropdown on mobile */}
-    <div className="md:hidden mb-2">
+    <div className="md:hidden -mt-2">
       <PlayerSearch
         onPlayerSelect={handlePlayerSearchSelect}
         allPlayers={allPlayers}
         placeholder="Search players..."
-        className="w-full"
+        className="w-full text-[9px]"
       />
     </div>
     
@@ -3437,14 +3450,106 @@ const PlayerTeamSelector = () => {
       <PlayerTeamSelector />
     </div>
     
-    {/* Player Search - Above FilterPlayerHeader on desktop */}
-    <div className="hidden md:block mb-2">
-      <PlayerSearch
-        onPlayerSelect={handlePlayerSearchSelect}
-        allPlayers={allPlayers}
-        placeholder="Search players..."
-        className="w-full max-w-md"
-      />
+    {/* Desktop Controls Bar - Search, Team, Player, Phase Toggle */}
+    <div className="hidden md:flex items-center gap-4 mt-4 -mb-4 py-1 px-3 bg-light-beige rounded-lg border border-gray-400 shadow-sm">
+      {/* Search */}
+      <div className="flex-1 max-w-md">
+        <PlayerSearch
+          onPlayerSelect={handlePlayerSearchSelect}
+          allPlayers={allPlayers}
+          placeholder="Search players..."
+          className="w-full text-[9px]"
+        />
+      </div>
+      
+      {/* Team Selection */}
+      <div className="flex-1 max-w-xs">
+        <Select
+          value={selectedTeam?.player_team_code || ""}
+          onValueChange={(value) => {
+            const team = availableTeams.find((t) => t.player_team_code === value)
+            setSelectedTeam(team || null)
+            setSelectedPlayer(null)
+            setSelectedPhaseToggle("Regular Season")
+          }}
+        >
+          <SelectTrigger className="w-full h-8 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
+            <SelectValue placeholder="Select Team">
+              {selectedTeam && (
+                <div className="flex items-center">
+                  <span className="text-xs font-medium">{selectedTeam.player_team_name}</span>
+                </div>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {availableTeams.map((team) => (
+              <SelectItem key={team.player_team_code} value={team.player_team_code}>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs">{team.player_team_name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Player Selection */}
+      <div className="flex-1 max-w-xs">
+        <Select
+          value={selectedPlayer?.player_id || ""}
+          onValueChange={(value) => {
+            const player = teamPlayers.find((p) => p.player_id === value)
+            if (player) {
+              setSelectedPlayer(player)
+              setSelectedPhaseToggle("Regular Season")
+              loadPlayerData(player)
+            }
+          }}
+          disabled={!selectedTeam}
+        >
+          <SelectTrigger className="w-full h-8 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
+            <SelectValue placeholder="Select Player">
+              {selectedPlayer && (
+                <span className="text-xs font-medium">{selectedPlayer.player_name}</span>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {teamPlayers.map((player) => (
+              <SelectItem key={player.player_id} value={player.player_id}>
+                <span className="text-xs">{player.player_name}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Phase Toggle */}
+      {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && (
+        <div className="flex rounded-full border border-gray-400 bg-gray-200 p-0.5 shadow-md">
+          <button
+            onClick={() => setSelectedPhaseToggle("Regular Season")}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              selectedPhaseToggle === "Regular Season"
+                ? "bg-[#475569] text-white"
+                : "text-[#475569] hover:bg-gray-300"
+            }`}
+          >
+            RS
+          </button>
+          <button
+            onClick={() => setSelectedPhaseToggle("Playoffs")}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              selectedPhaseToggle === "Playoffs"
+                ? "bg-[#475569] text-white"
+                : "text-[#475569] hover:bg-gray-300"
+            }`}
+          >
+            PO
+          </button>
+        </div>
+      )}
     </div>
     
     {FilterPlayerHeader()}

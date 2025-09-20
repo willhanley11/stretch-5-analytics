@@ -69,17 +69,26 @@ export function ProLeagueNav() {
     { id: 2019, display: "2019-20" },
     { id: 2018, display: "2018-19" },
     { id: 2017, display: "2017-18" },
-    { id: 2016, display: "2016-17" },
-    { id: 2015, display: "2015-16" },
-    { id: 2014, display: "2014-15" },
-    { id: 2013, display: "2013-14" },
-    { id: 2012, display: "2012-13" },
+    { id: 2016, display: "2016-17" }
   ])
 
   const [selectedLeague, setSelectedLeague] = useState("international-euroleague")
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState<number>(2024)
+  
+  // Sync activeLeague with selectedLeague when it changes
+  useEffect(() => {
+    setActiveLeague(selectedLeague)
+  }, [selectedLeague])
+  
+  // Debug when selectedSeason changes
+  useEffect(() => {
+    console.log(`=== PRO-LEAGUE-NAV selectedSeason CHANGED ===`)
+    console.log(`New selectedSeason:`, selectedSeason)
+    console.log(`Season display:`, seasons.find((s) => s.id === selectedSeason)?.display || "not found")
+    console.log(`=== END selectedSeason CHANGE ===`)
+  }, [selectedSeason])
   
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
@@ -256,35 +265,43 @@ export function ProLeagueNav() {
   }
 
   const handleLandingPageNavigation = (tab: string, selections: any) => {
-    setShowLandingPage(false)
-    setActiveSection(tab)
+    console.log(`=== LANDING PAGE NAVIGATION ===`)
+    console.log(`Tab: ${tab}`)
+    console.log(`Selections:`, selections)
+    console.log(`Current selectedSeason before update:`, selectedSeason)
+    console.log(`Current selectedLeague before update:`, selectedLeague)
     
-    // Store landing page selections to pass to tabs
-    console.log(`Landing page navigation: tab=${tab}, selections=`, selections)
-    setLandingPageSelections({ tab, ...selections })
-    
-    // Update season and league from landing page selections if provided
+    // Update season and league FIRST before other state changes
     if (selections?.season) {
+      console.log(`Updating selectedSeason from ${selectedSeason} to ${selections.season}`)
       setSelectedSeason(selections.season)
     }
     if (selections?.league) {
+      console.log(`Updating selectedLeague from ${selectedLeague} to ${selections.league}`)
       setSelectedLeague(selections.league)
     }
+    
+    // Store landing page selections to pass to tabs
+    setLandingPageSelections({ tab, ...selections })
+    
+    // Then update other states
+    setShowLandingPage(false)
+    setActiveSection(tab)
+    
+    console.log(`=== END LANDING PAGE NAVIGATION ===`)
   }
 
   const renderActiveContent = () => {
     switch (activeSection) {
       case "teams":
+        console.log("Pro-league-nav: Rendering teams case with selectedSeason:", selectedSeason, "and selectedLeague:", selectedLeague)
         return (
           <motion.div
-            className=" px-2 pb-4 pt-6  md:px-8 md:pt-2"
-            style={{
-              background: "background-color: #f3f4f6"
-            }}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
+          className=" px-2 pb-4 pt-6 md:px-8 md:pt-2" 
+          style={{ background: "background-color: #f3f4f6" }}
+           initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, ease: "easeOut" }} >
             <div className="max-w-10xl mx-auto ">
               <YamagataTeamStats
                 initialTab="teams"
@@ -593,18 +610,20 @@ export function ProLeagueNav() {
                     </button>
                     
                     {isLeagueDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-32 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                      <div className="absolute right-0 mt-2 w-32 rounded-lg overflow-hidden z-[9999] border border-gray-200 shadow-lg bg-white">
                         <div className="py-2 max-h-40 overflow-y-auto">
                           {allLeagues.map((league) => (
                             <button
                               key={league.id}
-                              onClick={() => {
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
                                 setActiveLeague(league.id)
                                 setSelectedLeague(league.id)
                                 setIsLeagueDropdownOpen(false)
                               }}
                               className={cn(
-                                "flex items-center w-full px-3 py-2 text-xs transition-colors",
+                                "flex items-center w-full px-3 py-2 text-xs transition-colors cursor-pointer",
                                 activeLeague === league.id
                                   ? "bg-blue-50 text-blue-900 font-semibold"
                                   : "text-gray-600 hover:bg-gray-50",
