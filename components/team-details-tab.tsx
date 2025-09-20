@@ -356,9 +356,15 @@ export function TeamDetailsTab({
   // Reset all phase filters to Regular Season when season changes
   useEffect(() => {
     console.log("Season changed, resetting all phase filters to Regular Season")
-    setSelectedGameLogPhase("Regular")
-    setSelectedScheduleFilter("regular")
-    setSelectedTeamReportPhase("RS")
+    console.log("Previous selectedGameLogPhase:", selectedGameLogPhase)
+    // Force a change by setting to something else first, then to Regular
+    setSelectedGameLogPhase("_RESETTING_")
+    setTimeout(() => {
+      setSelectedGameLogPhase("Regular")
+      setSelectedScheduleFilter("regular")
+      setSelectedTeamReportPhase("RS")
+      console.log("Reset selectedGameLogPhase to: Regular")
+    }, 0)
   }, [selectedSeason])
 
   // Add this effect to fetch schedule data when team or season changes
@@ -831,11 +837,13 @@ export function TeamDetailsTab({
           if (teamCode) {
             // Convert phase selection to database phase format
             let dbPhase = "Regular Season"
+            console.log("Loading player stats with selectedGameLogPhase:", selectedGameLogPhase)
             if (selectedGameLogPhase === "Regular") {
               dbPhase = "Regular Season"
             } else if (selectedGameLogPhase === "Playoffs") {
               dbPhase = "Playoffs"
             }
+            console.log("Converted to dbPhase:", dbPhase)
 
             // Fetch all player stats for this season/phase/league
             const allPlayerStats = await fetchPlayerStatsFromGameLogs(selectedSeason, dbPhase, league)
@@ -2311,6 +2319,16 @@ export function TeamDetailsTab({
                               default: return 0
                             }
                           }).filter(val => !isNaN(val))
+                        }
+
+                        if (teamPlayerStatsFiltered.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={24} className="text-center py-8 text-gray-500">
+                                No player stats available for {selectedTeam} in {selectedSeason} {selectedGameLogPhase === "Regular" ? "Regular Season" : "Playoffs"}
+                              </td>
+                            </tr>
+                          )
                         }
 
                         return teamPlayerStatsFiltered
