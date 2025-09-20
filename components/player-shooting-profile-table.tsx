@@ -319,77 +319,113 @@ export function PlayerShootingProfileTable({
     return `${sign}${diff.toFixed(1)}%`
   }
 
-  const getDifferenceColor = (diff: number, hasLeagueData: boolean) => {
-    if (!hasLeagueData || isNaN(diff)) return "#9CA3AF" // Grey for no data
+  const renderPerformanceDots = (diff: number, hasLeagueData: boolean, isTotal: boolean = false) => {
+    if (!hasLeagueData || isNaN(diff)) {
+      return <span className="text-gray-400 text-xs">-</span>
+    }
 
     const performanceDiff = diff / 100 // Convert percentage points to decimal
-
-    if (performanceDiff >= 0.12) {
-      return "#7F1D1D" // Very dark red - significantly above average
-    } else if (performanceDiff >= 0.09) {
-      return "#991B1B" // Dark red - well above average
-    } else if (performanceDiff >= 0.06) {
-      return "#DC2626" // Red - above average
-    } else if (performanceDiff >= 0.04) {
-      return "#EF4444" // Light red - slightly above average
-    } else if (performanceDiff >= 0.02) {
-      return "#F87171" // Very light red - just above average
-    }
-    // GREY = NEAR LEAGUE AVERAGE
-    else if (performanceDiff >= -0.02) {
-      return "#9CA3AF" // Grey - at league average
-    }
-    // BLUE = BELOW LEAGUE AVERAGE (BAD/COLD)
-    else if (performanceDiff >= -0.04) {
-      return "#60A5FA" // Very light blue - just below average
-    } else if (performanceDiff >= -0.06) {
-      return "#3B82F6" // Light blue - slightly below average
-    } else if (performanceDiff >= -0.09) {
-      return "#1D4ED8" // Blue - below average
-    } else if (performanceDiff >= -0.12) {
-      return "#1E40AF" // Dark blue - well below average
+    
+    // Determine number of dots and color based on performance
+    let dotCount = 0
+    let dotColor = "#9CA3AF" // Default gray
+    let dotSize = isTotal ? "w-2 h-2" : "w-1.5 h-1.5" // Larger dots for totals
+    
+    if (Math.abs(performanceDiff) >= 0.12) {
+      dotCount = 5 // Extreme performance
+    } else if (Math.abs(performanceDiff) >= 0.09) {
+      dotCount = 4 // Very good/bad
+    } else if (Math.abs(performanceDiff) >= 0.06) {
+      dotCount = 3 // Good/bad
+    } else if (Math.abs(performanceDiff) >= 0.04) {
+      dotCount = 2 // Slightly good/bad
+    } else if (Math.abs(performanceDiff) >= 0.02) {
+      dotCount = 1 // Just above/below average
     } else {
-      return "#1E3A8A" // Very dark blue - significantly below average
+      dotCount = 0 // At league average
     }
+
+    // Color based on direction
+    if (performanceDiff > 0.02) {
+      dotColor = isTotal ? "#DC2626" : "#EF4444" // Red for above average (good)
+    } else if (performanceDiff < -0.02) {
+      dotColor = isTotal ? "#1D4ED8" : "#3B82F6" // Blue for below average (bad)
+    } else {
+      dotColor = "#9CA3AF" // Gray for league average
+    }
+
+    // Render dots
+    const dots = []
+    
+    if (dotCount === 0) {
+      // Show single gray dot for league average
+      dots.push(
+        <div 
+          key="avg"
+          className={`${dotSize} rounded-full border border-gray-400`}
+          style={{ backgroundColor: "#F3F4F6" }}
+        />
+      )
+    } else {
+      // Show filled dots for performance
+      for (let i = 0; i < Math.min(dotCount, 5); i++) {
+        dots.push(
+          <div 
+            key={i}
+            className={`${dotSize} rounded-full`}
+            style={{ backgroundColor: dotColor }}
+          />
+        )
+      }
+    }
+
+    return (
+      <div className="flex items-center justify-center gap-0.5">
+        {dots}
+        <span className="ml-1 text-[8px] md:text-[9px] text-gray-600 font-mono">
+          {formatDifference(diff)}
+        </span>
+      </div>
+    )
   }
 
-  const renderZoneRow = (zoneName: string, stats: ZoneStats, isGroupHeader: boolean = false) => {
+  const renderZoneRow = (zoneName: string, stats: ZoneStats, isGroupHeader: boolean = false, isTotal: boolean = false) => {
     const hasMinShots = stats.attempts >= 5
-    const diffColor = hasMinShots ? getDifferenceColor(stats.diff, stats.hasLeagueData) : "transparent"
-    const textColor = hasMinShots ? "#FFFFFF" : "transparent"
-    const rowClass = isGroupHeader ? "bg-gray-100 font-semibold" : "hover:bg-gray-50"
+    
+    // Different styling for totals vs zones
+    const rowClass = isTotal 
+      ? "bg-gray-100 border-t-2 border-gray-400" 
+      : "hover:bg-gray-50"
+    
+    const textSize = "text-[10px] md:text-xs"
+    const fontWeight = isTotal ? "font-bold" : "font-normal"
+    const padding = "py-0.5 md:py-1.5"
+    const zonePadding = isTotal ? "px-2" : "px-4" // Indent subcategories
 
     return (
       <tr key={zoneName} className={`border-b border-gray-200 ${rowClass}`}>
-  <td className="py-0.5 md:py-2 px-2 text-center text-[10px] md:text-xs font-semibold">
-    {capitalizeZone(zoneName)}
-  </td>
-  <td className="py-0.5 md:py-2 px-2 text-center text-[10px] md:text-xs">
-    {stats.makes}
-  </td>
-  <td className="py-0.5 md:py-2 px-2 text-center text-[10px] md:text-xs">
-    {stats.attempts}
-  </td>
-  <td className="py-0.5 md:py-2 px-2 text-center text-[10px] md:text-xs font-mono">
-    {formatPercentage(stats.percentage)}
-  </td>
-  <td className="py-0.5 md:py-2 px-2 text-center">
-    {hasMinShots ? (
-      <span
-        className="inline-block px-1 py-0 md:py-0.5 rounded-md text-[9px] md:text-xs font-medium"
-        style={{ 
-          backgroundColor: diffColor,
-          color: textColor
-        }}
-      >
-        {formatDifference(stats.diff)}
-      </span>
-    ) : (
-      <span className="text-[9px] md:text-xs text-gray-400">-</span>
-    )}
-  </td>
-</tr>
-
+        <td className={`${padding} ${zonePadding} text-center ${textSize} ${fontWeight}`}>
+          {isTotal ? capitalizeZone(zoneName) : `• ${capitalizeZone(zoneName)}`}
+        </td>
+        <td className={`${padding} px-2 text-center ${textSize} ${fontWeight}`}>
+          {stats.makes}
+        </td>
+        <td className={`${padding} px-2 text-center ${textSize} ${fontWeight}`}>
+          {stats.attempts}
+        </td>
+        <td className={`${padding} px-2 text-center ${textSize} ${fontWeight} font-mono`}>
+          {formatPercentage(stats.percentage)}
+        </td>
+        <td className={`${padding} px-2 text-center`}>
+          {hasMinShots ? (
+            <div className="flex items-center justify-center gap-0.5">
+              {renderPerformanceDots(stats.diff, stats.hasLeagueData, isTotal)}
+            </div>
+          ) : (
+            <span className="text-[9px] md:text-xs text-gray-400">-</span>
+          )}
+        </td>
+      </tr>
     )
   }
 
@@ -423,6 +459,7 @@ export function PlayerShootingProfileTable({
               {renderZoneRow("At The Rim", atTheRim)}
               {renderZoneRow("Short", shortTwoPoint)}
               {renderZoneRow("Mid", midTwoPoint)}
+              {renderZoneRow("TOTAL 2-PT", totalTwoPointStats, true, true)}
             </tbody>
           </table>
         </div>
@@ -449,6 +486,7 @@ export function PlayerShootingProfileTable({
         {renderZoneRow("Left Side", leftSideThree)}
         {renderZoneRow("Right Side", rightSideThree)}
         {renderZoneRow("Top", topThree)}
+        {renderZoneRow("TOTAL 3-PT", totalThreePointStats, true, true)}
       </tbody>
     </table>
   </div>

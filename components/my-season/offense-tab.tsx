@@ -1939,27 +1939,55 @@ const PlayerTeamSelector = () => {
         <div className="flex flex-col flex-grow">
           <div className="flex flex-col w-full relative">
             {/* Logo and Name Row */}
-            <div className="flex items-start gap-2 sm:gap-3 pb-2 md:ml-0 mt-2">
-              {/* Team Logo - positioned to the left of player/team name */}
-              {playerData.teamAbbr && (
-                <div className="flex-shrink-0 ">
-                  <div className=" w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-white">
-                    {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
+            <div className="flex items-start justify-between gap-2 sm:gap-3 pb-2 md:ml-0 mt-2 pr-1">
+              <div className="flex items-start gap-2 sm:gap-3">
+                {/* Team Logo - positioned to the left of player/team name */}
+                {playerData.teamAbbr && (
+                  <div className="flex-shrink-0 ">
+                    <div className=" w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 bg-white">
+                      {getTeamLogo(playerData.teamAbbr, playerData.teamLogoUrl, "w-full h-full")}
+                    </div>
                   </div>
+                )}
+
+                <div className="flex flex-col">
+                  <h2 className="text-lg md:text-lg lg:text-xl xl:text-xl font-bold text-gray-900 leading-tight truncate">
+                    {playerData.name || "Select Player"}
+                  </h2>
+                  {/* Team Name */}
+                  {playerData.teamAbbr && (
+                    <span className="text-[12px] md:text-md text-gray-700 truncate mb-1 md:mb-0">
+                      {playerData.team}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Phase Toggle - Only show on mobile and if player has playoff data */}
+              {selectedPlayer && allPlayers.some(p => p.player_id === selectedPlayer.player_id && p.phase === "Playoffs") && (
+                <div className="flex md:hidden rounded-lg border border-gray-400 bg-gray-200 p-0.5 shadow-md flex-shrink-0">
+                  <button
+                    onClick={() => setSelectedPhaseToggle("Regular Season")}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                      selectedPhaseToggle === "Regular Season"
+                        ? "bg-[#475569] text-white"
+                        : "text-[#475569] hover:bg-gray-300"
+                    }`}
+                  >
+                    RS
+                  </button>
+                  <button
+                    onClick={() => setSelectedPhaseToggle("Playoffs")}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                      selectedPhaseToggle === "Playoffs"
+                        ? "bg-[#475569] text-white"
+                        : "text-[#475569] hover:bg-gray-300"
+                    }`}
+                  >
+                    PO
+                  </button>
                 </div>
               )}
-
-              <div className="flex flex-col">
-                <h2 className="text-lg md:text-lg lg:text-xl xl:text-xl font-bold text-gray-900 leading-tight truncate">
-                  {playerData.name || "Select Player"}
-                </h2>
-                {/* Team Name */}
-                {playerData.teamAbbr && (
-                  <span className="text-[12px] md:text-md text-gray-700 truncate mb-1 md:mb-0">
-                    {playerData.team}
-                  </span>
-                )}
-              </div>
             </div>
 
             {/* Basic Stats Row - Mobile: show below name, all stats compact */}
