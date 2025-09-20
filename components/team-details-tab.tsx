@@ -353,6 +353,14 @@ export function TeamDetailsTab({
     }
   }, [selectedTeam, selectedSeason, teamStats])
 
+  // Reset all phase filters to Regular Season when season changes
+  useEffect(() => {
+    console.log("Season changed, resetting all phase filters to Regular Season")
+    setSelectedGameLogPhase("Regular")
+    setSelectedScheduleFilter("regular")
+    setSelectedTeamReportPhase("RS")
+  }, [selectedSeason])
+
   // Add this effect to fetch schedule data when team or season changes
   useEffect(() => {
     const loadScheduleData = async () => {
