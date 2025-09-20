@@ -28,11 +28,7 @@ const seasons = [
   { id: 2019, display: "2019-20" },
   { id: 2018, display: "2018-19" },
   { id: 2017, display: "2017-18" },
-  { id: 2016, display: "2016-17" },
-  { id: 2015, display: "2015-16" },
-  { id: 2014, display: "2014-15" },
-  { id: 2013, display: "2013-14" },
-  { id: 2012, display: "2012-13" },
+  { id: 2016, display: "2016-17" }
 ]
 
 const leagues = [
@@ -2043,7 +2039,7 @@ export default function LandingPage({
                           zIndex: 999999999
                         }}
                       >
-                        {seasons.map((season) => (
+                        {seasons.filter(season => season.id >= 2016).map((season) => (
                           <button
                             key={season.id}
                             onClick={() => {
@@ -2446,7 +2442,7 @@ export default function LandingPage({
               
               {isLandingYearDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1">
-                  {seasons.map((season) => (
+                  {seasons.filter(season => season.id >= 2016).map((season) => (
                     <button
                       key={season.id}
                       onClick={() => {
