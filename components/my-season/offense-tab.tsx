@@ -1353,28 +1353,6 @@ useEffect(() => {
 // Spider Chart Component
 const PlayerSpiderChart = ({ className }) => {
   const chartId = Math.random().toString(36).substr(2, 9) // Generate unique ID for gradients
-  const [tooltip, setTooltip] = useState<{
-    visible: boolean
-    x: number
-    y: number
-    stat: string
-    label: string
-    playerValue: number
-    percentile: number
-  } | null>(null)
-  
-  // Close tooltip when clicking outside (for mobile)
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (tooltip && !(event.target as Element)?.closest('circle')) {
-        setTooltip(null)
-      }
-    }
-    
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [tooltip])
-  
   if (!selectedPlayer || !playerRanks) {
     return (
       <div className={`flex items-center justify-center h-full ${className}`}>
@@ -1568,80 +1546,6 @@ const PlayerSpiderChart = ({ className }) => {
 
   const teamColor = getTeamBorderColor(playerData.teamAbbr) || '#bf5050'
 
-  // Function to get actual stat values for tooltip
-  const getStatValueForTooltip = (statKey: string) => {
-    const statsToUse = playerData
-    switch (statKey) {
-      case "points":
-        return statsToUse.points_scored || 0
-      case "eFG":
-        return statsToUse.effective_field_goal_percentage || 0
-      case "pir":
-        return statsToUse.pir || 0
-      case "rebounds":
-        return statsToUse.total_rebounds || 0
-      case "stocks":
-        return (statsToUse.steals || 0) + (statsToUse.blocks || 0)
-      case "astToRatio":
-        return statsToUse.assists_to_turnovers_ratio || 0
-      default:
-        return 0
-    }
-  }
-
-  // Handle hover for desktop
-  const handleMouseEnter = (event: React.MouseEvent, category: any) => {
-    // Only show hover tooltip on desktop
-    if (window.innerWidth >= 768) {
-      const rect = event.currentTarget.getBoundingClientRect()
-      const containerRect = (event.currentTarget.closest('.relative') as HTMLElement)?.getBoundingClientRect()
-      
-      if (containerRect) {
-        setTooltip({
-          visible: true,
-          x: rect.left - containerRect.left + rect.width / 2,
-          y: rect.top - containerRect.top - 10,
-          stat: category.key,
-          label: category.label,
-          playerValue: getStatValueForTooltip(category.key),
-          percentile: playerSpiderData.stats[category.key]
-        })
-      }
-    }
-  }
-
-  const handleMouseLeave = () => {
-    // Only hide hover tooltip on desktop
-    if (window.innerWidth >= 768) {
-      setTooltip(null)
-    }
-  }
-
-  // Handle click for mobile
-  const handleClick = (event: React.MouseEvent, category: any) => {
-    event.preventDefault()
-    const rect = event.currentTarget.getBoundingClientRect()
-    const containerRect = (event.currentTarget.closest('.relative') as HTMLElement)?.getBoundingClientRect()
-    
-    if (containerRect) {
-      setTooltip(prev => {
-        // Toggle tooltip - close if same stat, open if different
-        if (prev && prev.stat === category.key) {
-          return null
-        }
-        return {
-          visible: true,
-          x: rect.left - containerRect.left + rect.width / 2,
-          y: rect.top - containerRect.top - 10,
-          stat: category.key,
-          label: category.label,
-          playerValue: getStatValueForTooltip(category.key),
-          percentile: playerSpiderData.stats[category.key]
-        }
-      })
-    }
-  }
-
   return (
     <div className={`flex items-start justify-center h-full w-full pt-12 md:pt-4 ${className}`}>
       <div className="bg-light-beige rounded-lg" style={{ width: "100%", height: "100%" }}>
@@ -1757,12 +1661,8 @@ const PlayerSpiderChart = ({ className }) => {
                     stroke="#000000"
                     strokeWidth="1.5"
                     style={{ fill: teamColor || '#bf5050', cursor: 'pointer' }}
-                    onMouseEnter={(e) => handleMouseEnter(e, category)}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={(e) => handleClick(e, category)}
-                    className="md:hover:opacity-80 transition-opacity"
                   >
-                    <title>{category.label}: {value}th percentile</title>
+                    <title>{category.name}: {value}th percentile (higher = better performance)</title>
                   </circle>
                   {/* Percentile label on the data point */}
                   <text
@@ -1822,40 +1722,6 @@ const PlayerSpiderChart = ({ className }) => {
             />
           </svg>
         </div>
-        
-        {/* Tooltip */}
-        {tooltip && (
-          <div
-            className="absolute z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 pointer-events-none"
-            style={{
-              left: tooltip.x,
-              top: tooltip.y,
-              transform: 'translateX(-50%)',
-              minWidth: '180px'
-            }}
-          >
-            <div className="text-sm font-semibold text-gray-800 mb-1">
-              {tooltip.label}
-            </div>
-            <div className="text-xs text-gray-600 space-y-1">
-              <div className="flex justify-between">
-                <span>Player Average:</span>
-                <span className="font-medium">
-                  {tooltip.stat === 'eFG' || tooltip.stat === 'astToRatio' 
-                    ? tooltip.playerValue.toFixed(1) 
-                    : Math.round(tooltip.playerValue)}
-                  {tooltip.stat === 'eFG' ? '%' : ''}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>League Percentile:</span>
-                <span className="font-medium text-blue-600">
-                  {Math.round(tooltip.percentile)}th
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -3436,12 +3302,12 @@ const PlayerTeamSelector = () => {
   {/* Main Layout - New Structure */}
   <div className="flex flex-col gap-2 sm:-mt-3">
     {/* Player Search - Above dropdown on mobile */}
-    <div className="md:hidden -mt-2">
+    <div className="md:hidden mb-1 -mt-4">
       <PlayerSearch
         onPlayerSelect={handlePlayerSearchSelect}
         allPlayers={allPlayers}
         placeholder="Search players..."
-        className="w-full text-[9px]"
+        className="w-full"
       />
     </div>
     
@@ -3451,7 +3317,7 @@ const PlayerTeamSelector = () => {
     </div>
     
     {/* Desktop Controls Bar - Search, Team, Player, Phase Toggle */}
-    <div className="hidden md:flex items-center gap-4 mt-4 -mb-4 py-1 px-3 bg-light-beige rounded-lg border border-gray-400 shadow-sm">
+    <div className="hidden md:flex items-center gap-4  md:mt-4 -mb-4 py-1 px-3 bg-light-beige rounded-lg border border-gray-400 shadow-sm">
       {/* Search */}
       <div className="flex-1 max-w-md">
         <PlayerSearch
