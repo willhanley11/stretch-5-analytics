@@ -154,15 +154,6 @@ export function TeamDetailsTab({
   setSelectedSeason,
   league, // Add this parameter
 }: TeamDetailsTabProps) {
-  // Debug prop changes
-  console.log("===== TEAM DETAILS TAB RENDER =====")
-  console.log("Props received:", {
-    selectedTeam,
-    selectedSeason,
-    league,
-    selectedPhase,
-  })
-  
   const [teamAdvancedStats, setTeamAdvancedStats] = useState<any>(null)
   const [allTeamsAdvancedStats, setAllTeamsAdvancedStats] = useState<any[]>([])
   const [leagueAverages, setLeagueAverages] = useState<any>(null)
@@ -187,6 +178,17 @@ export function TeamDetailsTab({
   const [isShotDataLoading, setIsShotDataLoading] = useState(true)
   const [isPlayerStatsLoading, setIsPlayerStatsLoading] = useState(true)
   const [isComponentReady, setIsComponentReady] = useState(false)
+
+  // Debug prop changes
+  console.log("===== TEAM DETAILS TAB RENDER =====")
+  console.log("Props received:", {
+    selectedTeam,
+    selectedSeason,
+    league,
+    selectedPhase,
+  })
+  console.log("teamStats.length:", teamStats.length)
+  console.log("isComponentReady:", isComponentReady)
 
   // Function to handle column sorting
   const handlePlayerColumnSort = (column: string) => {
@@ -355,9 +357,17 @@ export function TeamDetailsTab({
   }
   useEffect(() => {
     // Component is ready when we have the essential dependencies
+    console.log("===== COMPONENT READY CHECK =====")
+    console.log("selectedTeam:", selectedTeam)
+    console.log("selectedSeason:", selectedSeason)
+    console.log("teamStats.length:", teamStats.length)
+    console.log("Current isComponentReady:", isComponentReady)
+    
     if (selectedTeam && selectedSeason && teamStats.length > 0) {
+      console.log("Setting isComponentReady to TRUE")
       setIsComponentReady(true)
     } else {
+      console.log("Setting isComponentReady to FALSE")
       setIsComponentReady(false)
     }
   }, [selectedTeam, selectedSeason, teamStats])
@@ -2343,13 +2353,24 @@ export function TeamDetailsTab({
                         }
 
                         if (teamPlayerStatsFiltered.length === 0) {
-                          return (
-                            <tr>
-                              <td colSpan={24} className="text-center py-8 text-gray-500">
-                                No player stats available for {selectedTeam} in {selectedSeason} {selectedGameLogPhase === "Regular" ? "Regular Season" : "Playoffs"}
-                              </td>
-                            </tr>
-                          )
+                          // Check if we're still loading before showing "no data" message
+                          if (isTeamPlayerStatsLoading) {
+                            return (
+                              <tr>
+                                <td colSpan={24} className="text-center py-8 text-gray-500">
+                                  Loading player stats...
+                                </td>
+                              </tr>
+                            )
+                          } else {
+                            return (
+                              <tr>
+                                <td colSpan={24} className="text-center py-8 text-gray-500">
+                                  No player stats available for {selectedTeam} in {selectedSeason} {selectedGameLogPhase === "Regular" ? "Regular Season" : "Playoffs"}
+                                </td>
+                              </tr>
+                            )
+                          }
                         }
 
                         return teamPlayerStatsFiltered
