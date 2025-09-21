@@ -181,12 +181,10 @@ export function TeamDetailsTab({
 
   // Debug prop changes
   console.log("===== TEAM DETAILS TAB RENDER =====")
-  console.log("Props received:", {
-    selectedTeam,
-    selectedSeason,
-    league,
-    selectedPhase,
-  })
+  console.log("selectedTeam:", selectedTeam)
+  console.log("selectedSeason:", selectedSeason, "Type:", typeof selectedSeason)
+  console.log("league:", league)
+  console.log("selectedPhase:", selectedPhase)
   console.log("teamStats.length:", teamStats.length)
   console.log("isComponentReady:", isComponentReady)
 
@@ -242,7 +240,7 @@ export function TeamDetailsTab({
 
     if (!teamCode) {
       // If not found, try to find the teamcode from the current season's team stats
-      const currentTeamData = teamStats.find((team) => team.name === teamName && team.season === selectedSeason)
+      const currentTeamData = teamStats.find((team) => team.name === teamName && team.season === season)
       if (currentTeamData) {
         teamCode = currentTeamData.teamcode
       }
@@ -374,8 +372,10 @@ export function TeamDetailsTab({
 
   // Reset all phase filters to Regular Season when season changes
   useEffect(() => {
-    console.log("Season changed, resetting all phase filters to Regular Season")
+    console.log("===== SEASON RESET EFFECT TRIGGERED =====")
+    console.log("selectedSeason changed to:", selectedSeason)
     console.log("Previous selectedGameLogPhase:", selectedGameLogPhase)
+    console.log("Resetting all phase filters to Regular Season")
     setSelectedGameLogPhase("Regular")
     setSelectedScheduleFilter("regular")
     setSelectedTeamReportPhase("RS")
@@ -2313,9 +2313,7 @@ export function TeamDetailsTab({
                         // Use pre-calculated player stats instead of calculating from game logs
                         console.log("RENDER: teamPlayerStats has", teamPlayerStats.length, "players")
                         console.log("RENDER: selectedGameLogPhase is", selectedGameLogPhase)
-                        const teamPlayerStatsFiltered = teamPlayerStats.filter(
-                          (player) => player.player_name !== "Total" && player.player_name !== "TOTAL",
-                        )
+                        const teamPlayerStatsFiltered = teamPlayerStats
                         console.log("RENDER: teamPlayerStatsFiltered has", teamPlayerStatsFiltered.length, "players")
 
                         // New approach: collect actual displayed values for each column
