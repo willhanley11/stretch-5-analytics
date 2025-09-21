@@ -154,6 +154,15 @@ export function TeamDetailsTab({
   setSelectedSeason,
   league, // Add this parameter
 }: TeamDetailsTabProps) {
+  // Debug prop changes
+  console.log("===== TEAM DETAILS TAB RENDER =====")
+  console.log("Props received:", {
+    selectedTeam,
+    selectedSeason,
+    league,
+    selectedPhase,
+  })
+  
   const [teamAdvancedStats, setTeamAdvancedStats] = useState<any>(null)
   const [allTeamsAdvancedStats, setAllTeamsAdvancedStats] = useState<any[]>([])
   const [leagueAverages, setLeagueAverages] = useState<any>(null)
@@ -357,14 +366,10 @@ export function TeamDetailsTab({
   useEffect(() => {
     console.log("Season changed, resetting all phase filters to Regular Season")
     console.log("Previous selectedGameLogPhase:", selectedGameLogPhase)
-    // Force a change by setting to something else first, then to Regular
-    setSelectedGameLogPhase("_RESETTING_")
-    setTimeout(() => {
-      setSelectedGameLogPhase("Regular")
-      setSelectedScheduleFilter("regular")
-      setSelectedTeamReportPhase("RS")
-      console.log("Reset selectedGameLogPhase to: Regular")
-    }, 0)
+    setSelectedGameLogPhase("Regular")
+    setSelectedScheduleFilter("regular")
+    setSelectedTeamReportPhase("RS")
+    console.log("Reset selectedGameLogPhase to: Regular")
   }, [selectedSeason])
 
   // Add this effect to fetch schedule data when team or season changes
@@ -828,6 +833,15 @@ export function TeamDetailsTab({
 
   // Fetch pre-calculated player stats for the team
   useEffect(() => {
+    console.log("===== PLAYER STATS EFFECT TRIGGERED =====")
+    console.log("Dependencies changed:", {
+      selectedTeam,
+      selectedSeason,
+      selectedGameLogPhase,
+      league,
+      isComponentReady,
+    })
+    
     const loadTeamPlayerStats = async () => {
       if (selectedTeam && selectedSeason) {
         setIsTeamPlayerStatsLoading(true)
@@ -852,7 +866,9 @@ export function TeamDetailsTab({
             const teamPlayersOnly = allPlayerStats.filter((player) => player.player_team_code === teamCode)
 
             console.log("Team player stats loaded:", teamPlayersOnly.length, "players")
+            console.log("Sample players:", teamPlayersOnly.slice(0, 3).map(p => p.player_name))
             setTeamPlayerStats(teamPlayersOnly)
+            console.log("teamPlayerStats state updated with", teamPlayersOnly.length, "players")
           } else {
             console.warn("No team code found for:", selectedTeam)
             setTeamPlayerStats([])
@@ -866,8 +882,10 @@ export function TeamDetailsTab({
       }
     }
 
-    loadTeamPlayerStats()
-  }, [selectedTeam, selectedSeason, selectedGameLogPhase, league])
+    if (isComponentReady) {
+      loadTeamPlayerStats()
+    }
+  }, [selectedTeam, selectedSeason, selectedGameLogPhase, league, isComponentReady])
 
   // Update the team color usage throughout the component
   const selectedTeamColor = (() => {
@@ -2283,9 +2301,12 @@ export function TeamDetailsTab({
                       {/* Individual player rows */}
                       {(() => {
                         // Use pre-calculated player stats instead of calculating from game logs
+                        console.log("RENDER: teamPlayerStats has", teamPlayerStats.length, "players")
+                        console.log("RENDER: selectedGameLogPhase is", selectedGameLogPhase)
                         const teamPlayerStatsFiltered = teamPlayerStats.filter(
                           (player) => player.player_name !== "Total" && player.player_name !== "TOTAL",
                         )
+                        console.log("RENDER: teamPlayerStatsFiltered has", teamPlayerStatsFiltered.length, "players")
 
                         // New approach: collect actual displayed values for each column
                         const getColumnValues = (columnIndex: number) => {
