@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { ShootingProfileTable } from "@/components/shooting-profile-table"
 import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
@@ -179,14 +179,15 @@ export function TeamDetailsTab({
   const [isPlayerStatsLoading, setIsPlayerStatsLoading] = useState(true)
   const [isComponentReady, setIsComponentReady] = useState(false)
 
-  // Debug prop changes
-  console.log("===== TEAM DETAILS TAB RENDER =====")
-  console.log("selectedTeam:", selectedTeam)
-  console.log("selectedSeason:", selectedSeason, "Type:", typeof selectedSeason)
-  console.log("league:", league)
-  console.log("selectedPhase:", selectedPhase)
-  console.log("teamStats.length:", teamStats.length)
-  console.log("isComponentReady:", isComponentReady)
+  // Track previous season to detect changes
+  const prevSeasonRef = useRef(selectedSeason)
+  
+  // Debug prop changes only when season changes
+  if (prevSeasonRef.current !== selectedSeason) {
+    console.log("===== SEASON ACTUALLY CHANGED =====")
+    console.log("Previous:", prevSeasonRef.current, "→ New:", selectedSeason)
+    prevSeasonRef.current = selectedSeason
+  }
 
   // Function to handle column sorting
   const handlePlayerColumnSort = (column: string) => {
@@ -895,7 +896,7 @@ export function TeamDetailsTab({
     if (isComponentReady) {
       loadTeamPlayerStats()
     }
-  }, [selectedTeam, selectedSeason, selectedGameLogPhase, league, isComponentReady])
+  }, [selectedTeam, selectedSeason, selectedGameLogPhase, teamNameToCode, teamStats, league, isComponentReady])
 
   // Update the team color usage throughout the component
   const selectedTeamColor = (() => {
