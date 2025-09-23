@@ -1,5 +1,6 @@
 "use client"
 import { useState, useMemo, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import {
@@ -273,6 +274,9 @@ function YamagataTeamStats({
   initialTeam, // Add initialTeam prop
   initialTableMode, // Add initialTableMode prop for league/player toggle
 }: YamagataTeamStatsProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([])
 
   const togglePlayerSelection = (playerId: string) => {
@@ -290,15 +294,38 @@ function YamagataTeamStats({
   const [playerSortColumn, setPlayerSortColumn] = useState("pts")
   const [playerSortDirection, setPlayerSortDirection] = useState("desc")
   const [playerSearchQuery, setPlayerSearchQuery] = useState("")
-  // Update the default selected team to use initialTeam from landing page:
-  const [selectedTeam, setSelectedTeamInternal] = useState(
-    typeof initialTeam === 'string' ? initialTeam : initialTeam?.name || "Olympiacos"
-  )
+  // Function to update URL with team parameter
+  const updateTeamInURL = (teamName: string) => {
+    const currentParams = new URLSearchParams(window.location.search)
+    if (teamName && teamName !== "Olympiacos") {
+      currentParams.set('team', teamName)
+    } else {
+      currentParams.delete('team')
+    }
+    
+    const newURL = currentParams.toString() 
+      ? `${window.location.pathname}?${currentParams.toString()}`
+      : window.location.pathname
+    
+    router.replace(newURL)
+  }
+
+  // Initialize selected team from URL parameters, initialTeam prop, or default
+  const getInitialTeam = () => {
+    const urlTeam = searchParams.get('team')
+    if (urlTeam) return urlTeam
+    if (typeof initialTeam === 'string') return initialTeam
+    if (initialTeam?.name) return initialTeam.name
+    return "Olympiacos"
+  }
   
-  // Wrapped setSelectedTeam with debugging
+  const [selectedTeam, setSelectedTeamInternal] = useState(getInitialTeam())
+  
+  // Wrapped setSelectedTeam with debugging and URL update
   const setSelectedTeam = (teamName: string) => {
     console.log("YamagataTeamStats: setSelectedTeam called with:", teamName, "from:", selectedTeam)
     setSelectedTeamInternal(teamName)
+    updateTeamInURL(teamName)
   }
   // Add this new state for the player stats view mode
   const [playerStatsMode, setPlayerStatsMode] = useState("pergame") // "pergame", "per100", "total"
@@ -369,6 +396,19 @@ function YamagataTeamStats({
       setSelectedTeam("") // Reset selected team
     }
   }, [propSelectedLeague, currentLeague])
+
+  // Sync selectedTeam with URL parameter changes (for browser back/forward navigation)
+  useEffect(() => {
+    const urlTeam = searchParams.get('team')
+    if (urlTeam && urlTeam !== selectedTeam && teamStats.length > 0) {
+      // Verify the team exists in current team stats before setting
+      const teamExists = teamStats.some((team) => team.name === urlTeam)
+      if (teamExists) {
+        console.log("Syncing team from URL:", urlTeam)
+        setSelectedTeamInternal(urlTeam) // Use internal setter to avoid URL update loop
+      }
+    }
+  }, [searchParams, teamStats])
 
   // Handle initialTeam prop from landing page - only on initial load
   useEffect(() => {
