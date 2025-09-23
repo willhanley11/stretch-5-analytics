@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
-import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronDown, Trophy, Group, Users, Shield, LineChart, Scale, BarChart, PersonStanding } from "lucide-react"
 import { cn } from "@/lib/utils"
 import OffenseTab from "./my-season/offense-tab"
@@ -47,19 +46,10 @@ const leagueSections = [
   { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
 ]
 
-interface ProLeagueNavProps {
-  initialSection?: string
-  showLandingPage?: boolean
-}
-
-export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandingPage = false }: ProLeagueNavProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  
-  // Initialize state from URL parameters or props
-  const [activeLeague, setActiveLeague] = useState(searchParams.get('league') || "international-euroleague")
-  const [activeSection, setActiveSection] = useState(initialSection || searchParams.get('section') || "teams")
-  const [showLandingPage, setShowLandingPage] = useState(initialShowLandingPage)
+export function ProLeagueNav() {
+  const [activeLeague, setActiveLeague] = useState("international-euroleague")
+  const [activeSection, setActiveSection] = useState("teams")
+  const [showLandingPage, setShowLandingPage] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -82,10 +72,10 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     { id: 2016, display: "2016-17" }
   ])
 
-  const [selectedLeague, setSelectedLeague] = useState(searchParams.get('league') || "international-euroleague")
+  const [selectedLeague, setSelectedLeague] = useState("international-euroleague")
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
-  const [selectedSeason, setSelectedSeason] = useState<number>(parseInt(searchParams.get('season') || '2024'))
+  const [selectedSeason, setSelectedSeason] = useState<number>(2024)
   
   // Sync activeLeague with selectedLeague when it changes
   useEffect(() => {
@@ -99,83 +89,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     console.log(`Season display:`, seasons.find((s) => s.id === selectedSeason)?.display || "not found")
     console.log(`=== END selectedSeason CHANGE ===`)
   }, [selectedSeason])
-
-  // Track if this is the initial load to prevent circular updates
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   
-  useEffect(() => {
-    setIsInitialLoad(false)
-    
-    // Set initial section based on URL path
-    const path = window.location.pathname
-    let section = 'teams'
-    switch (path) {
-      case '/teams':
-        section = 'teams'
-        break
-      case '/players':
-        section = 'statistics'
-        break
-      case '/standings':
-        section = 'standings'
-        break
-      case '/comparison':
-        section = 'comparison'
-        break
-      default:
-        section = initialSection || 'teams'
-    }
-    
-    if (section !== activeSection && !initialShowLandingPage) {
-      setActiveSection(section)
-    }
-  }, [])
-
-  // Update URL when league or season changes (but not on initial load)
-  useEffect(() => {
-    if (!showLandingPage && !isInitialLoad) {
-      const params = new URLSearchParams(window.location.search)
-      const currentLeague = params.get('league')
-      const currentSeason = params.get('season')
-      
-      // Only update if values actually changed
-      if (currentLeague !== selectedLeague || currentSeason !== selectedSeason.toString()) {
-        updateURL(activeSection, selectedLeague, selectedSeason)
-      }
-    }
-  }, [selectedLeague, selectedSeason, showLandingPage, isInitialLoad])
-  
-  // Function to update URL with current state
-  const updateURL = (section?: string, league?: string, season?: number) => {
-    const params = new URLSearchParams(window.location.search)
-    if (league) params.set('league', league)
-    if (season) params.set('season', season.toString())
-    
-    const sectionToUse = section || activeSection
-    let path = '/'
-    
-    // Map sections to routes
-    switch (sectionToUse) {
-      case 'teams':
-        path = '/teams'
-        break
-      case 'statistics':
-        path = '/players'
-        break
-      case 'standings':
-        path = '/standings'
-        break
-      case 'comparison':
-        path = '/comparison'
-        break
-      default:
-        path = '/'
-    }
-    
-    const url = params.toString() ? `${path}?${params.toString()}` : path
-    router.replace(url)
-  }
-
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
     setIsSeasonDropdownOpen(false)
@@ -348,7 +262,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
 
   const handleTabClick = (sectionId: string) => {
     setActiveSection(sectionId)
-    updateURL(sectionId, selectedLeague, selectedSeason)
   }
 
   const handleLandingPageNavigation = (tab: string, selections: any) => {
@@ -374,9 +287,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     // Then update other states
     setShowLandingPage(false)
     setActiveSection(tab)
-    
-    // Navigate to the appropriate URL
-    updateURL(tab, selections?.league || selectedLeague, selections?.season || selectedSeason)
     
     console.log(`=== END LANDING PAGE NAVIGATION ===`)
   }
