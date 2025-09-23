@@ -6,8 +6,9 @@ A modern basketball analytics platform created by Will Hanley — a former profe
 
 ## Features
 
-### Teams View
+### Teams, Players View
 ![Teams Wide View](./public/TeamsWide.png)
+![Player Shot Chart Wide](./public/PlayersWide.png)
 
 ### Mobile Views
 <p align="center">
