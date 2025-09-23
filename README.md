@@ -1,30 +1,39 @@
-# Vercel AI Mockup
+# Stretch 5 Analytics
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A modern basketball analytics platform created by Will Hanley — a former professional basketball player turned data scientist — with the goal of expanding to all leagues and levels across the world, making high quality data and analytics accessible for players, coaches, and fans.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/willhanley11-gmailcoms-projects/v0-vercel-ai-mockup)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/wasHFMyMJ8t)
+## Features
 
-## Overview
+### Teams View
+![Teams Wide View](./public/TeamsWide.png)
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+### Player Statistics
+![Player Mobile View](./public/PlayerMobile.png)
 
-## Deployment
+### League Standings
+![League Mobile View](./public/LeagueMobile.png)
 
-Your project is live at:
+### Player Comparison
+![Comparison Wide View](./public/ComparisonWide.png)
 
-**[https://vercel.com/willhanley11-gmailcoms-projects/v0-vercel-ai-mockup](https://vercel.com/willhanley11-gmailcoms-projects/v0-vercel-ai-mockup)**
+## About Will Hanley
 
-## Build your app
+Will Hanley played internationally for 8 years before transitioning into the world of sports data.
 
-Continue building your app on:
+**Background:**
+- Head of Basketball at a sports analytics company
+- Played in Spain, France, Portugal, Japan, and Uruguay
+- 5 ACB seasons with Valencia, CB Canarias & Gipuzkoa
+- BCL champion, LEB Silver MVP & Champion
+- Ireland National Team
+- Bowdoin College, Class of 2012
 
-**[https://v0.app/chat/projects/wasHFMyMJ8t](https://v0.app/chat/projects/wasHFMyMJ8t)**
+## Contact
 
-## How It Works
+For questions, ideas, or collaboration requests related to basketball analytics, team support, or custom visualizations, reach out at:
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+**Email:** [willhanley11@gmail.com](mailto:willhanley11@gmail.com)
+
+## Technology Stack
+
+Built with Next.js, React, TypeScript, and Tailwind CSS for a modern, responsive basketball analytics experience.
