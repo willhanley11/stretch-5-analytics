@@ -6,7 +6,7 @@ A modern basketball analytics platform created by Will Hanley — a former profe
 
 ## Features
 
-### Teams, Players View
+### Team and Player Views
 ![Teams Wide View](./public/TeamsWide.png)
 ![Player Shot Chart Wide](./public/PlayersWide.png)
 
@@ -16,5 +16,5 @@ A modern basketball analytics platform created by Will Hanley — a former profe
   <img src="./public/LeagueMobile.png" width="45%" alt="League Mobile View">
 </p>
 
-### Player Comparison
+### Player Comparisons
 ![Comparison Wide View](./public/ComparisonWide.png)
