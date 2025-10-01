@@ -581,7 +581,7 @@ function StatisticsTab({
         <div className="flex items-center gap-2 ml-1">
           <h3 className="text-xl font-semibold">Statistics</h3>
           {/* Search - inline on desktop */}
-          <div className="relative w-28 md:w-72 ml-2 md:ml-4">
+          <div className="relative w-28 md:w-72 ml-1 md:ml-4">
             <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-2.5 md:h-4 w-2.5 md:w-4 text-gray-400" />
             <Input
               type="text"
@@ -650,7 +650,7 @@ function StatisticsTab({
       <div className="relative -ml-2 -mr-2">
         <div className="grid grid-cols-[220px_1fr] md:grid-cols-[280px_1fr]">
           {/* Fixed Player Column */}
-          <div className="bg-white border-r border-gray-300">
+          <div className="bg-white border-r-2 border-gray-800">
             <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
               <thead>
                 <tr className="bg-gray-100 h-6 md:h-8 border-b-2 border-black border-t-2 border-t-black">
