@@ -20,15 +20,12 @@ interface LandingPageProps {
 }
 
 const seasons = [
+  { id: 2025, display: "2025-26" },
   { id: 2024, display: "2024-25" },
   { id: 2023, display: "2023-24" },
   { id: 2022, display: "2022-23" },
   { id: 2021, display: "2021-22" },
-  { id: 2020, display: "2020-21" },
-  { id: 2019, display: "2019-20" },
-  { id: 2018, display: "2018-19" },
-  { id: 2017, display: "2017-18" },
-  { id: 2016, display: "2016-17" }
+  { id: 2020, display: "2020-21" }
 ]
 
 const leagues = [

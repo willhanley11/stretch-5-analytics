@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useMemo, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowUpDown, ArrowDown, ArrowUp, HelpCircle, Flame } from "lucide-react"
@@ -300,30 +300,6 @@ const OffenseTab = ({
   filteredPlayers
 }: OffenseTabProps) => {
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  // Function to update URL with team and player parameters
-  const updateURLParameters = (teamCode?: string, playerName?: string) => {
-    const currentParams = new URLSearchParams(window.location.search)
-    
-    if (teamCode) {
-      currentParams.set('team', teamCode)
-    } else {
-      currentParams.delete('team')
-    }
-    
-    if (playerName) {
-      currentParams.set('player', playerName)
-    } else {
-      currentParams.delete('player')
-    }
-    
-    const newURL = currentParams.toString() 
-      ? `${window.location.pathname}?${currentParams.toString()}`
-      : window.location.pathname
-    
-    router.replace(newURL)
-  }
 
   const [selectedStat, setSelectedStat] = useState<StatType>("points")
   const [timeRange, setTimeRange] = useState<TimeRange>("season")
@@ -1881,7 +1857,6 @@ const PlayerTeamSelector = () => {
                   setSelectedPhaseToggle("Regular Season") // Always default to RS
                   setIsTeamDropdownOpen(false)
                   setIsPlayerDropdownOpen(false) // Close player dropdown
-                  updateURLParameters(team.player_team_code, undefined)
                 }}
                 className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
@@ -1926,7 +1901,6 @@ const PlayerTeamSelector = () => {
                   loadPlayerData(player)
                   setIsPlayerDropdownOpen(false)
                   setIsTeamDropdownOpen(false) // Close team dropdown
-                  updateURLParameters(selectedTeam?.player_team_code, player.player_name)
                 }}
                 className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
                   isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
@@ -3394,7 +3368,6 @@ const PlayerTeamSelector = () => {
             setSelectedTeam(team || null)
             setSelectedPlayer(null)
             setSelectedPhaseToggle("Regular Season")
-            updateURLParameters(team?.player_team_code, undefined)
           }}
         >
           <SelectTrigger className="w-full h-8 text-sm border-2 border-gray-400 bg-gray-200 shadow-sm rounded-md">
