@@ -367,6 +367,19 @@ export function TeamDetailsTab({
     }, 0)
   }, [selectedSeason])
 
+  // Reset filters to Regular Season if playoff data becomes unavailable
+  useEffect(() => {
+    if (selectedTeamReportPhase === "Playoffs" && !hasTeamReportPlayoffData()) {
+      setSelectedTeamReportPhase("RS")
+    }
+    if (selectedScheduleFilter === "playoffs" && !hasSchedulePlayoffData()) {
+      setSelectedScheduleFilter("regular")
+    }
+    if (selectedGameLogPhase === "Playoffs" && !hasPlayerStatsPlayoffData()) {
+      setSelectedGameLogPhase("Regular")
+    }
+  }, [teamAdvancedStats, scheduleData, gameLogsData, selectedTeamReportPhase, selectedScheduleFilter, selectedGameLogPhase])
+
   // Add this effect to fetch schedule data when team or season changes
   useEffect(() => {
     const loadScheduleData = async () => {
@@ -868,6 +881,28 @@ export function TeamDetailsTab({
 
     loadTeamPlayerStats()
   }, [selectedTeam, selectedSeason, selectedGameLogPhase, league])
+
+  // Helper functions to check data availability for each section
+  const hasTeamReportPlayoffData = () => {
+    // Check if teamAdvancedStats has playoffs data
+    return teamAdvancedStats && teamAdvancedStats.phase === "Playoffs"
+  }
+
+  const hasSchedulePlayoffData = () => {
+    // Check if scheduleData has any playoff games
+    return scheduleData && scheduleData.some(game => {
+      const phase = game.phase || "RS"
+      return ["PI", "PO", "FF", "8F", "4F", "2F", "Final"].includes(phase)
+    })
+  }
+
+  const hasPlayerStatsPlayoffData = () => {
+    // Check if gameLogsData has any playoff games for this team
+    return gameLogsData && gameLogsData.some(log => {
+      const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+      return log.player_team_code === teamCode && log.phase === "Playoffs"
+    })
+  }
 
   // Update the team color usage throughout the component
   const selectedTeamColor = (() => {
@@ -1377,7 +1412,7 @@ export function TeamDetailsTab({
                         className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                       >
                         <option value="RS">Regular Season</option>
-                        <option value="Playoffs">Playoffs</option>
+                        {hasTeamReportPlayoffData() && <option value="Playoffs">Playoffs</option>}
                       </select>
                     </div>
                   </div>
@@ -1945,7 +1980,7 @@ export function TeamDetailsTab({
                         className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                       >
                         <option value="regular">Regular Season</option>
-                        <option value="playoffs">Playoffs</option>
+                        {hasSchedulePlayoffData() && <option value="playoffs">Playoffs</option>}
                       </select>
                       <div className="hidden sm:block text-sm text-gray-600 font-medium mt-2">
                         {(() => {
@@ -2056,7 +2091,7 @@ export function TeamDetailsTab({
                       className="px-3 py-1 text-xs md:text-md border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                     >
                       <option value="Regular">Regular Season</option>
-                      <option value="Playoffs">Playoffs</option>
+                      {hasPlayerStatsPlayoffData() && <option value="Playoffs">Playoffs</option>}
                     </select>
 
                     {/* Stats mode selector */}
