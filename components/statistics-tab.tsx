@@ -648,7 +648,7 @@ function StatisticsTab({
       </div>
 
       <div className="relative -ml-2 -mr-2">
-        <div className="grid grid-cols-[220px_1fr] md:grid-cols-[280px_1fr]">
+        <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr]">
           {/* Fixed Player Column */}
           <div className="bg-white border-r-2 border-gray-800">
             <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
@@ -701,7 +701,7 @@ function StatisticsTab({
                                   )}
                                 </div>
                                 <div className="flex flex-col">
-                                  <span className="text-xs md:text-sm font-medium text-nowrap text-black leading-tight">
+                                  <span className="text-[9px] md:text-[10px] font-medium text-nowrap text-black leading-tight">
                                     {player.player_name}
                                   </span>
                                 </div>
