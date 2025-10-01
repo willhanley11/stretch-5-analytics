@@ -632,6 +632,14 @@ export function LeagueStandingsTab({
       if (sortColumn === "w") {
         const winsA = Number(a.w) || 0
         const winsB = Number(b.w) || 0
+        
+        // If wins are equal, use point differential as tiebreaker
+        if (winsA === winsB) {
+          const diffA = Number(a.diff) || 0
+          const diffB = Number(b.diff) || 0
+          return diffB - diffA // Higher differential wins (e.g., -9 > -10)
+        }
+        
         return sortDirection === "desc" ? winsB - winsA : winsA - winsB
       }
       
@@ -944,7 +952,7 @@ export function LeagueStandingsTab({
                                 </div>
                               ) : isDiffColumn ? (
                                 // Diff column: with faint conditional formatting, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-1 ${cellBgClass}`}>
+                                <div className={`flex items-center justify-center w-full h-full p-1 rounded-sm ${cellBgClass}`}>
                                   <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : (
@@ -952,7 +960,7 @@ export function LeagueStandingsTab({
                                 <div
                                   className={`flex items-center justify-center ${
                                     displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
-                                  } h-full p-0.5 md:p-1 rounded-xs ${cellBgClass}`}
+                                  } h-full p-0.5 md:p-1 rounded-sm ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (
                                     <span className="text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
@@ -1200,7 +1208,7 @@ export function LeagueStandingsTab({
                                 </div>
                               ) : isDiffColumn ? (
                                 // Diff column: with faint conditional formatting, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 border ${cellBgClass}`}>
+                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 border rounded-sm ${cellBgClass}`}>
                                   <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : (
