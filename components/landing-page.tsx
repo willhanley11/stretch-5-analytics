@@ -1935,7 +1935,7 @@ export default function LandingPage({
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               <p className="text-gray-600 text-sm md:text-base font-medium tracking-wide">
-                Basketball Data Analytics & Visualization
+                Basketball Analytics & Visualization
               </p>
             </motion.div>
 

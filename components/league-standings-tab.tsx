@@ -1216,7 +1216,7 @@ export function LeagueStandingsTab({
                                 <div
                                   className={`flex items-center justify-center ${
                                     displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1 border"
-                                  } h-full p-0.5 md:p-1 rounded-xs ${cellBgClass}`}
+                                  } h-full p-0.5 md:p-1 rounded-sm ${cellBgClass}`}
                                 >
                                   {displayMode === "value" ? (
                                     <span className="text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>

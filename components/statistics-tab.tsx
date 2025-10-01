@@ -37,7 +37,7 @@ function StatisticsTab({
   const [selectedPhase, setSelectedPhase] = useState<string>("Regular")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const playersPerPage = 30
+  const playersPerPage = 20
   const [statDisplayMode, setStatDisplayMode] = useState<"averages" | "per40" | "total">("averages")
 
   // Sorting state
@@ -393,159 +393,153 @@ function StatisticsTab({
 
   const playersWithHeaders = createPlayersWithHeaders(currentPlayers)
 
-  const HeaderRow = ({ isSticky = false }) => (
+  const StatsHeaderRow = ({ isSticky = false }) => (
     <tr
       className={`${isSticky ? " top-0  bg-gray-50 shadow-sm" : "bg-gray-100"} h-6 md:h-8 border-b-2 border-black ${!isSticky ? "border-t-2 border-t-black" : ""}`}
     >
       <th
-        className={`${isSticky ? " left-0  bg-gray-50 shadow-lg" : " left-0  bg-gray-100"} text-left py-0.5 md:py-0.5 px-1 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300 min-w-[150px] md:min-w-[200px]`}
-        onClick={() => handlePlayerColumnSort("player_name")}
-      >
-        <div className="flex items-center text-[8px] md:text-xs">Player {renderSortIndicator("player_name")}</div>
-      </th>
-      <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border border-gray-300"
         onClick={() => handlePlayerColumnSort("games_played")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">GP {renderSortIndicator("games_played")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">GP {renderSortIndicator("games_played")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("games_started")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">GS {renderSortIndicator("games_started")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">GS {renderSortIndicator("games_started")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("minutes_played")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">MIN {renderSortIndicator("minutes_played")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">MIN {renderSortIndicator("minutes_played")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("points_scored")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">PTS {renderSortIndicator("points_scored")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">PTS {renderSortIndicator("points_scored")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("two_pointers_made")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">2PM {renderSortIndicator("two_pointers_made")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">2PM {renderSortIndicator("two_pointers_made")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">2PA {renderSortIndicator("two_pointers_attempted")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">2PA {renderSortIndicator("two_pointers_attempted")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">2P% {renderSortIndicator("two_pointers_percentage")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">2P% {renderSortIndicator("two_pointers_percentage")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("three_pointers_made")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">3PM {renderSortIndicator("three_pointers_made")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">3PM {renderSortIndicator("three_pointers_made")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">3PA {renderSortIndicator("three_pointers_attempted")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">3PA {renderSortIndicator("three_pointers_attempted")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">3P% {renderSortIndicator("three_pointers_percentage")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">3P% {renderSortIndicator("three_pointers_percentage")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("free_throws_made")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">FTM {renderSortIndicator("free_throws_made")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">FTM {renderSortIndicator("free_throws_made")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("free_throws_attempted")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">FTA {renderSortIndicator("free_throws_attempted")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">FTA {renderSortIndicator("free_throws_attempted")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("free_throws_percentage")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">FT% {renderSortIndicator("free_throws_percentage")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">FT% {renderSortIndicator("free_throws_percentage")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("offensive_rebounds")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">OR {renderSortIndicator("offensive_rebounds")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">OR {renderSortIndicator("offensive_rebounds")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("defensive_rebounds")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">DR {renderSortIndicator("defensive_rebounds")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">DR {renderSortIndicator("defensive_rebounds")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("total_rebounds")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">TR {renderSortIndicator("total_rebounds")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">TR {renderSortIndicator("total_rebounds")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("assists")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">AST {renderSortIndicator("assists")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">AST {renderSortIndicator("assists")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("steals")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">STL {renderSortIndicator("steals")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">STL {renderSortIndicator("steals")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("turnovers")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">TO {renderSortIndicator("turnovers")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">TO {renderSortIndicator("turnovers")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("blocks")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">BLK {renderSortIndicator("blocks")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">BLK {renderSortIndicator("blocks")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("blocks_against")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">BLKA {renderSortIndicator("blocks_against")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">BLKA {renderSortIndicator("blocks_against")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("fouls_commited")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">FC {renderSortIndicator("fouls_commited")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">FC {renderSortIndicator("fouls_commited")}</div>
       </th>
       <th
-        className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
+        className="text-center py-1 md:py-1.5 px-1 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300"
         onClick={() => handlePlayerColumnSort("fouls_drawn")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">FD {renderSortIndicator("fouls_drawn")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">FD {renderSortIndicator("fouls_drawn")}</div>
       </th>
       <th
         className="text-center py-0.5 md:py-0.5 px-0.5 md:px-0.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors"
         onClick={() => handlePlayerColumnSort("pir")}
       >
-        <div className="flex items-center justify-center text-[8px] md:text-xs">PIR {renderSortIndicator("pir")}</div>
+        <div className="flex items-center justify-center text-[11px] md:text-xs">PIR {renderSortIndicator("pir")}</div>
       </th>
     </tr>
   )
@@ -592,7 +586,7 @@ function StatisticsTab({
             <Input
               type="text"
               placeholder="Search..."
-              className="pl-4 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[9px] md:text-xs rounded-md border border-gray-300 focus:outline-none w-full h-6 md:h-8"
+              className="pl-4 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[10px] md:text-xs border border-gray-300 focus:outline-none w-full h-6 md:h-8"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -607,7 +601,7 @@ function StatisticsTab({
           <div className="flex rounded-full border bg-[#f1f5f9] p-0.5">
             <button
               onClick={() => setStatDisplayMode("averages")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "averages" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -615,7 +609,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("per40")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "per40" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -623,7 +617,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("total")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "total" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -635,7 +629,7 @@ function StatisticsTab({
           <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
             <button
               onClick={() => setSelectedPhase("Regular")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 selectedPhase === "Regular" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -643,7 +637,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setSelectedPhase("Playoffs")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[8px] md:text-xs font-medium ${
+              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 selectedPhase === "Playoffs" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -653,18 +647,92 @@ function StatisticsTab({
         </div>
       </div>
 
-      <div className="relative  -ml-2 -mr-2 ">
-        <div className="overflow-x-auto">
-          <table className="w-full text-[8px] md:text-xs border-collapse rounded-none">
-            {/* Fixed sticky table header */}
+      <div className="relative -ml-2 -mr-2">
+        <div className="grid grid-cols-[220px_1fr] md:grid-cols-[280px_1fr]">
+          {/* Fixed Player Column */}
+          <div className="bg-white border-r border-gray-300">
+            <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
+              <thead>
+                <tr className="bg-gray-100 h-6 md:h-8 border-b-2 border-black border-t-2 border-t-black">
+                  <th className="text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300" onClick={() => handlePlayerColumnSort("player_name")}>
+                    <div className="flex items-center text-[11px] md:text-xs">Player {renderSortIndicator("player_name")}</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+              {playersWithHeaders.length > 0 ? (
+                playersWithHeaders.map((item) => {
+                  if (item.type === "header") {
+                    return (
+                      <tr key={item.id} className="bg-gray-100 h-6 md:h-8 border-b-2 border-black">
+                        <th className="bg-gray-50 shadow-lg text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300" onClick={() => handlePlayerColumnSort("player_name")}>
+                          <div className="flex items-center text-[11px] md:text-xs">Player {renderSortIndicator("player_name")}</div>
+                        </th>
+                      </tr>
+                    )
+                  }
+                  const player = item.data
+                  const index = item.originalIndex
+                  return (
+                    <tr key={`${player.player_id || player.player_name}-${player.player_team_code}-${selectedPhase}-${index}`} className="border-b bg-white hover:bg-gray-100 transition-colors group" style={{height: '35px'}}>
+                      <td className="px-1 md:px-1.5 font-medium border-r border-gray-200 bg-white group-hover:bg-gray-100 shadow-lg transition-colors">
+                        <span className="text-black block">
+                          <div className="flex items-center gap-0.5 md:gap-1">
+                          {(() => {
+                            const teamCode = player.player_team_code
+                            const teamColors = getTeamColor(teamCode)
+                            const teamLogo = player.teamlogo
+                            return (
+                              <>
+                                <div className="w-4 md:w-5 h-4 md:h-5 flex items-center justify-center flex-shrink-0">
+                                  {teamLogo ? (
+                                    <img
+                                      src={teamLogo || "/placeholder.svg"}
+                                      alt={`${teamCode} logo`}
+                                      className="w-3.5 md:w-4 h-3.5 md:h-4 object-contain"
+                                      onError={(e) => {
+                                        e.currentTarget.src = "/placeholder.svg?height=20&width=20"
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="w-4 h-4 flex items-center justify-center text-gray-600 font-bold text-xs md:text-sm">
+                                      {teamCode}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-xs md:text-sm font-medium text-nowrap text-black leading-tight">
+                                    {player.player_name}
+                                  </span>
+                                </div>
+                              </>
+                            )
+                          })()} 
+                          </div>
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })
+              ) : (
+                <tr><td className="py-4 text-center text-gray-500">No players found</td></tr>
+              )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Scrollable Stats Section */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
+            {/* Stats table header */}
             <thead>
-              <HeaderRow />
+              <StatsHeaderRow />
             </thead>
             <tbody>
               {playersWithHeaders.length > 0 ? (
                 playersWithHeaders.map((item) => {
                   if (item.type === "header") {
-                    return <HeaderRow key={item.id} />
+                    return <StatsHeaderRow key={item.id} />
                   }
 
                   const player = item.data
@@ -727,44 +795,10 @@ function StatisticsTab({
                     <tr
                       key={`${player.player_id || player.player_name}-${player.player_team_code}-${selectedPhase}-${index}`}
                       className={`border-b bg-white hover:bg-gray-100 transition-colors group`}
+                      style={{height: '35px'}}
                     >
-                      <td className="py-0.5 md:py-0.5 px-1 md:px-1 font-medium border-r border-gray-200 bg-white group-hover:bg-gray-100 min-w-[140px] md:min-w-[220px] shadow-lg transition-colors">
-                        <div className="flex items-center gap-1 md:gap-2">
-                          {(() => {
-                            const teamCode = player.player_team_code
-                            const teamColors = getTeamColor(teamCode)
-                            const teamLogo = player.teamlogo
 
-                            return (
-                              <>
-                                <div className="w-4 md:w-5 h-4 md:h-5 flex items-center justify-center flex-shrink-0">
-                                  {teamLogo ? (
-                                    <img
-                                      src={teamLogo || "/placeholder.svg"}
-                                      alt={`${teamCode} logo`}
-                                      className="w-3 md:w-4 h-3 md:h-4 object-contain"
-                                      onError={(e) => {
-                                        e.currentTarget.src = "/placeholder.svg?height=20&width=20"
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-3 h-3 flex items-center justify-center text-gray-600 font-bold text-[8px] md:text-xs">
-                                      {teamCode}
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] md:text-xs font-medium text-nowrap text-black leading-tight">
-                                    {player.player_name}
-                                  </span>
-                                </div>
-                              </>
-                            )
-                          })()}
-                        </div>
-                      </td>
-
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -775,7 +809,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("games_played")], 0)}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -786,7 +820,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("games_started")], 0)}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -797,7 +831,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("minutes_played")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -808,7 +842,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("points_scored")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -819,7 +853,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("two_pointers_made")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -830,7 +864,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("two_pointers_attempted")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -841,7 +875,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("two_pointers_percentage")])}%
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -852,7 +886,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("three_pointers_made")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -863,7 +897,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("three_pointers_attempted")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -874,7 +908,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("three_pointers_percentage")])}%
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -885,7 +919,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("free_throws_made")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -896,7 +930,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("free_throws_attempted")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -907,7 +941,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("free_throws_percentage")])}%
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -918,7 +952,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("offensive_rebounds")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -929,7 +963,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("defensive_rebounds")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -940,7 +974,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("total_rebounds")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("assists")], allValues.assists)}
@@ -948,7 +982,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("assists")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("steals")], allValues.steals)}
@@ -956,7 +990,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("steals")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("turnovers")], allValues.turnovers)}
@@ -964,7 +998,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("turnovers")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("blocks")], allValues.blocks)}
@@ -972,7 +1006,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("blocks")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -983,7 +1017,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("blocks_against")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(
@@ -994,7 +1028,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("fouls_commited")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("fouls_drawn")], allValues.fouls_drawn)}
@@ -1002,7 +1036,7 @@ function StatisticsTab({
                           {formatStat(player[getColumnName("fouls_drawn")])}
                         </span>
                       </td>
-                      <td className="py-0 md:py-0.5 px-0 md:px-0.5 text-center border-r border-gray-200 font-mono text-[7px] md:text-[11px]">
+                      <td className="px-1 md:px-1.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                         <span
                           className="px-1 py-0.5 text-black rounded"
                           style={getSubtleConditionalStyle(player[getColumnName("pir")], allValues.pir)}
@@ -1024,6 +1058,7 @@ function StatisticsTab({
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

@@ -10,7 +10,6 @@ import OffenseTab from "./my-season/offense-tab"
 import ComparisonTab from "./my-season/comparison-tab"
 import YamagataTeamStats from "./yamagata-team-stats"
 import StatisticsTab from "./statistics-tab"
-import AboutPage from "./about-page"
 import LandingPage from "./landing-page"
 
 // Add International section with Euroleague
@@ -415,14 +414,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             </div>
           </motion.div>
         );
-      case "about":
-        return (
-          <div className="px-4 pt-6 sm:px-6 md:px-8 md:pt-2 pb-4">
-            <div className="max-w-4xl mx-auto">
-              <AboutPage />
-            </div>
-          </div>
-        );
       default:
         return (
           <div className="px-4 sm:px-6 md:px-8 pt-6 md:pt-2 pb-4 bg-white">
@@ -576,16 +567,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                     </AnimatePresence>
                   </div>
 
-                  {/* About Button */}
-                  <button
-                    onClick={() => handleTabClick("about")}
-                    className={cn(
-                      "text-sm font-medium transition-colors duration-200",
-                      activeSection === "about" ? "text-gray-900" : "text-gray-600 hover:text-gray-900",
-                    )}
-                  >
-                    About
-                  </button>
                 </div>
               </div>
             </div>
