@@ -650,11 +650,11 @@ function StatisticsTab({
       <div className="relative -ml-2 -mr-2">
         <div className="grid grid-cols-[162px_1fr] md:grid-cols-[202px_1fr]">
           {/* Fixed Player Column */}
-          <div className="bg-white border-r-2 border-gray-800">
+          <div className="bg-white border-r-2 border-gray-800 relative z-10">
             <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
               <thead>
                 <tr className="bg-gray-100 h-6 md:h-8 border-b-2 border-black border-t-2 border-t-black">
-                  <th className="text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300" onClick={() => handlePlayerColumnSort("player_name")}>
+                  <th className="text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors" onClick={() => handlePlayerColumnSort("player_name")}>
                     <div className="flex items-center text-[11px] md:text-xs">Player {renderSortIndicator("player_name")}</div>
                   </th>
                 </tr>
@@ -665,7 +665,7 @@ function StatisticsTab({
                   if (item.type === "header") {
                     return (
                       <tr key={item.id} className="bg-gray-100 h-6 md:h-8 border-b-2 border-black">
-                        <th className="bg-gray-50 shadow-lg text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors border-r border-gray-300" onClick={() => handlePlayerColumnSort("player_name")}>
+                        <th className="bg-gray-50 text-left py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-200 transition-colors" onClick={() => handlePlayerColumnSort("player_name")}>
                           <div className="flex items-center text-[11px] md:text-xs">Player {renderSortIndicator("player_name")}</div>
                         </th>
                       </tr>
@@ -675,7 +675,7 @@ function StatisticsTab({
                   const index = item.originalIndex
                   return (
                     <tr key={`${player.player_id || player.player_name}-${player.player_team_code}-${selectedPhase}-${index}`} className="border-b bg-white hover:bg-gray-100 transition-colors group" style={{height: '35px'}}>
-                      <td className="px-1 md:px-1.5 font-medium border-r border-gray-200 bg-white group-hover:bg-gray-100 shadow-lg transition-colors">
+                      <td className="px-1 md:px-1.5 font-medium bg-white group-hover:bg-gray-100 transition-colors">
                         <span className="text-black block">
                           <div className="flex items-center gap-0.5 md:gap-1">
                           {(() => {
