@@ -650,7 +650,7 @@ function StatisticsTab({
       <div className="relative -ml-2 -mr-2">
         <div className="grid grid-cols-[162px_1fr] md:grid-cols-[202px_1fr]">
           {/* Fixed Player Column */}
-          <div className="bg-white border-r-2 border-gray-800 relative z-10">
+          <div className="bg-white border-r-4 border-gray-900 relative z-20">
             <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
               <thead>
                 <tr className="bg-gray-100 h-6 md:h-8 border-b-2 border-black border-t-2 border-t-black">
