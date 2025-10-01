@@ -209,8 +209,10 @@ export const euroleague_team_colors = {
   OKT: "#8b1538", // Krasny Oktyabr Volgograd - Darker red
   FRA: "#1e4a72" // Fraport Skyliners Frankfurt - Darker blue
 };
-// Remove the hardcoded teamNameToCode mapping since we'll use database teamcode directly
-export const teamNameToCode = {} // Empty object - we'll get teamcode from database
+// Team name to code mapping for teams not in current database
+export const teamNameToCode = {
+  "Hapoel IBI Tel Aviv": "HTA"
+}
 
 // Player images data - empty array to be filled from database later
 export const playerImages = []
@@ -516,90 +518,16 @@ function YamagataTeamStats({
     loadTeamAdvancedStats()
   }, [selectedTeam, selectedSeason, selectedPhase, teamStats])
 
-  // Add a delay before loading team players to avoid rate limiting
+  // TeamDetailsTab handles its own player loading, so we don't need to load players here
+  // Just provide empty arrays for the props that TeamDetailsTab expects
   useEffect(() => {
-    const loadTeamPlayers = async () => {
-      // Wait for teamStats to be loaded before proceeding
-      if (selectedTeam && selectedSeason && selectedPhase && teamStats.length > 0) {
-        try {
-          console.log("=== LOADING TEAM PLAYERS ===")
-          console.log("Team:", selectedTeam, "Season:", selectedSeason, "Phase:", selectedPhase)
+    // Clear players since TeamDetailsTab handles its own player data
+    setTeamPlayers([])
+  }, [selectedTeam, selectedSeason, selectedPhase])
 
-          // Get teamcode from the current team stats instead of hardcoded mapping
-          const selectedTeamData = teamStats.find((team) => team.name === selectedTeam)
-          const teamCode = selectedTeamData?.teamcode
-
-          if (!teamCode) {
-            console.error("No teamcode found for selected team:", selectedTeam)
-            console.log(
-              "Available teams in teamStats:",
-              teamStats.map((t) => `${t.name} (${t.teamcode})`),
-            )
-            setTeamPlayers([])
-            return
-          }
-
-          // Add a small delay to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 500))
-
-          console.log("Using teamcode from database:", teamCode)
-
-          // Call the updated function that can handle both team names and codes
-          const players = await fetchTeamPlayersDirectly(teamCode, selectedSeason, selectedPhase)
-          console.log("Players fetched:", players ? players.length : 0)
-          if (players && players.length > 0) {
-            console.log("Sample player data:", players[0])
-            // Get unique phases from player data and set default to RS if available
-            const playerPhases = [...new Set(players.map((p) => p.phase))].filter(Boolean)
-            if (playerPhases.length > 0) {
-              // Always prefer RS (Regular Season) first
-              if (playerPhases.includes("RS")) {
-                setSelectedPlayerPhase("RS")
-              } else if (playerPhases.includes("Regular Season")) {
-                setSelectedPlayerPhase("Regular Season") 
-              } else {
-                setSelectedPlayerPhase(playerPhases[0])
-              }
-            }
-          }
-          setTeamPlayers(players || [])
-        } catch (error) {
-          console.error("Error fetching team players:", error)
-          setTeamPlayers([])
-        }
-      } else {
-        // Clear players if conditions aren't met
-        setTeamPlayers([])
-      }
-    }
-
-    loadTeamPlayers()
-  }, [selectedTeam, selectedSeason, selectedPhase, teamStats, selectedPlayerPhase]) // Keep teamStats in dependencies
-
-  // Filter players by selected phase
-  const filteredTeamPlayers = useMemo(() => {
-    return teamPlayers.filter((player) => player.phase === selectedPlayerPhase)
-  }, [teamPlayers, selectedPlayerPhase])
-
-  // Get available player phases
-  const availablePlayerPhases = useMemo(() => {
-    return [...new Set(teamPlayers.map((p) => p.phase))].filter(Boolean)
-  }, [teamPlayers])
-
-  // Reset player phase to Regular Season when team, league, or season changes
-  useEffect(() => {
-    if (availablePlayerPhases.length > 0) {
-      // First try to set to "Regular Season" or "RS"
-      if (availablePlayerPhases.includes("Regular Season")) {
-        setSelectedPlayerPhase("Regular Season")
-      } else if (availablePlayerPhases.includes("RS")) {
-        setSelectedPlayerPhase("RS")
-      } else {
-        // If neither is available, use the first available phase
-        setSelectedPlayerPhase(availablePlayerPhases[0])
-      }
-    }
-  }, [selectedTeam, currentLeague, selectedSeason, availablePlayerPhases])
+  // TeamDetailsTab handles its own player data and phases
+  const filteredTeamPlayers = []
+  const availablePlayerPhases = ["RS"] // Default phase
 
   // Add this useEffect hook after all the useState declarations
   // Add this right before or after other useEffect hooks if they exist

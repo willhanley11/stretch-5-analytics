@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowUpDown, ArrowDown, ArrowUp, HelpCircle, Flame } from "lucide-react"
-import { fetchPlayerGameLogs } from "@/app/actions/standings"
+import { fetchPlayerGameLogs, fetchTeamPlayerStatsFromGameLogs } from "@/app/actions/standings"
 import type { EuroleagueGameLog } from "@/lib/db"
 import BasketballShotChart from "@/components/basketball-shot-chart-player"
 import { PlayerShootingProfileTable } from "@/components/player-shooting-profile-table"
-import { fetchAllPlayerStatsFromGameLogs } from "@/app/actions/player-stats"
+import { fetchAllPlayerStatsFromGameLogs, fetchAllPlayersAcrossSeasons } from "@/app/actions/player-stats"
 import type { PlayerStatsFromGameLogs } from "@/lib/types"
 import { ChevronDown } from 'lucide-react'
 import { LeagueLoadingScreen, LeagueSpinner } from "@/components/ui/league-spinner"
@@ -730,11 +730,15 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
       console.log(`=== LOADING PLAYERS FOR TEAM: ${selectedTeam.player_team_name} ===`)
       setIsLoading(true)
       try {
-        // Filter from all players (both RS and PO) for the selected team
-        const filteredPlayers = allPlayers.filter(
-          (player) => player.player_team_code === selectedTeam.player_team_code && player.phase === "Regular Season", // Show regular season players in team selection
+        // OPTIMIZED: Use server-side filtering instead of client-side filtering
+        console.log(`Fetching players for team ${selectedTeam.player_team_code} using server-side filtering...`)
+        const filteredPlayers = await fetchTeamPlayerStatsFromGameLogs(
+          selectedTeam.player_team_code,
+          currentSeason,
+          "Regular Season",
+          league
         )
-        console.log(`Found ${filteredPlayers.length} players for team ${selectedTeam.player_team_name}`)
+        console.log(`Server returned ${filteredPlayers.length} players for team ${selectedTeam.player_team_name}`)
 
         if (filteredPlayers.length > 0) {
           console.log("Sample players:")
@@ -761,7 +765,7 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     }
 
     loadPlayers()
-  }, [selectedTeam, allPlayers])
+  }, [selectedTeam, currentSeason, league])
 
   // Function to load player data when a player is selected
   const loadPlayerData = async (player: PlayerStatsFromGameLogs) => {
@@ -813,26 +817,16 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     try {
       console.log(`Loading year-over-year stats for player: ${player.player_name}`)
 
-      // Fetch stats for all available seasons (2023, 2024, etc.)
-      const seasons = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025] // Add more seasons as needed
-      const allSeasonStats: PlayerStatsFromGameLogs[] = []
-
-      for (const season of seasons) {
-        try {
-          // Fetch regular season stats for each season
-          const seasonStats = await fetchAllPlayerStatsFromGameLogs(season, "Regular Season", league)
-          const playerSeasonStats = seasonStats.find((p) => p.player_name === player.player_name)
-
-          if (playerSeasonStats) {
-            allSeasonStats.push({
-              ...playerSeasonStats,
-              season: season, // Ensure season is included
-            })
-          }
-        } catch (error) {
-          console.log(`No data found for ${player.player_name} in ${season} season`)
-        }
-      }
+      // OPTIMIZED: Fetch all players across all seasons in one call, then filter
+      console.log("Fetching all players across all seasons for comparison...")
+      const allPlayersAllSeasons = await fetchAllPlayersAcrossSeasons(league)
+      console.log(`Loaded ${allPlayersAllSeasons.length} total player records across all seasons`)
+      
+      // Filter for this specific player across all seasons
+      const allSeasonStats = allPlayersAllSeasons.filter(
+        (p) => p.player_name === player.player_name && p.phase === "Regular Season"
+      )
+      console.log(`Found ${allSeasonStats.length} seasons of data for ${player.player_name}`)
 
       // Sort by season (most recent first)
       allSeasonStats.sort((a, b) => (b.season || 0) - (a.season || 0))

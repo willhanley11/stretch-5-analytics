@@ -3,13 +3,13 @@ import React from "react"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ShootingProfileTable } from "@/components/shooting-profile-table"
-import { fetchPlayerStatsFromGameLogs } from "@/app/actions/standings"
 
 import {
   fetchTeamSchedule,
   fetchTeamGameLogs,
   fetchTeamAdvancedStatsByTeamCode,
   fetchLeagueAveragesPrecalculated,
+  fetchTeamPlayerStatsFromGameLogs,
 } from "@/app/actions/standings"
 import { ChevronDown } from "lucide-react"
 import BasketballShotChart from "./basketball-shot-chart-team"
@@ -357,15 +357,22 @@ export function TeamDetailsTab({
   useEffect(() => {
     console.log("Season changed, resetting all phase filters to Regular Season")
     console.log("Previous selectedGameLogPhase:", selectedGameLogPhase)
-    // Force a change by setting to something else first, then to Regular
+    // Reset other filters immediately
+    setSelectedScheduleFilter("regular")
+    setSelectedTeamReportPhase("RS")
+    
+    // Force a change by setting to a temporary value first, then to Regular
+    // This ensures the useEffect that depends on selectedGameLogPhase will trigger
     setSelectedGameLogPhase("_RESETTING_")
-    setTimeout(() => {
-      setSelectedGameLogPhase("Regular")
-      setSelectedScheduleFilter("regular")
-      setSelectedTeamReportPhase("RS")
-      console.log("Reset selectedGameLogPhase to: Regular")
-    }, 0)
   }, [selectedSeason])
+
+  // Reset selectedGameLogPhase to Regular when component is ready after season change
+  useEffect(() => {
+    if (isComponentReady && selectedGameLogPhase === "_RESETTING_") {
+      console.log("Component ready, setting selectedGameLogPhase to Regular")
+      setSelectedGameLogPhase("Regular")
+    }
+  }, [isComponentReady, selectedGameLogPhase])
 
   // Reset filters to Regular Season if playoff data becomes unavailable
   useEffect(() => {
@@ -839,35 +846,39 @@ export function TeamDetailsTab({
     return baseStat // Default to averages (original column names)
   }
 
-  // Fetch pre-calculated player stats for the team
+  // Fetch ALL player stats for the team (both Regular Season and Playoffs) - Independent loading
   useEffect(() => {
-    const loadTeamPlayerStats = async () => {
+    const loadAllTeamPlayerStats = async () => {
+      // Start loading immediately when we have basic info, don't wait for isComponentReady
       if (selectedTeam && selectedSeason) {
         setIsTeamPlayerStatsLoading(true)
         try {
           const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
 
           if (teamCode) {
-            // Convert phase selection to database phase format
-            let dbPhase = "Regular Season"
-            console.log("Loading player stats with selectedGameLogPhase:", selectedGameLogPhase)
-            if (selectedGameLogPhase === "Regular") {
-              dbPhase = "Regular Season"
-            } else if (selectedGameLogPhase === "Playoffs") {
-              dbPhase = "Playoffs"
-            }
-            console.log("Converted to dbPhase:", dbPhase)
+            console.log("Loading ALL player stats independently for:", selectedTeam, "Season:", selectedSeason)
+            
+            // OPTIMIZED: Use team-specific function for server-side filtering
+            console.log("Using optimized team-specific player stats fetching")
+            
+            // Fetch player stats for BOTH Regular Season and Playoffs for THIS TEAM ONLY
+            const [regularSeasonStats, playoffStats] = await Promise.all([
+              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Regular Season", league).catch(() => []),
+              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Playoffs", league).catch(() => [])
+            ])
 
-            // Fetch all player stats for this season/phase/league
-            const allPlayerStats = await fetchPlayerStatsFromGameLogs(selectedSeason, dbPhase, league)
+            // Combine both datasets (already filtered by team on server)
+            const teamPlayersOnly = [...regularSeasonStats, ...playoffStats]
 
-            // Filter to only players from the selected team
-            const teamPlayersOnly = allPlayerStats.filter((player) => player.player_team_code === teamCode)
-
-            console.log("Team player stats loaded:", teamPlayersOnly.length, "players")
+            console.log("Team player stats loaded independently:", teamPlayersOnly.length, "players (all phases)")
             setTeamPlayerStats(teamPlayersOnly)
+            
+            // Set initial phase to Regular if not already set
+            if (selectedGameLogPhase === "_RESETTING_") {
+              setSelectedGameLogPhase("Regular")
+            }
           } else {
-            console.warn("No team code found for:", selectedTeam)
+            console.warn("No team code found for player stats:", selectedTeam)
             setTeamPlayerStats([])
           }
         } catch (error) {
@@ -876,16 +887,24 @@ export function TeamDetailsTab({
         } finally {
           setIsTeamPlayerStatsLoading(false)
         }
+      } else {
+        // Clear data if requirements not met
+        setTeamPlayerStats([])
+        setIsTeamPlayerStatsLoading(false)
       }
     }
 
-    loadTeamPlayerStats()
-  }, [selectedTeam, selectedSeason, selectedGameLogPhase, league])
+    loadAllTeamPlayerStats()
+  }, [selectedTeam, selectedSeason, league]) // Removed isComponentReady dependency
+
 
   // Helper functions to check data availability for each section
   const hasTeamReportPlayoffData = () => {
-    // Check if teamAdvancedStats has playoffs data
-    return teamAdvancedStats && teamAdvancedStats.phase === "Playoffs"
+    // Check if scheduleData has playoff games (if team made playoffs, they should have advanced stats)
+    return scheduleData && scheduleData.some(game => {
+      const phase = game.phase || "RS"
+      return ["PI", "PO", "FF", "8F", "4F", "2F", "Final"].includes(phase)
+    })
   }
 
   const hasSchedulePlayoffData = () => {
@@ -897,11 +916,10 @@ export function TeamDetailsTab({
   }
 
   const hasPlayerStatsPlayoffData = () => {
-    // Check if gameLogsData has any playoff games for this team
-    return gameLogsData && gameLogsData.some(log => {
-      const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
-      return log.player_team_code === teamCode && log.phase === "Playoffs"
-    })
+    // Check if we have actual playoff player stats loaded
+    return teamPlayerStats && teamPlayerStats.some(player => 
+      player.phase === "Playoffs"
+    )
   }
 
   // Update the team color usage throughout the component
@@ -2126,9 +2144,19 @@ export function TeamDetailsTab({
                         </thead>
                         <tbody>
                         {(() => {
-                          const teamPlayerStatsFiltered = teamPlayerStats.filter(
-                            (player) => player.player_name !== "Total" && player.player_name !== "TOTAL",
-                          )
+                          // Filter by phase and exclude totals
+                          const phaseToFilter = selectedGameLogPhase === "Regular" ? "Regular Season" : 
+                                              selectedGameLogPhase === "Playoffs" ? "Playoffs" : "Regular Season"
+                          
+                          console.log("Filtering by phase:", phaseToFilter, "selectedGameLogPhase:", selectedGameLogPhase)
+                          
+                          const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
+                            const matchesPhase = player.phase === phaseToFilter
+                            const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
+                            return matchesPhase && isNotTotal
+                          })
+                          
+                          console.log("After filtering by phase and totals:", teamPlayerStatsFiltered.length)
                           
                           return teamPlayerStatsFiltered
                             .sort((a, b) => {
@@ -2360,10 +2388,15 @@ export function TeamDetailsTab({
                         <tbody>
                       {/* Individual player rows */}
                       {(() => {
-                        // Use pre-calculated player stats instead of calculating from game logs
-                        const teamPlayerStatsFiltered = teamPlayerStats.filter(
-                          (player) => player.player_name !== "Total" && player.player_name !== "TOTAL",
-                        )
+                        // Filter by phase and exclude totals
+                        const phaseToFilter = selectedGameLogPhase === "Regular" ? "Regular Season" : 
+                                            selectedGameLogPhase === "Playoffs" ? "Playoffs" : "Regular Season"
+                        
+                        const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
+                          const matchesPhase = player.phase === phaseToFilter
+                          const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
+                          return matchesPhase && isNotTotal
+                        })
 
                         // New approach: collect actual displayed values for each column
                         const getColumnValues = (columnIndex: number) => {
@@ -2397,6 +2430,20 @@ export function TeamDetailsTab({
                               default: return 0
                             }
                           }).filter(val => !isNaN(val))
+                        }
+
+                        // Show loading spinner if still loading
+                        if (isTeamPlayerStatsLoading) {
+                          return (
+                            <tr>
+                              <td colSpan={24} className="text-center py-12">
+                                <div className="flex items-center justify-center space-x-2">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                  <span className="text-gray-500">Loading player statistics...</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
                         }
 
                         if (teamPlayerStatsFiltered.length === 0) {
