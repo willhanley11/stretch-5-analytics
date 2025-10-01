@@ -2072,24 +2072,68 @@ export function TeamDetailsTab({
                 </div>
 
                 {/* Player stats table */}
-                <div className="overflow-x-auto relative rounded-b-lg ">
-                  <table className="min-w-full text-[9px] md:text-[11px] border-collapse md:min-w-[1400px]">
-                    {/* Table header - remove team column */}
-                    <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-4 md:border-b-2 border-gray-700">
-                      <tr className="bg-gray-50 h-6 ">
-                        <th
-                          className={`bg-gray-50 text-left py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300 md:min-w-[160px] shadow-lg sticky left-0 z-20`}
-                          onClick={() => handlePlayerColumnSort("player_name")}
-                        >
-                          <div className="flex items-center text-[9px] md:text-[11px]">
-                            Player
-                          </div>
-                        </th>
-                        <th
-                          className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                          onClick={() => handlePlayerColumnSort("games_played")}
-                        >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                <div className="relative rounded-b-lg">
+                  <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr]">
+                    {/* Fixed Player Column */}
+                    <div className="bg-white border-r-2 border-gray-800 relative z-10">
+                      <table className="w-full text-[9px] md:text-[11px] border-collapse rounded-none" style={{borderSpacing: 0}}>
+                        <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-4 md:border-b-2 border-gray-700">
+                          <tr className="bg-gray-50 h-6 md:h-8">
+                            <th
+                              className="bg-gray-50 text-left py-1.5 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                              onClick={() => handlePlayerColumnSort("player_name")}
+                            >
+                              <div className="flex items-center text-[11px] md:text-xs">
+                                Player
+                              </div>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {(() => {
+                          const teamPlayerStatsFiltered = teamPlayerStats.filter(
+                            (player) => player.player_name !== "Total" && player.player_name !== "TOTAL",
+                          )
+                          
+                          return teamPlayerStatsFiltered
+                            .sort((a, b) => {
+                              const column = getColumnName(playerSortColumnLocal)
+                              const direction = playerSortDirectionLocal
+                              
+                              if (direction === "asc") {
+                                return (a[column] || 0) - (b[column] || 0)
+                              } else {
+                                return (b[column] || 0) - (a[column] || 0)
+                              }
+                            })
+                            .map((player, index) => (
+                              <tr
+                                key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
+                                className="h-5 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
+                                style={{height: '20px'}}
+                              >
+                                <td className="text-left py-0.5 px-0.5 md:py-1 px-1 font-medium bg-light-beige group-hover:bg-blue-50 transition-colors duration-150">
+                                  <div className="flex items-center">
+                                    <span className="text-[9px] md:text-[11px]">{player.player_name}</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                        })()}
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    {/* Scrollable Stats Section */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-[9px] md:text-[11px] border-collapse rounded-none md:min-w-[1200px]" style={{borderSpacing: 0}}>
+                        <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-4 md:border-b-2 border-gray-700">
+                          <tr className="bg-gray-50 h-6 md:h-8">
+                            <th
+                              className="text-center py-1 md:py-1.5 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              onClick={() => handlePlayerColumnSort("games_played")}
+                            >
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             GP {renderSortIndicator("games_played")}
                           </div>
                         </th>
@@ -2097,7 +2141,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("games_started")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             GS {renderSortIndicator("games_started")}
                           </div>
                         </th>
@@ -2105,7 +2149,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("minutes_played")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             MIN {renderSortIndicator("minutes_played")}
                           </div>
                         </th>
@@ -2113,7 +2157,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("points_scored")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             PTS {renderSortIndicator("points_scored")}
                           </div>
                         </th>
@@ -2121,7 +2165,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("two_pointers_made")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             2PM {renderSortIndicator("two_pointers_made")}
                           </div>
                         </th>
@@ -2129,7 +2173,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             2PA {renderSortIndicator("two_pointers_attempted")}
                           </div>
                         </th>
@@ -2137,7 +2181,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             2P% {renderSortIndicator("two_pointers_percentage")}
                           </div>
                         </th>
@@ -2145,7 +2189,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("three_pointers_made")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             3PM {renderSortIndicator("three_pointers_made")}
                           </div>
                         </th>
@@ -2153,7 +2197,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             3PA {renderSortIndicator("three_pointers_attempted")}
                           </div>
                         </th>
@@ -2161,7 +2205,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             3P% {renderSortIndicator("three_pointers_percentage")}
                           </div>
                         </th>
@@ -2169,7 +2213,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("free_throws_made")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             FTM {renderSortIndicator("free_throws_made")}
                           </div>
                         </th>
@@ -2177,7 +2221,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("free_throws_attempted")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             FTA {renderSortIndicator("free_throws_attempted")}
                           </div>
                         </th>
@@ -2185,7 +2229,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("free_throws_percentage")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             FT% {renderSortIndicator("free_throws_percentage")}
                           </div>
                         </th>
@@ -2193,7 +2237,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("offensive_rebounds")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             OR {renderSortIndicator("offensive_rebounds")}
                           </div>
                         </th>
@@ -2201,7 +2245,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("defensive_rebounds")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             DR {renderSortIndicator("defensive_rebounds")}
                           </div>
                         </th>
@@ -2209,7 +2253,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("total_rebounds")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             TR {renderSortIndicator("total_rebounds")}
                           </div>
                         </th>
@@ -2217,7 +2261,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("assists")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             AST {renderSortIndicator("assists")}
                           </div>
                         </th>
@@ -2225,7 +2269,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("steals")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             STL {renderSortIndicator("steals")}
                           </div>
                         </th>
@@ -2233,7 +2277,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("turnovers")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             TO {renderSortIndicator("turnovers")}
                           </div>
                         </th>
@@ -2241,7 +2285,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("blocks")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             BLK {renderSortIndicator("blocks")}
                           </div>
                         </th>
@@ -2249,7 +2293,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("blocks_against")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             BLKA {renderSortIndicator("blocks_against")}
                           </div>
                         </th>
@@ -2257,7 +2301,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("fouls_commited")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             FC {renderSortIndicator("fouls_commited")}
                           </div>
                         </th>
@@ -2265,7 +2309,7 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                           onClick={() => handlePlayerColumnSort("fouls_drawn")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             FD {renderSortIndicator("fouls_drawn")}
                           </div>
                         </th>
@@ -2273,13 +2317,13 @@ export function TeamDetailsTab({
                           className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                           onClick={() => handlePlayerColumnSort("pir")}
                         >
-                          <div className="flex items-center justify-center text-[8px] md:text-[10px]">
+                          <div className="flex items-center justify-center text-[11px] md:text-xs">
                             PIR {renderSortIndicator("pir")}
                           </div>
                         </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                          </tr>
+                        </thead>
+                        <tbody>
                       {/* Individual player rows */}
                       {(() => {
                         // Use pre-calculated player stats instead of calculating from game logs
@@ -2365,13 +2409,8 @@ export function TeamDetailsTab({
                               <tr
                                 key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
                                 className="h-5 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
+                                style={{height: '20px'}}
                               >
-                                <td className="text-left py-0.5 px-1 font-medium border-r border-gray-300 min-w-[140px] sticky left-0 bg-light-beige z-10 group-hover:bg-blue-50 transition-colors duration-150 shadow-sm">
-                                  <div className="flex items-center">
-                                    
-                                    <span className="text-[9px] md:text-[11px]">{player.player_name}</span>
-                                  </div>
-                                </td>
                                 <td
                                   className="text-center py-0.5 px-0.5 md: py-1 px-1 font-medium border-r border-gray-300"
                                   style={getSubtleConditionalStyle(
@@ -2733,8 +2772,10 @@ export function TeamDetailsTab({
                           </tr>
                         )
                       })()}
-                    </tbody>
-                  </table>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
