@@ -176,6 +176,13 @@ export function TeamDetailsTab({
   const [isTeamShotDataLoading, setIsTeamShotDataLoading] = useState(true)
 
   const [isShotDataLoading, setIsShotDataLoading] = useState(true)
+
+  // Cache for team codes to prevent duplicate API calls
+  const [teamCodeCache, setTeamCodeCache] = useState<Record<string, string | null>>({})
+  
+  // Shared team code state to prevent multiple calls
+  const [currentTeamCode, setCurrentTeamCode] = useState<string | null>(null)
+  const [isTeamCodeLoading, setIsTeamCodeLoading] = useState(false)
   const [isPlayerStatsLoading, setIsPlayerStatsLoading] = useState(true)
   const [isComponentReady, setIsComponentReady] = useState(false)
 
@@ -224,24 +231,62 @@ export function TeamDetailsTab({
     return teamAdvancedStats.pace
   }
 
-  // Create a more robust teamcode lookup that works across seasons
-  const getTeamCodeForSeason = (teamName: string, season: number) => {
+  // Create a more robust teamcode lookup that works across seasons with caching
+  const getTeamCodeForSeason = async (teamName: string, season: number): Promise<string | null> => {
+    const cacheKey = `${teamName}-${season}`
+    
+    // Check cache first
+    if (teamCodeCache[cacheKey] !== undefined) {
+      console.log(`getTeamCodeForSeason (cached): ${teamName} for season ${season} -> ${teamCodeCache[cacheKey] || 'NOT FOUND'}`)
+      return teamCodeCache[cacheKey]
+    }
+
     // First try the current mapping
     let teamCode = teamNameToCode[teamName]
 
     if (!teamCode) {
       // If not found, try to find the teamcode from the current season's team stats
-      const currentTeamData = teamStats.find((team) => team.name === teamName && team.season === selectedSeason)
+      const currentTeamData = teamStats.find((team) => team.name === teamName && team.season === season)
       if (currentTeamData) {
         teamCode = currentTeamData.teamcode
       }
     }
 
+    // If still not found, query the player stats database directly
+    if (!teamCode) {
+      try {
+        const response = await fetch('/api/get-team-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            teamName,
+            season,
+            league,
+            phase: 'Regular Season'
+          })
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          teamCode = data.teamCode
+        }
+      } catch (error) {
+        console.error('Error fetching team code from database:', error)
+      }
+    }
+
+    // Cache the result (including null values to prevent repeated failed requests)
+    setTeamCodeCache(prev => ({
+      ...prev,
+      [cacheKey]: teamCode
+    }))
+
+    console.log(`getTeamCodeForSeason: ${teamName} for season ${season} -> ${teamCode || 'NOT FOUND'}`)
     return teamCode
   }
 
-  const isAnyDataLoading =
-    !isComponentReady || isLoading || isScheduleLoading || isGameLogsLoading || isAdvancedStatsLoading
+  // Create a more comprehensive loading state that prevents flashing
+  const isInitialDataLoading = !isComponentReady || isLoading || isTeamCodeLoading
 
   // Add this helper function near the top of the component, after the other helper functions
   const getSelectedTeamCode = () => {
@@ -344,6 +389,19 @@ export function TeamDetailsTab({
       }
     })
   }
+
+  // Comprehensive loading state logic (placed after all state declarations)
+  // Include team report data (advanced stats, schedule) and core player stats
+  const hasEssentialData = selectedTeam && 
+    teamStats.length > 0 && 
+    teamPlayerStats.length > 0 && 
+    teamAdvancedStats && 
+    scheduleData.length > 0 &&
+    !isAdvancedStatsLoading
+  
+  const isTransitionLoading = selectedGameLogPhase === "_RESETTING_" || isTeamCodeLoading
+  const isAnyDataLoading = !hasEssentialData || isInitialDataLoading || isTransitionLoading
+
   useEffect(() => {
     // Component is ready when we have the essential dependencies
     if (selectedTeam && selectedSeason && teamStats.length > 0) {
@@ -374,6 +432,26 @@ export function TeamDetailsTab({
     }
   }, [isComponentReady, selectedGameLogPhase])
 
+  // Centralized team code fetcher to prevent multiple simultaneous calls
+  useEffect(() => {
+    const loadTeamCode = async () => {
+      if (selectedTeam && selectedSeason && isComponentReady && !isTeamCodeLoading) {
+        setIsTeamCodeLoading(true)
+        try {
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
+          setCurrentTeamCode(teamCode)
+        } catch (error) {
+          console.error('Error loading team code:', error)
+          setCurrentTeamCode(null)
+        } finally {
+          setIsTeamCodeLoading(false)
+        }
+      }
+    }
+
+    loadTeamCode()
+  }, [selectedTeam, selectedSeason, isComponentReady])
+
   // Reset filters to Regular Season if playoff data becomes unavailable
   useEffect(() => {
     if (selectedTeamReportPhase === "Playoffs" && !hasTeamReportPlayoffData()) {
@@ -393,7 +471,7 @@ export function TeamDetailsTab({
       if (selectedTeam && selectedSeason && isComponentReady) {
         setIsScheduleLoading(true)
         try {
-          const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
           if (teamCode) {
             const data = await fetchTeamSchedule(teamCode, selectedSeason, league)
             setScheduleData(data)
@@ -424,7 +502,7 @@ export function TeamDetailsTab({
         setIsGameLogsLoading(true)
         try {
           // Get team code for the selected team
-          const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
 
           if (!teamCode) {
             console.warn("No team code found for:", selectedTeam)
@@ -480,7 +558,7 @@ export function TeamDetailsTab({
       if (selectedTeam && selectedSeason && isComponentReady) {
         setIsAdvancedStatsLoading(true)
         try {
-          const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
 
           if (teamCode) {
             // Fetch team-specific advanced stats
@@ -574,7 +652,7 @@ export function TeamDetailsTab({
       if (selectedTeam && selectedSeason) {
         setIsTeamShotDataLoading(true)
         try {
-          const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
 
           if (teamCode) {
             let response = await fetch(`/api/shot-data?team=${teamCode}&season=${selectedSeason}&league=${league}`)
@@ -611,18 +689,34 @@ export function TeamDetailsTab({
     loadTeamShotData()
   }, [selectedTeam, selectedSeason, teamStats, league])
 
-  // Update available teams when teamStats or selectedSeason changes
+  // Update available teams when teamStats changes
   useEffect(() => {
     if (teamStats.length > 0) {
       const teams = teamStats.map((team) => team.name)
       setAvailableTeams(teams)
 
-      // Only set first team if no team is currently selected or selected team doesn't exist
-      if (!selectedTeam || (!teams.includes(selectedTeam) && teams.length > 0)) {
+      // Only set first team if no team is currently selected
+      if (!selectedTeam) {
         setSelectedTeam(teams[0])
+        return
+      }
+
+      // Check if current team exists in new data
+      if (teams.includes(selectedTeam)) {
+        // Team exists in new data, keep it selected
+        console.log(`Preserving team selection: "${selectedTeam}"`)
+      } else if (teams.length > 0) {
+        // Current team doesn't exist in new season - delay the switch to prevent jarring transition
+        console.log(`Team "${selectedTeam}" not found in new season data, will switch to "${teams[0]}" after loading completes`)
+        
+        // Use a timeout to allow the loading screen to handle the transition smoothly
+        setTimeout(() => {
+          setSelectedTeam(teams[0])
+          console.log(`Switched to "${teams[0]}" as fallback team`)
+        }, 100) // Small delay to let loading state handle transition
       }
     }
-  }, [teamStats, selectedSeason, setSelectedTeam]) // Removed selectedTeam from dependencies
+  }, [teamStats, setSelectedTeam, selectedTeam]) // Include selectedTeam to properly handle changes
 
   useEffect(() => {
     const loadLeagueAverages = async () => {
@@ -853,7 +947,7 @@ export function TeamDetailsTab({
       if (selectedTeam && selectedSeason) {
         setIsTeamPlayerStatsLoading(true)
         try {
-          const teamCode = getTeamCodeForSeason(selectedTeam, selectedSeason)
+          const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
 
           if (teamCode) {
             console.log("Loading ALL player stats independently for:", selectedTeam, "Season:", selectedSeason)
@@ -862,15 +956,29 @@ export function TeamDetailsTab({
             console.log("Using optimized team-specific player stats fetching")
             
             // Fetch player stats for BOTH Regular Season and Playoffs for THIS TEAM ONLY
+            console.log(`Fetching both RS and Playoffs data for team ${teamCode}, season ${selectedSeason}`)
             const [regularSeasonStats, playoffStats] = await Promise.all([
-              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Regular Season", league).catch(() => []),
-              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Playoffs", league).catch(() => [])
+              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Regular Season", league).catch((err) => {
+                console.log(`No Regular Season data for ${teamCode}:`, err?.message || 'No data')
+                return []
+              }),
+              fetchTeamPlayerStatsFromGameLogs(teamCode, selectedSeason, "Playoffs", league).catch((err) => {
+                console.log(`No Playoffs data for ${teamCode}:`, err?.message || 'No data')
+                return []
+              })
             ])
 
+            console.log(`Regular Season players loaded: ${regularSeasonStats.length}`)
+            console.log(`Playoffs players loaded: ${playoffStats.length}`)
+            
             // Combine both datasets (already filtered by team on server)
             const teamPlayersOnly = [...regularSeasonStats, ...playoffStats]
 
             console.log("Team player stats loaded independently:", teamPlayersOnly.length, "players (all phases)")
+            
+            // Debug: Show what phases we actually have
+            const phases = [...new Set(teamPlayersOnly.map(p => p.phase))]
+            console.log("Available phases in loaded data:", phases)
             setTeamPlayerStats(teamPlayersOnly)
             
             // Set initial phase to Regular if not already set
@@ -917,9 +1025,19 @@ export function TeamDetailsTab({
 
   const hasPlayerStatsPlayoffData = () => {
     // Check if we have actual playoff player stats loaded
-    return teamPlayerStats && teamPlayerStats.some(player => 
+    const hasPlayoffs = teamPlayerStats && teamPlayerStats.some(player => 
       player.phase === "Playoffs"
     )
+    console.log("hasPlayerStatsPlayoffData check:", {
+      selectedTeam,
+      selectedSeason,
+      isTeamPlayerStatsLoading,
+      teamPlayerStatsLength: teamPlayerStats?.length || 0,
+      hasPlayoffs,
+      phases: teamPlayerStats ? [...new Set(teamPlayerStats.map(p => p.phase))] : [],
+      samplePlayers: teamPlayerStats?.slice(0, 2).map(p => ({name: p.player_name, phase: p.phase})) || []
+    })
+    return hasPlayoffs
   }
 
   // Update the team color usage throughout the component
@@ -2109,7 +2227,7 @@ export function TeamDetailsTab({
                       className="px-3 py-1 text-xs md:text-md border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                     >
                       <option value="Regular">Regular Season</option>
-                      {hasPlayerStatsPlayoffData() && <option value="Playoffs">Playoffs</option>}
+                      {!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() && <option value="Playoffs">Playoffs</option>}
                     </select>
 
                     {/* Stats mode selector */}
@@ -2144,6 +2262,20 @@ export function TeamDetailsTab({
                         </thead>
                         <tbody>
                         {(() => {
+                          // Skip rendering during reset state
+                          if (selectedGameLogPhase === "_RESETTING_") {
+                            return (
+                              <tr>
+                                <td colSpan={24} className="text-center py-12">
+                                  <div className="flex items-center justify-center space-x-2">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                    <span>Loading player statistics...</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          }
+                          
                           // Filter by phase and exclude totals
                           const phaseToFilter = selectedGameLogPhase === "Regular" ? "Regular Season" : 
                                               selectedGameLogPhase === "Playoffs" ? "Playoffs" : "Regular Season"
@@ -2388,6 +2520,20 @@ export function TeamDetailsTab({
                         <tbody>
                       {/* Individual player rows */}
                       {(() => {
+                        // Skip rendering during reset state
+                        if (selectedGameLogPhase === "_RESETTING_") {
+                          return (
+                            <tr>
+                              <td colSpan={24} className="text-center py-12">
+                                <div className="flex items-center justify-center space-x-2">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                  <span>Loading player statistics...</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        }
+                        
                         // Filter by phase and exclude totals
                         const phaseToFilter = selectedGameLogPhase === "Regular" ? "Regular Season" : 
                                             selectedGameLogPhase === "Playoffs" ? "Playoffs" : "Regular Season"
@@ -2432,8 +2578,8 @@ export function TeamDetailsTab({
                           }).filter(val => !isNaN(val))
                         }
 
-                        // Show loading spinner if still loading
-                        if (isTeamPlayerStatsLoading) {
+                        // Show loading spinner if still loading (but not during initial load or reset)
+                        if (isTeamPlayerStatsLoading && !isInitialDataLoading && selectedGameLogPhase !== "_RESETTING_") {
                           return (
                             <tr>
                               <td colSpan={24} className="text-center py-12">
