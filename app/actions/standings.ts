@@ -22,7 +22,6 @@ import {
   getUniqueTeamCodesFromGameLogs,
   getTeamGameLogsWithOpponent,
   getAllTeamGameLogsWithOpponent,
-  getGameLogsByGamecode,
 } from "@/lib/db"
 import { neon } from "@neondatabase/serverless"
 import type { EuroleaguePlayerStats, EuroleagueGameLog, PlayerStatsFromGameLogs } from "@/lib/db"
@@ -458,29 +457,5 @@ export async function fetchLeagueAveragesPrecalculated(
   } catch (error) {
     console.error("Error in fetchLeagueAveragesPrecalculated:", error)
     return null
-  }
-}
-
-// NEW: Fetch game logs by season and gamecode
-export async function fetchGameLogsByGamecode(
-  season: number,
-  gamecode: string,
-  league = "euroleague",
-): Promise<EuroleagueGameLog[]> {
-  console.log("=== fetchGameLogsByGamecode CALLED ===")
-  console.log("Fetching game logs for gamecode:", gamecode, "season:", season, "league:", league)
-
-  try {
-    const logs = await getGameLogsByGamecode(season, gamecode, league)
-    console.log("Server action received game logs:", logs.length)
-
-    if (logs.length > 0) {
-      console.log("First game log from server action:", logs[0])
-    }
-
-    return logs
-  } catch (error) {
-    console.error("Error in fetchGameLogsByGamecode server action:", error)
-    return []
   }
 }
