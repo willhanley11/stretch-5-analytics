@@ -308,6 +308,7 @@ function YamagataTeamStats({
   // Wrapped setSelectedTeam with debugging
   const setSelectedTeam = (teamName: string) => {
     console.log("YamagataTeamStats: setSelectedTeam called with:", teamName, "from:", selectedTeam)
+    console.log("YamagataTeamStats: activeTab:", activeTab)
     setSelectedTeamInternal(teamName)
   }
   // Add this new state for the player stats view mode
@@ -457,19 +458,26 @@ function YamagataTeamStats({
           console.log("Team stats fetched:", stats.length, "teams for league:", currentLeague)
           setTeamStats(stats)
 
-          // Only auto-select if truly no team is selected or selected team doesn't exist in new data
+          // Auto-selection logic: prioritize initialTeam, then preserve current selection, then fallback to first team
           if (stats.length > 0) {
-            const teamExists = stats.some((team) => team.name === selectedTeam)
-            if (!teamExists) {
-              // Only reset if the current team doesn't exist in the new data
-              const teamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
-              if (teamName && stats.some((team) => team.name === teamName)) {
-                console.log("Team doesn't exist in new data, using initialTeam:", teamName)
-                setSelectedTeam(teamName)
-              } else if (!selectedTeam || selectedTeam === "" || selectedTeam === "Olympiacos") {
-                // Only set first team if no team is selected or it's the default
-                console.log("Auto-selecting first team:", stats[0].name)
-                setSelectedTeam(stats[0].name)
+            // First check if we have an initialTeam that exists in the data
+            const initialTeamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
+            if (initialTeamName && stats.some((team) => team.name === initialTeamName)) {
+              console.log("Setting team from initialTeam (landing page):", initialTeamName)
+              setSelectedTeam(initialTeamName)
+            } else {
+              // Check if current selected team exists in new data
+              const teamExists = stats.some((team) => team.name === selectedTeam)
+              if (!teamExists) {
+                // Only fallback to first team if no valid team is selected
+                if (!selectedTeam || selectedTeam === "" || selectedTeam === "Olympiacos") {
+                  console.log("Auto-selecting first team:", stats[0].name)
+                  setSelectedTeam(stats[0].name)
+                } else {
+                  console.log("Current team doesn't exist in new data, keeping:", selectedTeam)
+                }
+              } else {
+                console.log("Keeping existing team selection:", selectedTeam)
               }
             }
           }

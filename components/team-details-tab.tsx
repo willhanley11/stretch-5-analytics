@@ -403,10 +403,23 @@ export function TeamDetailsTab({
   const isAnyDataLoading = !hasEssentialData || isInitialDataLoading || isTransitionLoading
 
   useEffect(() => {
-    // Component is ready when we have the essential dependencies
+    // Component is ready when we have the essential dependencies  
+    console.log("TeamDetailsTab: Component readiness check:", { 
+      selectedTeam, 
+      selectedSeason, 
+      teamStatsLength: teamStats.length,
+      teamStatsAvailable: teamStats.length > 0,
+      ready: selectedTeam && selectedSeason && teamStats.length > 0
+    })
     if (selectedTeam && selectedSeason && teamStats.length > 0) {
+      console.log("TeamDetailsTab: Setting component ready with:", { selectedTeam, selectedSeason })
       setIsComponentReady(true)
     } else {
+      console.log("TeamDetailsTab: Component not ready, missing:", { 
+        hasSelectedTeam: !!selectedTeam, 
+        hasSelectedSeason: !!selectedSeason, 
+        hasTeamStats: teamStats.length > 0 
+      })
       setIsComponentReady(false)
     }
   }, [selectedTeam, selectedSeason, teamStats])
@@ -730,7 +743,7 @@ export function TeamDetailsTab({
   // Update the formatStatValue function to handle nulls better and add a special format for league averages
   const formatStatValue = (value: number | undefined | null, decimals = 1) => {
     if (value === null || value === undefined || isNaN(value)) return "-"
-    return value
+    return Number(value).toFixed(decimals)
   }
 
   // Format rate values with specified decimal places
