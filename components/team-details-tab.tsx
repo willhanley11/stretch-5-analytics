@@ -1560,8 +1560,8 @@ export function TeamDetailsTab({
                         onChange={(e) => setSelectedTeamReportPhase(e.target.value)}
                         className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                       >
-                        <option value="RS">Regular Season</option>
-                        {hasTeamReportPlayoffData() && <option value="Playoffs">Playoffs</option>}
+                        <option value="RS">RS</option>
+                        {hasTeamReportPlayoffData() && <option value="Playoffs">PO</option>}
                       </select>
                     </div>
                   </div>
@@ -2128,8 +2128,8 @@ export function TeamDetailsTab({
                         onChange={(e) => setSelectedScheduleFilter(e.target.value)}
                         className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                       >
-                        <option value="regular">Regular Season</option>
-                        {hasSchedulePlayoffData() && <option value="playoffs">Playoffs</option>}
+                        <option value="regular">RS</option>
+                        {hasSchedulePlayoffData() && <option value="playoffs">PO</option>}
                       </select>
                       <div className="hidden sm:block text-sm text-gray-600 font-medium mt-2">
                         {(() => {
@@ -2239,17 +2239,17 @@ export function TeamDetailsTab({
                       onChange={(e) => setSelectedGameLogPhase(e.target.value)}
                       className="px-3 py-1 text-xs md:text-md border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                     >
-                      <option value="Regular">Regular Season</option>
-                      {!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() && <option value="Playoffs">Playoffs</option>}
+                      <option value="Regular">RS</option>
+                      {!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() && <option value="Playoffs">PO</option>}
                     </select>
 
                     {/* Stats mode selector */}
                     <select
                       value={playerStatsMode}
                       onChange={(e) => setPlayerStatsMode(e.target.value)}
-                      className="px-3 py-1 text-xs md:text-md border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
+                      className="px-1 py-1 text-xs md:text-md text-center border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
                     >
-                      <option value="per_game">Per Game</option>
+                      <option value="per_game">AVG</option>
                       <option value="per_40">Per 40</option>
                     </select>
                   </div>
