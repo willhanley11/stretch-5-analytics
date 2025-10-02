@@ -209,26 +209,48 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     // fetchSeasons()
   }, [])
 
-  // Close dropdowns when clicking outside
+  // Enhanced click-outside functionality for dropdowns
   useEffect(() => {
+    // Only add event listeners when dropdowns are actually open (performance optimization)
+    const isAnyDropdownOpen = isSeasonDropdownOpen || isLeagueDropdownOpen || isUserMenuOpen || isMobileSeasonOpen
+
+    if (!isAnyDropdownOpen) return
+
     function handleClickOutside(event: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+
+      // Check each dropdown individually and close if click is outside
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
         setIsUserMenuOpen(false)
       }
-      if (seasonDropdownRef.current && !seasonDropdownRef.current.contains(event.target as Node)) {
+      if (seasonDropdownRef.current && !seasonDropdownRef.current.contains(target)) {
         setIsSeasonDropdownOpen(false)
       }
-      if (leagueDropdownRef.current && !leagueDropdownRef.current.contains(event.target as Node)) {
+      if (leagueDropdownRef.current && !leagueDropdownRef.current.contains(target)) {
         setIsLeagueDropdownOpen(false)
       }
-      if (mobileSeasonRef.current && !mobileSeasonRef.current.contains(event.target as Node)) {
+      if (mobileSeasonRef.current && !mobileSeasonRef.current.contains(target)) {
         setIsMobileSeasonOpen(false)
       }
     }
 
+    function handleEscapeKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        closeAllDropdowns()
+      }
+    }
+
+    // Add both mousedown and click event listeners for more reliable detection
     document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("click", handleClickOutside)
+    document.addEventListener("keydown", handleEscapeKey)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("click", handleClickOutside)
+      document.removeEventListener("keydown", handleEscapeKey)
+    }
+  }, [isSeasonDropdownOpen, isLeagueDropdownOpen, isUserMenuOpen, isMobileSeasonOpen]) // Dependencies for proper event listener updates
 
   const checkOverlap = useCallback(() => {
     if (selectorsRef.current && navigationRef.current && rightActionsRef.current) {

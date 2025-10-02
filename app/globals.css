@@ -139,6 +139,22 @@ body {
   user-select: none;
 }
 
+/* Prevent iOS zoom on input focus */
+input[type="text"], 
+input[type="search"], 
+input[type="email"], 
+input[type="number"], 
+input[type="tel"], 
+input[type="url"], 
+input[type="password"], 
+textarea, 
+select {
+  font-size: 16px !important;
+  /* Prevent zoom on iOS while maintaining usability */
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
 /* Mobile viewport handling - Normal scrolling */
 @media screen and (max-width: 768px) {
   html {
@@ -147,6 +163,9 @@ body {
     width: 100%;
     height: auto;
     overflow-x: hidden;
+    /* Additional iOS zoom prevention */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
   
   body {
@@ -158,6 +177,35 @@ body {
     min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
+    /* Prevent iOS zoom */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Ensure all inputs have minimum 16px font size on mobile to prevent zoom */
+  input[type="text"], 
+  input[type="search"], 
+  input[type="email"], 
+  input[type="number"], 
+  input[type="tel"], 
+  input[type="url"], 
+  input[type="password"], 
+  textarea, 
+  select,
+  .search-input-mobile {
+    font-size: 16px !important;
+  }
+  
+  /* Specific styling for search inputs to prevent zoom and allow easy dismissal */
+  .search-input-mobile {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 0.375rem;
+    /* Ensure touch target is large enough for easy interaction */
+    min-height: 44px;
+    /* Prevent zoom on focus */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   
   /* Ensure landing page container has proper height */
