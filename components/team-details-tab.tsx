@@ -404,12 +404,15 @@ export function TeamDetailsTab({
 
   useEffect(() => {
     // Component is ready when we have the essential dependencies
-    if (selectedTeam && selectedSeason && teamStats.length > 0) {
+    // Don't require teamStats to be loaded - the component can function without it for initial loading
+    if (selectedTeam && selectedSeason) {
+      console.log("TeamDetailsTab: Setting component ready with:", { selectedTeam, selectedSeason })
       setIsComponentReady(true)
     } else {
+      console.log("TeamDetailsTab: Component not ready, missing:", { selectedTeam, selectedSeason })
       setIsComponentReady(false)
     }
-  }, [selectedTeam, selectedSeason, teamStats])
+  }, [selectedTeam, selectedSeason])
 
   // Reset all phase filters to Regular Season when season changes
   useEffect(() => {
@@ -435,10 +438,13 @@ export function TeamDetailsTab({
   // Centralized team code fetcher to prevent multiple simultaneous calls
   useEffect(() => {
     const loadTeamCode = async () => {
+      console.log("TeamDetailsTab: loadTeamCode triggered with:", { selectedTeam, selectedSeason, isComponentReady, isTeamCodeLoading })
       if (selectedTeam && selectedSeason && isComponentReady && !isTeamCodeLoading) {
+        console.log("TeamDetailsTab: Loading team code for:", selectedTeam, selectedSeason)
         setIsTeamCodeLoading(true)
         try {
           const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
+          console.log("TeamDetailsTab: Got team code:", teamCode)
           setCurrentTeamCode(teamCode)
         } catch (error) {
           console.error('Error loading team code:', error)
@@ -555,10 +561,13 @@ export function TeamDetailsTab({
 
   useEffect(() => {
     const loadAdvancedStats = async () => {
+      console.log("TeamDetailsTab: loadAdvancedStats triggered with:", { selectedTeam, selectedSeason, isComponentReady, selectedTeamReportPhase })
       if (selectedTeam && selectedSeason && isComponentReady) {
+        console.log("TeamDetailsTab: Loading advanced stats for:", selectedTeam, selectedSeason, selectedTeamReportPhase)
         setIsAdvancedStatsLoading(true)
         try {
           const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
+          console.log("TeamDetailsTab: Got team code for advanced stats:", teamCode)
 
           if (teamCode) {
             // Fetch team-specific advanced stats
