@@ -1989,3 +1989,38 @@ export async function getAllPlayersAcrossSeasons(
     return []
   }
 }
+
+// FUNCTION: Get game logs by season and gamecode
+export async function getGameLogsByGamecode(
+  season: number,
+  gamecode: string,
+  league = "euroleague",
+): Promise<EuroleagueGameLog[]> {
+  try {
+    console.log("=== FETCHING GAME LOGS BY GAMECODE ===")
+    console.log("Season:", season, "Gamecode:", gamecode, "League:", league)
+
+    const tables = getTableNames(league)
+    const tableName = tables.gameLogs
+
+    console.log("Using table name:", tableName)
+
+    const logs = await executeWithRetry(async () => {
+      return (await sql.query(
+        `SELECT * FROM ${tableName} 
+         WHERE season = ${season} AND gamecode = '${gamecode}'
+         ORDER BY team, is_starter DESC, player`,
+      )) as EuroleagueGameLog[]
+    })
+
+    console.log("Game logs found for gamecode:", logs.length)
+    if (logs.length > 0) {
+      console.log("Sample game log:", logs[0])
+    }
+    
+    return logs
+  } catch (error) {
+    console.error("Error fetching game logs by gamecode:", error)
+    return []
+  }
+}
