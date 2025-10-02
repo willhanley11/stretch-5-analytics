@@ -325,7 +325,8 @@ function YamagataTeamStats({
   // Add state for seasons and phases
   const [seasons, setSeasons] = useState<number[]>([2024, 2023]) // Default seasons
   const [phases, setPhases] = useState<string[]>(["RS"]) // Default phase
-  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason || 2024)
+  // Initialize with prop value, or null to wait for prop update
+  const [selectedSeason, setSelectedSeason] = useState<number>(propSelectedSeason || 0)
   const [selectedPhase, setSelectedPhase] = useState<string>("RS")
   const [teamStats, setTeamStats] = useState<EuroleagueTeamStats[]>([])
   const [teamAdvancedStats, setTeamAdvancedStats] = useState<EuroleagueTeamAdvanced | null>(null)
@@ -422,7 +423,7 @@ function YamagataTeamStats({
   // Fetch phases when selected season changes
   useEffect(() => {
     const loadPhases = async () => {
-      if (selectedSeason) {
+      if (selectedSeason > 0) {
         try {
           console.log("Fetching phases for season:", selectedSeason)
           const phasesData = await fetchPhases(selectedSeason)
@@ -444,7 +445,7 @@ function YamagataTeamStats({
   // Fetch team stats when season, phase, or league changes
   useEffect(() => {
     const loadTeamStats = async () => {
-      if (selectedSeason && selectedPhase && currentLeague) {
+      if (selectedSeason > 0 && selectedPhase && currentLeague) {
         setIsLoading(true)
         try {
           console.log("=== FETCHING TEAM STATS ===")
@@ -567,13 +568,15 @@ function YamagataTeamStats({
     if (propSelectedSeason && propSelectedSeason !== selectedSeason) {
       console.log("YamagataTeamStats - updating internal selectedSeason from", selectedSeason, "to", propSelectedSeason)
       setSelectedSeason(propSelectedSeason)
-    } else if (!propSelectedSeason) {
-      console.log("YamagataTeamStats - NOT updating selectedSeason because propSelectedSeason is falsy")
+    } else if (!propSelectedSeason && selectedSeason === 0) {
+      // If no prop is provided and we're waiting (selectedSeason is 0), set default
+      console.log("YamagataTeamStats - no prop provided, setting default season 2024")
+      setSelectedSeason(2024)
     } else {
-      console.log("YamagataTeamStats - NOT updating selectedSeason because it's already the same value")
+      console.log("YamagataTeamStats - NOT updating selectedSeason because it's already the same value or conditions not met")
     }
     console.log("=== End Season Tracking ===")
-  }, [propSelectedSeason])
+  }, [propSelectedSeason, selectedSeason])
 
   // Update the handleTabChange function
   const handleTabChange = (tab: string) => {
