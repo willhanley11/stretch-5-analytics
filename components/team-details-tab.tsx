@@ -1,6 +1,7 @@
 "use client"
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import { motion } from "framer-motion"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 
@@ -136,6 +137,119 @@ export interface EuroleagueGameLog {
   plusminus: number
   is_starter: number
   phase: string
+}
+
+// Custom Dropdown Component
+interface CustomDropdownProps {
+  value: string
+  onChange: (value: string) => void
+  options: { value: string; label: string }[]
+  className?: string
+}
+
+function CustomDropdown({ value, onChange, options, className = "" }: CustomDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node
+      
+      // Check if click is within the dropdown button
+      if (dropdownRef.current && dropdownRef.current.contains(target)) {
+        return
+      }
+      
+      // For portal dropdowns, we'll handle closing in the button click handler
+      if (isOpen) {
+        const portalElements = document.querySelectorAll('[data-portal-dropdown]')
+        for (const element of portalElements) {
+          if (element.contains(target)) {
+            return
+          }
+        }
+      }
+      
+      setIsOpen(false)
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      })
+    }
+  }, [isOpen])
+
+  const selectedOption = options.find(option => option.value === value)
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen)
+  }
+
+  const dropdownContent = isOpen ? (
+    <div 
+      data-portal-dropdown
+      className="bg-white border border-gray-300 rounded-md shadow-xl"
+      style={{ 
+        position: 'absolute',
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        zIndex: 999999,
+        backgroundColor: 'white',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onChange(option.value)
+            setIsOpen(false)
+          }}
+          className={`w-full px-2 py-1 text-[8px] sm:text-[9px] md:text-sm text-left hover:bg-gray-100 first:rounded-t-md last:rounded-b-md ${
+            value === option.value ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  ) : null
+
+  return (
+    <div className={`relative ${className}`} ref={dropdownRef}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={handleToggle}
+        className="w-full px-2 py-1 text-[8px] sm:text-[9px] md:text-sm bg-light-beige border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2 text-left flex items-center justify-between min-w-0"
+      >
+        <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{selectedOption?.label}</span>
+        <svg className="w-2 h-2 md:w-4 md:h-4 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      {typeof document !== 'undefined' && dropdownContent && createPortal(dropdownContent, document.body)}
+    </div>
+  )
 }
 
 export function TeamDetailsTab({
@@ -818,7 +932,7 @@ export function TeamDetailsTab({
     if (filteredGames.length === 0) {
       return (
         <tr>
-          <td colSpan={7} className="text-center py-8 text-black-500">
+          <td colSpan={8} className="text-center py-8 text-black-500">
             No {selectedScheduleFilter === "regular" ? "regular season" : "playoff"} games available for {selectedTeam}{" "}
             in {selectedSeason}
           </td>
@@ -875,7 +989,7 @@ export function TeamDetailsTab({
           {/* Phase header - only for special phases */}
           {showHeader && (
             <tr>
-              <td colSpan={7} className="border-b-2 border-gray-700">
+              <td colSpan={8} className="border-b-2 border-gray-700">
                 <div className="text-center font-semibold text-black-800 py-2">
                   {phaseName}
                   <div className="h-px w-full bg-slate-700 mt-1"></div>
@@ -945,6 +1059,9 @@ export function TeamDetailsTab({
                   </td>
                   <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
                     {game.record || "-"}
+                  </td>
+                  <td className="py-0.5 px-0.5 text-center text-gray-400 text-xs">
+                    +
                   </td>
                 </tr>
                 {/* Game log expansion */}
@@ -1022,7 +1139,7 @@ export function TeamDetailsTab({
 
     return (
       <tr>
-        <td colSpan={7} className="p-0">
+        <td colSpan={8} className="p-0">
           <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
             <div 
               className="p-4 pb-2 border-b-2 border-gray-300"
@@ -1942,14 +2059,15 @@ export function TeamDetailsTab({
                       <h3 className="text-md font-semibold flex items-center">Team Report</h3>
                     </div>
                     <div className="flex items-center">
-                      <select
+                      <CustomDropdown
                         value={selectedTeamReportPhase}
-                        onChange={(e) => setSelectedTeamReportPhase(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
-                      >
-                        <option value="RS">Regular Season</option>
-                        {hasTeamReportPlayoffData() && <option value="Playoffs">Playoffs</option>}
-                      </select>
+                        onChange={setSelectedTeamReportPhase}
+                        options={[
+                          { value: "RS", label: "Regular Season" },
+                          ...(hasTeamReportPlayoffData() ? [{ value: "Playoffs", label: "Playoffs" }] : [])
+                        ]}
+                        className="min-w-0"
+                      />
                     </div>
                   </div>
 
@@ -2509,14 +2627,15 @@ export function TeamDetailsTab({
                       <h3 className="text-md md:text-md font-semibold flex items-center">Schedule & Results</h3>
                     </div>
                     <div className="flex items-center gap-3">
-                      <select
+                      <CustomDropdown
                         value={selectedScheduleFilter}
-                        onChange={(e) => setSelectedScheduleFilter(e.target.value)}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
-                      >
-                        <option value="regular">RS</option>
-                        {hasSchedulePlayoffData() && <option value="playoffs">PO</option>}
-                      </select>
+                        onChange={setSelectedScheduleFilter}
+                        options={[
+                          { value: "regular", label: "Regular Season" },
+                          ...(hasSchedulePlayoffData() ? [{ value: "playoffs", label: "Playoffs" }] : [])
+                        ]}
+                        className="min-w-0"
+                      />
                       <div className="hidden sm:block text-sm text-gray-600 font-medium mt-2">
                         {(() => {
                           const filteredGames = getFilteredScheduleData()
@@ -2542,29 +2661,30 @@ export function TeamDetailsTab({
                             <col className="w-[18%] md:w-[13%]" />
                             <col className="w-[17%] md:w-[13%]" />
                             <col className="w-[15%] md:w-[14%]" />
+                            <col className="w-8" />
                           </colgroup>
                           <thead className="sticky top-0 z-10 bg-light-beige">
                             <tr className="border-b-2 border-gray-700 h-8">
-                              <th className="text-center py-1 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                <span className="hidden sm:inline">Round</span>
-                                <span className="sm:hidden">R</span>
+                              <th className="text-center py-1 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                Round
                               </th>
                               <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Date
                               </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                <span className="hidden sm:inline">Opponent</span>
-                                <span className="sm:hidden">Opp</span>
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                Opponent
                               </th>
                               <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Result
                               </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                <span className="hidden sm:inline">Location</span>
-                                <span className="sm:hidden">Loc</span>
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                Location
                               </th>
                               <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Record
+                              </th>
+                              <th className="text-center py-0.5 px-0.5 font-medium text-[10px] md:text-xs w-8">
+                                
                               </th>
                             </tr>
                           </thead>
@@ -2618,24 +2738,26 @@ export function TeamDetailsTab({
                   </div>
                   <div className="flex items-center gap-2 px-2">
                     {/* Phase selector for game logs */}
-                    <select
+                    <CustomDropdown
                       value={selectedGameLogPhase}
-                      onChange={(e) => setSelectedGameLogPhase(e.target.value)}
-                      className="px-3 py-1 text-xs md:text-md border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
-                    >
-                      <option value="Regular">RS</option>
-                      {!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() && <option value="Playoffs">PO</option>}
-                    </select>
+                      onChange={setSelectedGameLogPhase}
+                      options={[
+                        { value: "Regular", label: "Regular Season" },
+                        ...(!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() ? [{ value: "Playoffs", label: "Playoffs" }] : [])
+                      ]}
+                      className="flex-1"
+                    />
 
                     {/* Stats mode selector */}
-                    <select
+                    <CustomDropdown
                       value={playerStatsMode}
-                      onChange={(e) => setPlayerStatsMode(e.target.value)}
-                      className="px-1 py-1 text-xs md:text-md text-center border border-gray-300 rounded-md bg-light-beige focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2"
-                    >
-                      <option value="per_game">AVG</option>
-                      <option value="per_40">Per 40</option>
-                    </select>
+                      onChange={setPlayerStatsMode}
+                      options={[
+                        { value: "per_game", label: "Per Game" },
+                        { value: "per_40", label: "Per 40" }
+                      ]}
+                      className="w-[80px] sm:w-[90px] md:w-[100px]"
+                    />
                   </div>
                 </div>
 
