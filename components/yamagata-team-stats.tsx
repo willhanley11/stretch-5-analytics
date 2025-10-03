@@ -312,7 +312,7 @@ function YamagataTeamStats({
     setSelectedTeamInternal(teamName)
   }
   // Add this new state for the player stats view mode
-  const [playerStatsMode, setPlayerStatsMode] = useState("pergame") // "pergame", "per100", "total"
+  const [playerStatsMode, setPlayerStatsMode] = useState("per_game") // "per_game", "per_40"
   const [selectedStat, setSelectedStat] = useState<StatType>("points")
   const [viewMode, setViewMode] = useState<"total" | "per40">("total")
   const [trendCategory, setTrendCategory] = useState<

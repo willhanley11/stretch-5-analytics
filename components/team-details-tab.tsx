@@ -223,7 +223,7 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
             onChange(option.value)
             setIsOpen(false)
           }}
-          className={`w-full px-2 py-1 text-[8px] sm:text-[9px] md:text-sm text-left hover:bg-gray-100 first:rounded-t-md last:rounded-b-md ${
+          className={`w-full px-2 py-1 text-[10px] sm:text-[11px] md:text-sm text-left hover:bg-gray-100 first:rounded-t-md last:rounded-b-md ${
             value === option.value ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
           }`}
         >
@@ -239,9 +239,9 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
-        className="w-full px-2 py-1 text-[8px] sm:text-[9px] md:text-sm bg-light-beige border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2 text-left flex items-center justify-between min-w-0"
+        className="w-full px-2 py-2 text-[10px] sm:text-[11px] md:text-sm bg-light-beige border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm mt-2 text-left flex items-center justify-between min-w-0 min-h-[32px]"
       >
-        <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{selectedOption?.label}</span>
+        <span className="flex-1">{selectedOption?.label}</span>
         <svg className="w-2 h-2 md:w-4 md:h-4 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -2756,7 +2756,7 @@ export function TeamDetailsTab({
                         { value: "per_game", label: "Per Game" },
                         { value: "per_40", label: "Per 40" }
                       ]}
-                      className="w-[80px] sm:w-[90px] md:w-[100px]"
+                      className="w-[100px] sm:w-[110px] md:w-[120px]"
                     />
                   </div>
                 </div>
