@@ -2,6 +2,7 @@
 import React from "react"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { euroleague_team_colors } from "./yamagata-team-stats"
 
 import {
   fetchTeamSchedule,
@@ -913,15 +914,15 @@ export function TeamDetailsTab({
                   onClick={() => handleGameRowClick(game)}
                   className={`border-b border-black transition-colors cursor-pointer ${rowBgColor} ${
                     expandedGameForLogs?.id === game.id ? "bg-gray-100" : ""
-                  } ${expandedGameForLogs && expandedGameForLogs.id !== game.id ? "opacity-30" : "opacity-100"}`}
+                  } ${expandedGameForLogs && expandedGameForLogs.id !== game.id ? "opacity-30" : ""}`}
                 >
-                  <td className="py-0.5 px-1 text-center border-r border-gray-200 text-[10px] md:text-xs">
+                  <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs">
                     {game.round}
                   </td>
-                  <td className="text-center py-0.5 px-1 border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
+                  <td className="text-center py-0.5 px-0.5 border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
                     {formattedDate}
                   </td>
-                  <td className="py-0.5 px-1 border-r border-gray-200">
+                  <td className="py-0.5 px-0.5 border-r border-gray-200">
                     <div className="flex items-center justify-center md:justify-start">
                       <img
                         src={game.opponentlogo || "/placeholder.svg"}
@@ -932,17 +933,17 @@ export function TeamDetailsTab({
                       <span className="hidden md:inline text-xs truncate">{game.opponent}</span>
                     </div>
                   </td>
-                  <td className="py-0.5 px-1 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
+                  <td className="py-0.5 px-0.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                     <span
                       className={`font-medium ${isWin ? "text-green-800" : isLoss ? "text-red-800" : ""} whitespace-nowrap`}
                     >
                       {formattedResult}
                     </span>
                   </td>
-                  <td className="py-0.5 px-1 text-center border-r border-gray-200 text-[10px] md:text-xs truncate">
+                  <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs truncate">
                     {game.location}
                   </td>
-                  <td className="py-0.5 px-1 text-center border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
+                  <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
                     {game.record || "-"}
                   </td>
                 </tr>
@@ -979,8 +980,10 @@ export function TeamDetailsTab({
     // 1. Filter the game logs for the selected team
     const teamLogs = expandedGameLogsData.filter((log) => log.team === selectedGameTeam)
 
-    // 2. Separate Player Logs from Aggregate Logs
-    const filteredPlayerLogs = teamLogs.filter((log) => log.player !== "Team" && log.player !== "Total")
+    // 2. Separate Player Logs from Aggregate Logs and sort by points descending
+    const filteredPlayerLogs = teamLogs
+      .filter((log) => log.player !== "Team" && log.player !== "Total")
+      .sort((a, b) => (b.points || 0) - (a.points || 0))
     const teamTotalsLog = teamLogs.find((log) => log.player === "Team")
     const gameTotalLog = teamLogs.find((log) => log.player === "Total")
 
@@ -991,9 +994,18 @@ export function TeamDetailsTab({
     if (teamTotalsLog) finalLogs.push(teamTotalsLog)
     if (gameTotalLog) finalLogs.push(gameTotalLog)
 
+    // Get team colors based on their actual positions, not selection
+    const team1Color = euroleague_team_colors[teamCode1] || "#4b5563"  // Home team color
+    const team2Color = euroleague_team_colors[teamCode2] || "#4b5563"  // Away team color
+    
     // Determine the color for the starter row based on the selected team for a visual cue
-    // This assumes selectedGameTeam is the team code, and teamCode1/teamCode2 are set up correctly.
-    const starterRowColor = selectedGameTeam === teamCode1 ? "bg-blue-50" : "bg-red-50"
+    const teamColor = euroleague_team_colors[selectedGameTeam] || "#4b5563"
+    const starterRowStyle = {
+      backgroundColor: `${teamColor}1A`, // 10% opacity
+    }
+    const starterRowHoverStyle = {
+      backgroundColor: `${teamColor}33`, // 20% opacity
+    }
 
     // Helper function for the new table structure
     const formatStat = (value: number | string, decimals = 0) => {
@@ -1006,49 +1018,58 @@ export function TeamDetailsTab({
     const baseTableClasses = "w-full text-[9px] md:text-[11px] border-collapse rounded-none"
     const headerRowClasses = "bg-gray-50 h-10 md:h-10 border-b-2 border-gray-700"
     const bodyRowClasses =
-      "h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
+      "h-7 border-b border-gray-200 hover:shadow-sm transition-all duration-200 ease-in-out group"
 
     return (
       <tr>
         <td colSpan={7} className="p-0">
           <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
-            <div className="p-4 pb-2 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-300">
+            <div 
+              className="p-4 pb-2 border-b-2 border-gray-300"
+              style={{
+                background: `linear-gradient(to right, ${team1Color}15, #f9fafb, ${team2Color}15)`
+              }}
+            >
               {/* Game Matchup Header */}
               <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-                <div className="flex flex-col items-center gap-2 flex-1">
-                  <img
-                    src={expandedGameForLogs.teamlogo || "/placeholder.svg"}
-                    alt={`${expandedGameForLogs.team} logo`}
-                    className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                  />
+                <div className="flex flex-col items-center gap-1 flex-1">
+                  <div className="p-1 bg-white rounded-full shadow-md">
+                    <img
+                      src={expandedGameForLogs.teamlogo || "/placeholder.svg"}
+                      alt={`${expandedGameForLogs.team} logo`}
+                      className="w-10 h-10 md:w-12 md:h-12 object-contain"
+                    />
+                  </div>
                   <div className="flex flex-col items-center">
-                    <span className="font-semibold text-sm md:text-base text-center">{expandedGameForLogs.team}</span>
-                    <span className="text-xs text-gray-600">{expandedGameForLogs.location}</span>
+                    <span className="font-semibold text-xs md:text-sm text-center">{expandedGameForLogs.team}</span>
+                    <span className="text-[10px] text-gray-600">{expandedGameForLogs.location}</span>
                   </div>
                 </div>
 
                 {/* Score & Details */}
                 <div className="flex flex-col items-center px-4 min-w-[100px]">
-                  <div className="text-xl md:text-2xl font-bold font-mono">
+                  <div className="text-xl md:text-2xl font-bold font-mono bg-gray-100 px-4 py-2 rounded-lg border-2 border-gray-300 shadow-sm">
                     {expandedGameForLogs.team_score} - {expandedGameForLogs.opponent_score}
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">Round {expandedGameForLogs.round}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-[10px] text-gray-600 mt-1 bg-gray-50 px-1.5 py-0.5 rounded text-center">Round {expandedGameForLogs.round}</div>
+                  <div className="text-[10px] text-gray-500 mt-0.5 text-center">
                     {new Date(expandedGameForLogs.game_date).toLocaleDateString()}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 flex-1">
-                  <img
-                    src={expandedGameForLogs.opponentlogo || "/placeholder.svg"}
-                    alt={`${expandedGameForLogs.opponent} logo`}
-                    className="w-16 h-16 md:w-20 md:h-20 object-contain"
-                  />
+                <div className="flex flex-col items-center gap-1 flex-1">
+                  <div className="p-1 bg-white rounded-full shadow-md">
+                    <img
+                      src={expandedGameForLogs.opponentlogo || "/placeholder.svg"}
+                      alt={`${expandedGameForLogs.opponent} logo`}
+                      className="w-10 h-10 md:w-12 md:h-12 object-contain"
+                    />
+                  </div>
                   <div className="flex flex-col items-center">
-                    <span className="font-semibold text-sm md:text-base text-center">
+                    <span className="font-semibold text-xs md:text-sm text-center">
                       {expandedGameForLogs.opponent}
                     </span>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-[10px] text-gray-600">
                       {expandedGameForLogs.location === "Home" ? "Away" : "Home"}
                     </span>
                   </div>
@@ -1058,18 +1079,18 @@ export function TeamDetailsTab({
 
             <div className="p-4 bg-white">
               {/* Team Toggle - full width above stats */}
-              <div className="flex w-full border border-gray-300 overflow-hidden mb-4">
+              <div className="flex w-full border border-gray-300 rounded-lg overflow-hidden mb-4 shadow-sm">
                 {availableTeamsInGame.map((teamCode) => (
                   <div
                     key={teamCode}
                     onClick={() => handleGameTeamChange(teamCode)}
                     className={`
-                              flex-1 text-center px-4 py-2 cursor-pointer transition-all duration-150 ease-in-out
-                              font-medium text-sm
+                              flex-1 text-center px-2 py-2 cursor-pointer transition-all duration-200 ease-in-out
+                              font-semibold text-xs whitespace-nowrap overflow-hidden text-ellipsis
                               ${
                                 selectedGameTeam === teamCode
-                                  ? "bg-gray-900 text-white"
-                                  : "bg-white text-gray-700 hover:bg-gray-100"
+                                  ? "bg-gray-900 text-white shadow-inner"
+                                  : "bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md"
                               }
                           `}
                   >
@@ -1079,13 +1100,13 @@ export function TeamDetailsTab({
               </div>
 
               {/* Game Log Table */}
-              <div className="flex gap-0 border border-gray-300 overflow-hidden">
+              <div className="flex gap-0 border border-gray-300 overflow-hidden shadow-sm">
                 {/* Player Names Column */}
                 <div className="flex-shrink-0 border-r-2 border-gray-400">
                   <table className={baseTableClasses} style={{ borderSpacing: 0 }}>
-                    <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-t-2 border-gray-700">
+                    <thead className="sticky top-0 z-50 bg-gradient-to-r from-gray-100 to-gray-50 shadow-md border-t-2 border-gray-700">
                       <tr className={headerRowClasses}>
-                        <th className="text-left py-1 md:py-2 px-1.5 md:px-1.5 font-medium text-[11px] md:text-xs min-w-[120px] md:min-w-[160px]">
+                        <th className="text-left py-1 px-1 font-semibold text-[11px] md:text-xs min-w-[120px] md:min-w-[160px]">
                           Player
                         </th>
                       </tr>
@@ -1100,17 +1121,20 @@ export function TeamDetailsTab({
                         // Team and Total rows use a specific styling, others use starter/default
                         const rowStyling = isTotalRow
                           ? "font-bold bg-gray-100 hover:bg-gray-200"
-                          : `${log.is_starter ? starterRowColor : "bg-white"}`
+                          : "bg-white"
+                        const rowStyle = {}
                         const fontStyling = isTotalRow ? "font-bold" : "font-medium"
 
                         return (
                           <tr
                             key={`${log.player_id || log.player}-${index}`}
                             className={`${bodyRowClasses} ${rowStyling} ${isTotalRow ? "border-t-2 border-gray-400" : ""}`}
+                            style={rowStyle}
                           >
-                            <td className={`text-left py-0 px-1 md:py-1 md:px-1.5 ${fontStyling}`}>
-                              <div className="flex items-center">
+                            <td className={`text-left py-0.5 px-1 ${fontStyling}`}>
+                              <div className="flex items-center gap-1">
                                 <span className="text-[9px] md:text-[11px]">{log.player}</span>
+                                {log.is_starter === 1 && <span className="text-black text-[8px] md:text-[10px]">★</span>}
                               </div>
                             </td>
                           </tr>
@@ -1126,39 +1150,39 @@ export function TeamDetailsTab({
                     className={baseTableClasses + " md:min-w-[1200px]"} // Ensure enough width for scrolling
                     style={{ borderSpacing: 0 }}
                   >
-                    <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-t-2 border-gray-700">
+                    <thead className="sticky top-0 z-50 bg-gradient-to-r from-gray-100 to-gray-50 shadow-md border-t-2 border-gray-700">
                       <tr className={headerRowClasses}>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           MIN
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           PTS
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
                           2PM-A
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
                           3PM-A
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[60px]">
                           FTM-A
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           REB
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           AST
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           STL
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           TO
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold border-r border-gray-300 text-[11px] md:text-xs min-w-[40px]">
                           BLK
                         </th>
-                        <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium text-[11px] md:text-xs min-w-[40px]">
+                        <th className="text-center py-1 px-0.5 font-semibold text-[11px] md:text-xs min-w-[40px]">
                           PIR
                         </th>
                       </tr>
@@ -1172,66 +1196,68 @@ export function TeamDetailsTab({
 
                         const rowStyling = isTotalRow
                           ? "font-bold bg-gray-100 hover:bg-gray-200"
-                          : `${log.is_starter ? starterRowColor : "bg-white"}`
+                          : "bg-white"
+                        const rowStyle = {}
                         const fontStyling = isTotalRow ? "font-bold" : "font-medium"
 
                         return (
                           <tr
                             key={`${log.player_id || log.player}-${index}`}
                             className={`${bodyRowClasses} ${rowStyling} ${isTotalRow ? "border-t-2 border-gray-400" : ""}`}
+                            style={rowStyle}
                           >
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
-                              {formatStat(log.minutes, 0)}
+                              {log.minutes || "0:00"}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.points, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {log.field_goals_made_2}-{log.field_goals_attempted_2}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {log.field_goals_made_3}-{log.field_goals_attempted_3}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {log.free_throws_made}-{log.free_throws_attempted}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.total_rebounds, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.assistances, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.steals, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.turnovers, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} border-r border-gray-300 text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.blocks_favour, 0)}
                             </td>
                             <td
-                              className={`text-center py-0 px-1 md:py-1 md:px-1.5 ${fontStyling} text-[9px] md:text-[11px]`}
+                              className={`text-center py-0.5 px-0.5 ${fontStyling} text-[9px] md:text-[11px]`}
                             >
                               {formatStat(log.valuation, 0)}
                             </td>
@@ -2519,25 +2545,25 @@ export function TeamDetailsTab({
                           </colgroup>
                           <thead className="sticky top-0 z-10 bg-light-beige">
                             <tr className="border-b-2 border-gray-700 h-8">
-                              <th className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-1 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 <span className="hidden sm:inline">Round</span>
                                 <span className="sm:hidden">R</span>
                               </th>
-                              <th className="text-center py-0.5 px-1 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Date
                               </th>
-                              <th className="text-center py-0.5 px-1 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 <span className="hidden sm:inline">Opponent</span>
                                 <span className="sm:hidden">Opp</span>
                               </th>
-                              <th className="text-center py-0.5 px-1 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Result
                               </th>
-                              <th className="text-center py-0.5 px-1 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 <span className="hidden sm:inline">Location</span>
                                 <span className="sm:hidden">Loc</span>
                               </th>
-                              <th className="text-center py-0.5 px-1 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
                                 Record
                               </th>
                             </tr>
@@ -2625,7 +2651,7 @@ export function TeamDetailsTab({
                         <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
                           <tr className="bg-gray-50 h-10 md:h-10">
                             <th
-                              className="bg-gray-50 text-left py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                              className="bg-gray-50 text-left py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                               onClick={() => handlePlayerColumnSort("player_name")}
                             >
                               <div className="flex items-center text-[11px] md:text-xs">Player</div>
@@ -2687,7 +2713,7 @@ export function TeamDetailsTab({
                                   key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
                                   className="h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
                                 >
-                                  <td className="text-left py-0 px-1 md:py-1 md:px-1.5 font-medium bg-light-beige group-hover:bg-blue-50 transition-colors duration-150">
+                                  <td className="text-left py-0.5 px-0.5 font-medium bg-light-beige group-hover:bg-blue-50 transition-colors duration-150">
                                     <div className="flex items-center">
                                       <span className="text-[9px] md:text-[11px]">{player.player_name}</span>
                                     </div>
@@ -2708,7 +2734,7 @@ export function TeamDetailsTab({
                         <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
                           <tr className="bg-gray-50 h-10 md:h-10">
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("games_played")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2716,7 +2742,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("games_started")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2724,7 +2750,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("minutes_played")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2732,7 +2758,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("points_scored")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2740,7 +2766,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("two_pointers_made")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2748,7 +2774,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2756,7 +2782,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2764,7 +2790,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("three_pointers_made")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2772,7 +2798,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2780,7 +2806,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2788,7 +2814,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("free_throws_made")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2796,7 +2822,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("free_throws_attempted")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2804,7 +2830,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("free_throws_percentage")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2812,7 +2838,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("offensive_rebounds")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2820,7 +2846,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("defensive_rebounds")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2828,7 +2854,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("total_rebounds")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2836,7 +2862,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("assists")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2844,7 +2870,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("steals")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2852,7 +2878,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("turnovers")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2860,7 +2886,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("blocks")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2868,7 +2894,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("blocks_against")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2876,7 +2902,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("fouls_commited")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2884,7 +2910,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
                               onClick={() => handlePlayerColumnSort("fouls_drawn")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -2892,7 +2918,7 @@ export function TeamDetailsTab({
                               </div>
                             </th>
                             <th
-                              className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
                               onClick={() => handlePlayerColumnSort("pir")}
                             >
                               <div className="flex items-center justify-center text-[11px] md:text-xs">
@@ -3058,7 +3084,7 @@ export function TeamDetailsTab({
                                     className="h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
                                   >
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         Number(player[getColumnName("games_played")]) || 0,
                                         getColumnValues(0),
@@ -3068,7 +3094,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("games_played")], 0)}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         Number(player[getColumnName("games_started")]) || 0,
                                         getColumnValues(1),
@@ -3078,7 +3104,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("games_started")], 0)}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         Number(player[getColumnName("minutes_played")]) || 0,
                                         getColumnValues(2),
@@ -3088,7 +3114,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("minutes_played")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         Number(player[getColumnName("points_scored")]) || 0,
                                         getColumnValues(3),
@@ -3098,7 +3124,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("points_scored")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("two_pointers_made")] || 0,
                                         getColumnValues(4),
@@ -3108,7 +3134,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("two_pointers_made")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("two_pointers_attempted")] || 0,
                                         getColumnValues(5),
@@ -3118,7 +3144,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("two_pointers_attempted")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("two_pointers_percentage")] || 0,
                                         getColumnValues(6),
@@ -3128,7 +3154,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("two_pointers_percentage")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("three_pointers_made")] || 0,
                                         getColumnValues(7),
@@ -3138,7 +3164,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("three_pointers_made")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("three_pointers_attempted")] || 0,
                                         getColumnValues(8),
@@ -3148,7 +3174,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("three_pointers_attempted")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("three_pointers_percentage")] || 0,
                                         getColumnValues(9),
@@ -3158,7 +3184,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("three_pointers_percentage")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("free_throws_made")] || 0,
                                         getColumnValues(10),
@@ -3168,7 +3194,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("free_throws_made")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("free_throws_attempted")] || 0,
                                         getColumnValues(11),
@@ -3178,7 +3204,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("free_throws_attempted")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("free_throws_percentage")] || 0,
                                         getColumnValues(12),
@@ -3188,7 +3214,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("free_throws_percentage")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("offensive_rebounds")] || 0,
                                         getColumnValues(13),
@@ -3198,7 +3224,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("offensive_rebounds")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("defensive_rebounds")] || 0,
                                         getColumnValues(14),
@@ -3208,7 +3234,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("defensive_rebounds")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("total_rebounds")] || 0,
                                         getColumnValues(15),
@@ -3218,7 +3244,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("total_rebounds")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("assists")] || 0,
                                         getColumnValues(16),
@@ -3228,7 +3254,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("assists")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("steals")] || 0,
                                         getColumnValues(17),
@@ -3238,7 +3264,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("steals")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("turnovers")] || 0,
                                         getColumnValues(18),
@@ -3248,7 +3274,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("turnovers")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("blocks")] || 0,
                                         getColumnValues(19),
@@ -3258,7 +3284,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("blocks")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("blocks_against")] || 0,
                                         getColumnValues(20),
@@ -3268,7 +3294,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("blocks_against")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("fouls_commited")] || 0,
                                         getColumnValues(21),
@@ -3278,7 +3304,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("fouls_commited")])}
                                     </td>
                                     <td
-                                      className="text-center py-0 px-1 md:py-1 md:px-1.5 font-medium border-r border-gray-300"
+                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
                                       style={getSubtleConditionalStyle(
                                         player[getColumnName("fouls_drawn")] || 0,
                                         getColumnValues(22),
@@ -3288,7 +3314,7 @@ export function TeamDetailsTab({
                                       {formatStat(player[getColumnName("fouls_drawn")])}
                                     </td>
                                     <td
-                                      className="text-center py-1 md:py-2 px-1.5 md:px-1.5 font-medium"
+                                      className="text-center py-1 px-0.5 font-medium"
                                       style={getSubtleConditionalStyle(
                                         Number(player[getColumnName("pir")]) || 0,
                                         getColumnValues(23),
@@ -3330,7 +3356,7 @@ export function TeamDetailsTab({
 
                             return (
                               <tr className="h-5 border-t-4 border-gray-800 bg-gray-50 font-bold hover:bg-gray-100 transition-all duration-150">
-                                <td className="text-left py-0.5 px-1 font-bold border-r border-gray-300 min-w-[160px] sticky left-0 bg-gray-50 z-10 hover:bg-gray-100 transition-colors duration-150 shadow-sm">
+                                <td className="text-left py-0.5 px-0.5 font-bold border-r border-gray-300 min-w-[160px] sticky left-0 bg-gray-50 z-10 hover:bg-gray-100 transition-colors duration-150 shadow-sm">
                                   <div className="flex items-center">
                                     {logoUrl ? (
                                       <img
@@ -3349,76 +3375,76 @@ export function TeamDetailsTab({
                                     <span className="text-[8px] md:text-[10px]">TOTAL</span>
                                   </div>
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.games_played, 0)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.games_started, 0)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.minutes_played)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.points_scored)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.two_pointers_made)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.two_pointers_attempted)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.two_pointers_percentage)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.three_pointers_made)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.three_pointers_attempted)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.three_pointers_percentage)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.free_throws_made)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.free_throws_attempted)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.free_throws_percentage)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.offensive_rebounds)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.defensive_rebounds)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.total_rebounds)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.assists)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.steals)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.turnovers)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.blocks)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.blocks_against)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.fouls_commited)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold border-r border-gray-300">
+                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
                                   {formatStat(totalPlayer.fouls_drawn)}
                                 </td>
-                                <td className="text-center py-0.5 px-1 font-bold">{formatStat(totalPlayer.pir)}</td>
+                                <td className="text-center py-0.5 px-0.5 font-bold">{formatStat(totalPlayer.pir)}</td>
                               </tr>
                             )
                           })()}
