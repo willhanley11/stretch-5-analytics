@@ -633,11 +633,19 @@ export function LeagueStandingsTab({
         const winsA = Number(a.w) || 0
         const winsB = Number(b.w) || 0
         
-        // If wins are equal, use point differential as tiebreaker
+        // If wins are equal, check losses first
         if (winsA === winsB) {
-          const diffA = Number(a.diff) || 0
-          const diffB = Number(b.diff) || 0
-          return diffB - diffA // Higher differential wins (e.g., -9 > -10)
+          const lossesA = Number(a.l) || 0
+          const lossesB = Number(b.l) || 0
+          
+          // If losses are also equal, use point differential as tiebreaker
+          if (lossesA === lossesB) {
+            const diffA = Number(a.diff) || 0
+            const diffB = Number(b.diff) || 0
+            return diffB - diffA // Higher differential wins (e.g., -9 > -10)
+          }
+          
+          return lossesA - lossesB // Fewer losses wins
         }
         
         return sortDirection === "desc" ? winsB - winsA : winsA - winsB
@@ -895,7 +903,7 @@ export function LeagueStandingsTab({
                     </td>
                     
                     {/* Team Column */}
-                    <td className="sticky left-[25px] bg-light-beige py-1 px-1 font-medium border-r-2 border-gray-800 min-w-[60px] w-[60px]">
+                    <td className="sticky left-[25px] bg-blue-50 py-1 px-1 font-medium border-r-2 border-blue-400 shadow-sm min-w-[60px] w-[60px]">
                       <button
                         onClick={() => {
                           setActiveTab("teams")
@@ -946,14 +954,14 @@ export function LeagueStandingsTab({
                               }`}
                             >
                               {isWinLossColumn ? (
-                                // Win/Loss columns: no border, no background, always show values, no rank/value toggle
-                                <div className="flex items-center justify-center w-full h-full p-1">
-                                  <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
+                                // Win/Loss columns: enhanced styling for prominence
+                                <div className="flex items-center justify-center w-full h-full p-1 bg-blue-50 border border-blue-200 rounded-sm">
+                                  <span className="text-black font-bold text-sm">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : isDiffColumn ? (
-                                // Diff column: with faint conditional formatting, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-1 rounded-sm ${cellBgClass}`}>
-                                  <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
+                                // Diff column: enhanced styling with border and bold text
+                                <div className={`flex items-center justify-center w-full h-full p-1 rounded-sm border border-gray-300 bg-gray-50 ${cellBgClass}`}>
+                                  <span className="text-black font-bold text-sm">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : (
                                 // Regular columns: with border and rank/value toggle
@@ -1150,7 +1158,7 @@ export function LeagueStandingsTab({
                     </td>
                     
                     {/* Team Column */}
-                    <td className="sticky left-[25px] bg-light-beige py-1 px-1 font-medium border-r-2 border-gray-800 min-w-[60px] w-[60px]">
+                    <td className="sticky left-[25px] bg-blue-50 py-1 px-1 font-medium border-r-2 border-blue-400 shadow-sm min-w-[60px] w-[60px]">
                       <button
                         onClick={() => {
                           setActiveTab("teams")
@@ -1162,7 +1170,7 @@ export function LeagueStandingsTab({
                         <div className="w-6 h-6 md:w-8 md:h-8 rounded-sm flex items-center justify-center md:mr-2 bg-white">
                           {getTeamLogo(team.name, teamCode)}
                         </div>
-                        <span className="hidden md:block truncate text-[0.7rem] font-medium uppercase">{team.name}</span>
+                        <span className="hidden md:block truncate text-[0.75rem] font-bold uppercase text-gray-900">{team.name}</span>
                         
                         {/* Hover tooltip - positioned to the right */}
                         <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap md:hidden pointer-events-none">

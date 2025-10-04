@@ -1194,7 +1194,7 @@ export function TeamDetailsTab({
               </div>
             </div>
 
-            <div className="p-4 bg-white">
+            <div className="px-1 py-4 md:px-4 bg-white">
               {/* Team Toggle - full width above stats */}
               <div className="flex w-full border border-gray-300 rounded-lg overflow-hidden mb-4 shadow-sm">
                 {availableTeamsInGame.map((teamCode) => (
