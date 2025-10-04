@@ -370,12 +370,17 @@ export function TeamDetailsTab({
 
     // First try the current mapping
     let teamCode = teamNameToCode[teamName]
+    console.log(`getTeamCodeForSeason: Checking static mapping for "${teamName}" -> ${teamCode || "NOT FOUND"}`)
 
     if (!teamCode) {
       // If not found, try to find the teamcode from the current season's team stats
+      console.log(`getTeamCodeForSeason: Searching teamStats (length: ${teamStats.length}) for "${teamName}"`)
       const currentTeamData = teamStats.find((team) => team.name === teamName && team.season === season)
       if (currentTeamData) {
         teamCode = currentTeamData.teamcode
+        console.log(`getTeamCodeForSeason: Found in teamStats: "${teamName}" -> ${teamCode}`)
+      } else {
+        console.log(`getTeamCodeForSeason: Not found in teamStats for "${teamName}"`)
       }
     }
 
@@ -644,24 +649,36 @@ export function TeamDetailsTab({
 
   // Add this effect to fetch schedule data when team or season changes
   useEffect(() => {
+    console.log("🏀 Schedule useEffect triggered", {
+      selectedTeam,
+      selectedSeason,
+      isComponentReady,
+      teamStatsLength: teamStats.length
+    })
+    
     const loadScheduleData = async () => {
       if (selectedTeam && selectedSeason && isComponentReady) {
+        console.log("🏀 Starting schedule data load for:", selectedTeam)
         setIsScheduleLoading(true)
         try {
           const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
+          console.log("🏀 Schedule loading got team code:", teamCode)
           if (teamCode) {
             const data = await fetchTeamSchedule(teamCode, selectedSeason, league)
+            console.log("🏀 Schedule data fetched:", data?.length, "games")
             setScheduleData(data)
           } else {
-            console.warn("No team code found for:", selectedTeam)
+            console.warn("🏀 No team code found for schedule:", selectedTeam)
             setScheduleData([])
           }
         } catch (error) {
-          console.error("Error fetching schedule data:", error)
+          console.error("🏀 Error fetching schedule data:", error)
           setScheduleData([])
         } finally {
           setIsScheduleLoading(false)
         }
+      } else {
+        console.log("🏀 Schedule load skipped - dependencies not ready")
       }
       // ✅ Don't set loading to false when dependencies aren't ready
     }
