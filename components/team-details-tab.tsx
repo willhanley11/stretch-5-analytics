@@ -379,7 +379,28 @@ export function TeamDetailsTab({
       }
     }
 
-    // If still not found, query the player stats database directly
+    // Strategy 3: Try name variations for common mismatches
+    if (!teamCode) {
+      const nameVariations = [
+        teamName.replace(' AKTOR', ''), // "Panathinaikos AKTOR" -> "Panathinaikos"
+        teamName.replace(' Piraeus', ''), // "Olympiacos Piraeus" -> "Olympiacos"
+        teamName.replace(' Istanbul', ''), // "Fenerbahce Beko Istanbul" -> "Fenerbahce Beko"
+        teamName.split(' ')[0], // First word only
+      ]
+      
+      for (const variation of nameVariations) {
+        const foundTeam = teamStats.find((team) => 
+          team.name.toLowerCase().includes(variation.toLowerCase()) && team.season === season
+        )
+        if (foundTeam) {
+          teamCode = foundTeam.teamcode
+          console.log(`Team name variation match: "${teamName}" -> "${foundTeam.name}" (${teamCode})`)
+          break
+        }
+      }
+    }
+
+    // Strategy 4: If still not found, query the database directly
     if (!teamCode) {
       try {
         const response = await fetch("/api/get-team-code", {
@@ -412,13 +433,34 @@ export function TeamDetailsTab({
     return teamCode
   }
 
-  // Create a more comprehensive loading state that prevents flashing
-  const isInitialDataLoading = !isComponentReady || isLoading || isTeamCodeLoading
+  // Removed complex isInitialDataLoading - using simplified logic in isAnyDataLoading instead
 
-  // Add this helper function near the top of the component, after the other helper functions
+  // Enhanced helper function to get team code with better fallback logic
   const getSelectedTeamCode = () => {
-    const teamData = teamStats.find((team) => team.name === selectedTeam)
-    return teamData?.teamcode || teamNameToCode[selectedTeam] || ""
+    // First try to find exact match in current team stats
+    const exactTeamData = teamStats.find((team) => team.name === selectedTeam)
+    if (exactTeamData?.teamcode) {
+      return exactTeamData.teamcode
+    }
+    
+    // Check the static mapping
+    const mappedCode = teamNameToCode[selectedTeam]
+    if (mappedCode) {
+      return mappedCode
+    }
+    
+    // Try partial matching for team name variations
+    const partialMatch = teamStats.find((team) => 
+      team.name.toLowerCase().includes(selectedTeam.toLowerCase()) ||
+      selectedTeam.toLowerCase().includes(team.name.toLowerCase())
+    )
+    if (partialMatch?.teamcode) {
+      console.log(`Team code partial match: "${selectedTeam}" -> "${partialMatch.name}" (${partialMatch.teamcode})`)
+      return partialMatch.teamcode
+    }
+    
+    console.warn(`No team code found for: "${selectedTeam}". Available teams:`, teamStats.map(t => t.name))
+    return ""
   }
 
   // Add this helper function to get team logo URL using the same logic as the top logos
@@ -517,39 +559,26 @@ export function TeamDetailsTab({
     })
   }
 
-  // Comprehensive loading state logic (placed after all state declarations)
-  // Include team report data (advanced stats, schedule) and core player stats
-  const hasEssentialData =
-    selectedTeam &&
-    teamStats.length > 0 &&
-    teamPlayerStats.length > 0 &&
-    teamAdvancedStats &&
-    scheduleData.length > 0 &&
-    !isAdvancedStatsLoading
-
-  const isTransitionLoading = selectedGameLogPhase === "_RESETTING_" || isTeamCodeLoading
-  const isAnyDataLoading = !hasEssentialData || isInitialDataLoading || isTransitionLoading
+  // Simplified loading logic - focus on core team data and current loading states
+  const isAnyDataLoading = 
+    isLoading || 
+    !selectedTeam || 
+    teamStats.length === 0 || 
+    isAdvancedStatsLoading || 
+    isTeamCodeLoading ||
+    selectedGameLogPhase === "_RESETTING_"
 
   useEffect(() => {
-    // Component is ready when we have the essential dependencies
+    // Simplified component readiness - just check for basic props
+    const isReady = !!(selectedTeam && selectedSeason)
     console.log("TeamDetailsTab: Component readiness check:", {
       selectedTeam,
       selectedSeason,
-      teamStatsLength: teamStats.length,
-      teamStatsAvailable: teamStats.length > 0,
-      ready: selectedTeam && selectedSeason && teamStats.length > 0,
+      isReady,
+      availableTeamNames: teamStats.map(t => t.name).slice(0, 5), // Show first 5 team names
+      selectedTeamCode: getSelectedTeamCode()
     })
-    if (selectedTeam && selectedSeason && teamStats.length > 0) {
-      console.log("TeamDetailsTab: Setting component ready with:", { selectedTeam, selectedSeason })
-      setIsComponentReady(true)
-    } else {
-      console.log("TeamDetailsTab: Component not ready, missing:", {
-        hasSelectedTeam: !!selectedTeam,
-        hasSelectedSeason: !!selectedSeason,
-        hasTeamStats: teamStats.length > 0,
-      })
-      setIsComponentReady(false)
-    }
+    setIsComponentReady(isReady)
   }, [selectedTeam, selectedSeason, teamStats])
 
   // Reset all phase filters to Regular Season when season changes
@@ -3141,10 +3170,9 @@ export function TeamDetailsTab({
                                 .filter((val) => !isNaN(val))
                             }
 
-                            // Show loading spinner if still loading (but not during initial load or reset)
+                            // Show loading spinner if still loading player stats
                             if (
                               isTeamPlayerStatsLoading &&
-                              !isInitialDataLoading &&
                               selectedGameLogPhase !== "_RESETTING_"
                             ) {
                               return (

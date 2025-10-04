@@ -592,26 +592,18 @@ function YamagataTeamStats({
     setShouldScrollTop(true)
   }
 
-  // Add this useEffect to simulate progressive loading
+  // Simplified loading state management - no artificial delays
   useEffect(() => {
     if (activeTab === "league" || activeTab === "teams") {
-      setIsLoading(true)
-      // Use a short timeout to allow the UI to show a loading state first
-      const timer = setTimeout(() => {
-        setIsLoading(false)
-      }, 50)
-      return () => clearTimeout(timer)
+      // Set loading based on actual data availability instead of timeouts
+      setIsLoading(!teamStats || teamStats.length === 0)
     }
-  }, [activeTab])
+  }, [activeTab, teamStats])
 
-  // Add this useEffect to delay loading the players table
+  // Simplified players table visibility - no artificial delays
   useEffect(() => {
     if (activeTab === "players") {
-      // Delay loading the players table until after the tab animation completes
-      const timer = setTimeout(() => {
-        setPlayersTableVisible(true)
-      }, 100)
-      return () => clearTimeout(timer)
+      setPlayersTableVisible(true)
     } else {
       setPlayersTableVisible(false)
     }
