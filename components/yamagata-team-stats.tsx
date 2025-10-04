@@ -211,7 +211,10 @@ export const euroleague_team_colors = {
 };
 // Team name to code mapping for teams not in current database
 export const teamNameToCode = {
-  "Hapoel IBI Tel Aviv": "HTA"
+  "Hapoel IBI Tel Aviv": "HTA",
+  "Hapoel Tel Aviv": "HTA", // Add variation without "IBI"
+  "Hapoel Tel-Aviv": "HTA", // Add variation with hyphen
+  "Hapoel": "HTA" // Add short version as fallback
 }
 
 // Player images data - empty array to be filled from database later
