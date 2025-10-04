@@ -70,11 +70,6 @@ export function LeagueStandingsTab({
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false)
   
   // Debug logging
-  console.log("=== LEAGUE STANDINGS TAB DEBUG ===", {
-    initialTableMode,
-    selectedTableMode,
-    league
-  })
   
   const [playerSearch, setPlayerSearch] = useState("")
   const [activeDesktopTable, setActiveDesktopTable] = useState<"standings" | "statistics">("standings")
@@ -102,7 +97,6 @@ export function LeagueStandingsTab({
   // Handle initialTableMode prop changes
   useEffect(() => {
     if (initialTableMode && initialTableMode !== selectedTableMode) {
-      console.log("Updating selectedTableMode from", selectedTableMode, "to", initialTableMode)
       setSelectedTableMode(initialTableMode)
     }
   }, [initialTableMode])
@@ -112,10 +106,8 @@ export function LeagueStandingsTab({
       if (selectedSeason && league) {
         setIsAdvancedStatsLoading(true)
         try {
-          console.log("Fetching advanced stats for:", { selectedSeason, league })
           const phaseParam = "RS"
           const allStats = await fetchAllTeamAdvancedStatsCalculated(selectedSeason, phaseParam, league)
-          console.log("Advanced stats fetched:", allStats?.length || 0, "teams for league:", league)
 
           const validStats = Array.isArray(allStats)
             ? allStats.filter((stat) => stat && typeof stat === "object" && stat.teamcode)
@@ -123,12 +115,10 @@ export function LeagueStandingsTab({
           setAllTeamsAdvancedStats(validStats)
 
           const averages = await fetchLeagueAveragesPrecalculated(selectedSeason, phaseParam, league)
-          console.log("League averages fetched:", averages)
           setLeagueAverages(averages || null)
 
           // Fetch standings data (wins, losses, point differential)
           const standings = await fetchStandingsFromGameLogs(selectedSeason, phaseParam, league)
-          console.log("Standings data fetched:", standings?.length || 0, "teams")
           setStandingsData(standings || [])
         } catch (error) {
           console.error("Error fetching advanced stats:", error)
@@ -554,9 +544,6 @@ export function LeagueStandingsTab({
   }
 
   const sortedTeams = useMemo(() => {
-    console.log("Processing teams:", {
-      advancedStatsLength: allTeamsAdvancedStats.length,
-    })
 
     if (!allTeamsAdvancedStats.length) return []
 
@@ -570,7 +557,6 @@ export function LeagueStandingsTab({
       )
     })
 
-    console.log(`Filtered teams for season ${selectedSeason}:`, filteredTeams.length)
 
     const combinedData = filteredTeams.map((team) => {
       // Find matching standings data for this team
@@ -695,7 +681,6 @@ export function LeagueStandingsTab({
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue
     })
 
-    console.log("Final sorted teams:", sorted.length)
     return sorted
   }, [allTeamsAdvancedStats, standingsData, sortColumn, sortDirection, selectedSeason])
 

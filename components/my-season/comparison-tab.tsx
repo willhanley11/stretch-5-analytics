@@ -110,13 +110,6 @@ const ComparisonTab = ({
   selectedLeague = "euroleague", // Changed from 'league' to 'selectedLeague' to match parent prop
   initialPlayers, // Add initialPlayers prop from landing page
 }: { selectedSeason?: number; selectedLeague?: string; initialPlayers?: PlayerStatsFromGameLogs[] }) => {
-  // Debug logging
-  console.log("=== COMPARISON TAB DEBUG ===", {
-    selectedSeason,
-    selectedLeague,
-    initialPlayers: initialPlayers?.map(p => p.player_name),
-    initialPlayersLength: initialPlayers?.length
-  })
   
   // Updated interface to use 'selectedLeague'
   const [currentPhase, setCurrentPhase] = useState<string>("Regular Season")
@@ -166,7 +159,6 @@ const ComparisonTab = ({
       
       if (documentHeight - currentBottom < spaceNeeded) {
         const neededHeight = spaceNeeded - (documentHeight - currentBottom)
-        console.log('Setting extra height:', neededHeight)
         setExtraHeight(neededHeight)
         
         // Scroll to ensure dropdown is visible
@@ -228,7 +220,6 @@ const ComparisonTab = ({
   // Handle initialPlayers prop from landing page
   useEffect(() => {
     if (initialPlayers && initialPlayers.length >= 2) {
-      console.log("Setting initial players from landing page:", initialPlayers[0]?.player_name, "vs", initialPlayers[1]?.player_name)
       setSelectedTeams([
         initialPlayers[0]?.player_team_code || null,
         initialPlayers[1]?.player_team_code || null,
@@ -249,13 +240,11 @@ const ComparisonTab = ({
     const loadPlayers = async () => {
       setIsLoading(true)
       try {
-        console.log("Loading players for comparison tab:", selectedSeason, currentPhase, selectedLeague) // Updated to use selectedLeague
         const players = await fetchPlayerStatsFromGameLogs(
           selectedSeason,
           currentPhase,
           selectedLeague === "international-euroleague" ? "euroleague" : "eurocup",
         ) // Updated to use selectedLeague and convert to expected format
-        console.log("Loaded players:", players.length)
         setAllPlayers(players)
 
         // Extract unique teams from players
@@ -283,7 +272,6 @@ const ComparisonTab = ({
         // Set default players from different teams - 4 players for large screens
         // Only auto-select if we don't have initial players from landing page
         if (!initialPlayers || initialPlayers.length < 2) {
-          console.log("Auto-selecting default players")
           if (teamsMap.size >= 4) {
             const teamCodes = Array.from(teamsMap.keys())
             const firstTeam = teamCodes[0]
@@ -317,7 +305,6 @@ const ComparisonTab = ({
             }
           }
         } else {
-          console.log("Skipping auto-selection - using initial players from landing page")
         }
       } catch (error) {
         console.error("Error loading players:", error)

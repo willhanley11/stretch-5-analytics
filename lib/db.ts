@@ -44,7 +44,6 @@ async function executeWithRetry(queryFn, maxRetries = 3, initialDelay = 1000) {
       retries++
 
       if (isRateLimit && retries <= maxRetries) {
-        console.log(`Rate limit hit, retrying in ${delay}ms (attempt ${retries}/${maxRetries})`)
         await new Promise((resolve) => setTimeout(resolve, delay))
         delay *= 2 // Exponential backoff
       } else {
@@ -591,13 +590,10 @@ export async function getTeamAdvancedStatsPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated | null> {
   try {
-    console.log("=== FETCHING PRE-CALCULATED ADVANCED STATS FROM NEW TABLES ===")
-    console.log("TeamCode:", teamCode, "Season:", season, "Phase:", phase, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
 
-    console.log("Using table name:", tableName)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(`SELECT * FROM ${tableName} WHERE teamcode = $1 AND season = $2 AND phase = $3 LIMIT 1`, [
@@ -607,10 +603,6 @@ export async function getTeamAdvancedStatsPrecalculated(
       ])) as TeamAdvancedStatsPrecalculated[]
     })
 
-    console.log("Pre-calculated stats found:", stats.length > 0 ? "YES" : "NO")
-    if (stats.length > 0) {
-      console.log("Sample data keys:", Object.keys(stats[0]))
-    }
     return stats.length > 0 ? stats[0] : null
   } catch (error) {
     console.error("Error fetching pre-calculated team advanced stats:", error)
@@ -625,13 +617,10 @@ export async function getAllTeamAdvancedStatsPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated[]> {
   try {
-    console.log("=== FETCHING ALL PRE-CALCULATED ADVANCED STATS FROM NEW TABLES ===")
-    console.log("Season:", season, "Phase:", phase, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
 
-    console.log("Using table name:", tableName)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -640,13 +629,6 @@ export async function getAllTeamAdvancedStatsPrecalculated(
       )) as TeamAdvancedStatsPrecalculated[]
     })
 
-    console.log("Pre-calculated stats for all teams found:", stats.length)
-    if (stats.length > 0) {
-      console.log(
-        "Sample team codes:",
-        stats.slice(0, 3).map((s) => s.teamcode),
-      )
-    }
     return stats
   } catch (error) {
     console.error("Error fetching all pre-calculated team advanced stats:", error)
@@ -661,13 +643,10 @@ export async function getLeagueAveragesPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated | null> {
   try {
-    console.log("=== FETCHING LEAGUE AVERAGES FROM PRE-CALCULATED TABLES ===")
-    console.log("Season:", season, "Phase:", phase, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
 
-    console.log("Using table name:", tableName)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -676,7 +655,6 @@ export async function getLeagueAveragesPrecalculated(
       )) as TeamAdvancedStatsPrecalculated[]
     })
 
-    console.log("League averages found:", stats.length > 0 ? "YES" : "NO")
     return stats.length > 0 ? stats[0] : null
   } catch (error) {
     console.error("Error fetching league averages from pre-calculated tables:", error)
@@ -691,20 +669,12 @@ export async function getPlayerStatsFromGameLogs(
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
   try {
-    console.log("=== FETCHING PRE-CALCULATED PLAYER STATS FROM GAME LOGS (DB FUNCTION) ===")
-    console.log("Input parameters:")
-    console.log("- Season:", season, "Type:", typeof season)
-    console.log("- Phase:", phase, "Type:", typeof phase)
-    console.log("- League:", league, "Type:", typeof league)
 
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
 
-    console.log("Table mapping result:", tables)
-    console.log("Using table name:", tableName)
 
     // Check if table exists first
-    console.log("Checking if table exists...")
     const tableExists = await executeWithRetry(async () => {
       return await sql`
         SELECT EXISTS (
@@ -714,36 +684,23 @@ export async function getPlayerStatsFromGameLogs(
         )
       `
     })
-    console.log("Table exists check result:", tableExists)
 
     // Get a sample of what's in the table
-    console.log("Getting sample data from table...")
     const sampleData = await executeWithRetry(async () => {
       return (await sql.query(`SELECT * FROM ${tableName} LIMIT 3`)) as PlayerStatsFromGameLogs[]
     })
-    console.log("Sample data count:", sampleData.length)
-    if (sampleData.length > 0) {
-      console.log("Sample record:", sampleData[0])
-      console.log("Sample record keys:", Object.keys(sampleData[0]))
-    }
 
     // Check what seasons are available
-    console.log("Checking available seasons...")
     const availableSeasons = await executeWithRetry(async () => {
       return await sql.query(`SELECT DISTINCT season FROM ${tableName} ORDER BY season`)
     })
-    console.log("Available seasons:", availableSeasons)
 
     // Check what phases are available for the requested season
-    console.log("Checking available phases for season", season)
     const availablePhases = await executeWithRetry(async () => {
       return await sql.query(`SELECT DISTINCT phase FROM ${tableName} WHERE season = $1 ORDER BY phase`, [season])
     })
-    console.log("Available phases for season", season, ":", availablePhases)
 
     // Now execute the main query
-    console.log("Executing main query...")
-    console.log("Query: SELECT * FROM", tableName, "WHERE season =", season, "AND phase =", phase)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -752,21 +709,6 @@ export async function getPlayerStatsFromGameLogs(
       )) as PlayerStatsFromGameLogs[]
     })
 
-    console.log("=== QUERY RESULTS ===")
-    console.log("Query executed successfully")
-    console.log("Results count:", stats.length)
-    console.log("Results type:", typeof stats)
-    console.log("Results is array:", Array.isArray(stats))
-
-    if (stats.length > 0) {
-      console.log("First result:", stats[0])
-      console.log("First result keys:", Object.keys(stats[0]))
-      console.log("Sample player name:", stats[0].player_name)
-      console.log("Sample team code:", stats[0].player_team_code)
-      console.log("Sample points:", stats[0].points_scored)
-    } else {
-      console.log("No results found for the query")
-    }
 
     return stats
   } catch (error) {
@@ -789,13 +731,10 @@ export async function getTeamPlayerStatsFromGameLogs(
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
   try {
-    console.log("=== FETCHING TEAM PRE-CALCULATED PLAYER STATS FROM GAME LOGS ===")
-    console.log("TeamCode:", teamCode, "Season:", season, "Phase:", phase, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
 
-    console.log("Using table name:", tableName)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -804,7 +743,6 @@ export async function getTeamPlayerStatsFromGameLogs(
       )) as PlayerStatsFromGameLogs[]
     })
 
-    console.log("Pre-calculated player stats for team found:", stats.length)
     return stats
   } catch (error) {
     console.error("Error fetching team pre-calculated player stats from game logs:", error)
@@ -819,8 +757,6 @@ export async function getTeamAdvancedStatsCalculated(
   phase = "RS",
 ): Promise<TeamAdvancedStatsCalculated | null> {
   try {
-    console.log("=== FETCHING PRE-CALCULATED ADVANCED STATS (LEGACY) ===")
-    console.log("TeamCode:", teamCode, "Season:", season, "Phase:", phase)
 
     const stats = await executeWithRetry(async () => {
       return await sql<TeamAdvancedStatsCalculated[]>`
@@ -830,7 +766,6 @@ export async function getTeamAdvancedStatsCalculated(
       `
     })
 
-    console.log("Pre-calculated stats found:", stats.length > 0 ? "YES" : "NO")
     return stats.length > 0 ? stats[0] : null
   } catch (error) {
     console.error("Error fetching pre-calculated team advanced stats:", error)
@@ -844,8 +779,6 @@ export async function getAllTeamAdvancedStatsCalculated(
   phase = "RS",
 ): Promise<TeamAdvancedStatsCalculated[]> {
   try {
-    console.log("=== FETCHING ALL PRE-CALCULATED ADVANCED STATS (LEGACY) ===")
-    console.log("Season:", season, "Phase:", phase)
 
     const stats = await executeWithRetry(async () => {
       return await sql<TeamAdvancedStatsCalculated[]>`
@@ -855,7 +788,6 @@ export async function getAllTeamAdvancedStatsCalculated(
       `
     })
 
-    console.log("Pre-calculated stats for all teams found:", stats.length)
     return stats
   } catch (error) {
     console.error("Error fetching all pre-calculated team advanced stats:", error)
@@ -934,8 +866,6 @@ export async function getTeamSchedule(
     const tables = getTableNames(league)
     const tableName = tables.scheduleResults
 
-    console.log("=== FETCHING TEAM SCHEDULE ===")
-    console.log("Using table:", tableName, "for league:", league)
 
     const results = await executeWithRetry(async () => {
       // For Eurocup, include all phases but order them properly (RS first, then TS, then playoffs)
@@ -965,7 +895,6 @@ export async function getTeamSchedule(
       }
     })
 
-    console.log("Schedule results found:", results.length)
     return results
   } catch (error) {
     console.error("Error fetching team schedule:", error)
@@ -981,20 +910,15 @@ export async function getTeamPlayers(
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
   try {
-    console.log("=== PLAYER FETCH DEBUG ===")
-    console.log("Input - Team Code:", teamCode, "Season:", season, "Phase:", phase, "League:", league)
-    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL)
 
     // Get the correct table name using the table mapping
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
-    console.log("Using table name:", tableName)
 
     // Test basic connection first with retry
     try {
       await executeWithRetry(async () => {
         const connectionTest = await sql`SELECT 1 as test`
-        console.log("Database connection test successful:", connectionTest)
       })
     } catch (connError) {
       console.error("Database connection failed after retries:", connError)
@@ -1009,7 +933,6 @@ export async function getTeamPlayers(
           FROM information_schema.tables 
           WHERE table_schema = 'public' AND table_name = ${tableName}
         `
-        console.log("Player stats table exists:", tableCheck[0]?.count > 0)
       })
     } catch (tableError) {
       console.error("Error checking table existence:", tableError)
@@ -1026,7 +949,6 @@ export async function getTeamPlayers(
       ) as { player_team_name: string; player_team_code: string; season: number; phase: string }[]
     })
 
-    console.log("Available teams in player stats:", availableTeams)
 
     // Let's also check what data exists for any team to see if the stats are populated with retry
     const sampleData = await executeWithRetry(async () => {
@@ -1038,7 +960,6 @@ export async function getTeamPlayers(
       ) as EuroleaguePlayerStats[]
     })
 
-    console.log("Sample player data from database:", sampleData)
 
     // Primary approach: Use team code directly with retry
     const players = await executeWithRetry(async () => {
@@ -1050,7 +971,6 @@ export async function getTeamPlayers(
       ) as EuroleaguePlayerStats[]
     })
 
-    console.log("Team code query found:", players.length, "players")
 
     // If no results with phase, try without phase filter with retry
     if (players.length === 0) {
@@ -1063,11 +983,9 @@ export async function getTeamPlayers(
         ) as EuroleaguePlayerStats[]
       })
 
-      console.log("Team code query (no phase filter) found:", playersNoPhase.length, "players")
       return playersNoPhase
     }
 
-    console.log("Final result:", players.length, "players found")
     return players
   } catch (error) {
     console.error("Error fetching team players:", error)
@@ -1082,8 +1000,6 @@ export async function getAllPlayers(
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
   try {
-    console.log("=== FETCHING ALL PLAYERS ===")
-    console.log("Season:", season, "Phase:", phase, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.playerStats
@@ -1095,7 +1011,6 @@ export async function getAllPlayers(
       )) as EuroleaguePlayerStats[]
     })
 
-    console.log("Found", players.length, "total players for season", season, "phase", phase, "league", league)
 
     return players
   } catch (error) {
@@ -1113,15 +1028,11 @@ export async function getPlayerGameLogs(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-    console.log("=== FETCHING PLAYER GAME LOGS ===")
-    console.log("Player:", playerName, "Season:", season)
 
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
 
-    console.log("Using game logs table:", gameLogsTable, "for league:", league)
-    console.log("Using schedule table:", scheduleTable, "for league:", league)
 
     // Add a small delay to prevent overwhelming the database
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -1182,7 +1093,6 @@ export async function getPlayerGameLogs(
       )) as EuroleagueGameLog[]
     })
 
-    console.log("Found", gameLogs.length, "game logs for", playerName)
 
     // Process the results to add computed fields
     const processedLogs = gameLogs.map((log) => {
@@ -1300,8 +1210,6 @@ export async function getTeamGameLogs(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-    console.log("=== FETCHING TEAM GAME LOGS ===")
-    console.log("Team Code:", teamCode, "Season:", season, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.gameLogs
@@ -1316,7 +1224,6 @@ export async function getTeamGameLogs(
       ])) as EuroleagueGameLog[]
     })
 
-    console.log("Found", gameLogs.length, "total game logs for team", teamCode, "for league:", league)
 
     // Process the results to add computed fields
     const processedLogs = gameLogs.map((log) => {
@@ -1350,15 +1257,11 @@ export async function getTeamGameLogsWithOpponent(
   league = "euroleague",
 ): Promise<any[]> {
   try {
-    console.log("=== FETCHING TEAM GAME LOGS WITH OPPONENT ===")
-    console.log("Team Code:", teamCode, "Season:", season, "League:", league)
 
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
 
-    console.log("Using game logs table:", gameLogsTable)
-    console.log("Using schedule table:", scheduleTable)
 
     const gameLogsWithOpponent = await executeWithRetry(async () => {
       return await sql.query(
@@ -1402,11 +1305,6 @@ export async function getTeamGameLogsWithOpponent(
       )
     })
 
-    console.log("Found", gameLogsWithOpponent.length, "team game logs with opponent data for league:", league)
-
-    if (gameLogsWithOpponent.length > 0) {
-      console.log("Sample game log:", gameLogsWithOpponent[0])
-    }
 
     return gameLogsWithOpponent
   } catch (error) {
@@ -1418,15 +1316,11 @@ export async function getTeamGameLogsWithOpponent(
 // New function to get all teams' game logs with opponent data for league-wide ranking
 export async function getAllTeamGameLogsWithOpponent(season: number, league = "euroleague"): Promise<any[]> {
   try {
-    console.log("=== FETCHING ALL TEAMS GAME LOGS WITH OPPONENT ===")
-    console.log("Season:", season, "League:", league)
 
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
 
-    console.log("Using game logs table:", gameLogsTable)
-    console.log("Using schedule table:", scheduleTable)
 
     const gameLogsWithOpponent = await executeWithRetry(async () => {
       return await sql.query(
@@ -1469,7 +1363,6 @@ export async function getAllTeamGameLogsWithOpponent(season: number, league = "e
       )
     })
 
-    console.log("Found", gameLogsWithOpponent.length, "total team game logs with opponent data for league:", league)
 
     return gameLogsWithOpponent
   } catch (error) {
@@ -1488,11 +1381,7 @@ export async function calculateStandingsFromGameLogs(
   const gameLogsTable = tables.gameLogs
   const scheduleTable = tables.scheduleResults
 
-  console.log("Using game logs table:", gameLogsTable, "for league:", league)
-  console.log("Using schedule table:", scheduleTable, "for league:", league)
   try {
-    console.log("=== CALCULATING STANDINGS FROM GAME LOGS ===")
-    console.log("Season:", season, "Phase:", phase)
 
     // Get all team game logs with opponent data
     const allGameLogs = await executeWithRetry(async () => {
@@ -1540,7 +1429,6 @@ export async function calculateStandingsFromGameLogs(
       )
     })
 
-    console.log("Found", allGameLogs.length, "team game logs")
 
     // Group by team
     const teamGameLogs = allGameLogs.reduce((acc, game) => {
@@ -1590,23 +1478,12 @@ export async function calculateStandingsFromGameLogs(
           .filter((g) => g.result && g.result.trim() !== "") // Only games with results
           .sort((a, b) => a.round - b.round) // Sort by round ascending (chronological order)
 
-        console.log(`=== FULL STREAK CALCULATION FOR ${teamCode} ===`)
-        console.log(`Total games with results: ${allGamesWithResults.length}`)
-        console.log(
-          "All games chronologically:",
-          allGamesWithResults.map((g) => ({
-            round: g.round,
-            result: g.result.trim(),
-            gamecode: g.gamecode,
-          })),
-        )
 
         if (allGamesWithResults.length > 0) {
           // Start from the most recent game (last in chronological order)
           const mostRecentGame = allGamesWithResults[allGamesWithResults.length - 1]
           const lastResult = mostRecentGame.result.trim()
 
-          console.log(`Most recent game for ${teamCode}: Round ${mostRecentGame.round} = ${lastResult}`)
 
           let streakCount = 0
 
@@ -1623,11 +1500,7 @@ export async function calculateStandingsFromGameLogs(
             // Check if this game continues the streak
             if ((isWin && lastIsWin) || (isLoss && !lastIsWin)) {
               streakCount++
-              console.log(
-                `${teamCode} streak continues: Round ${game.round} = ${gameResult}, streak count now ${streakCount}`,
-              )
             } else {
-              console.log(`${teamCode} streak broken at: Round ${game.round} = ${gameResult}`)
               break
             }
           }
@@ -1635,8 +1508,6 @@ export async function calculateStandingsFromGameLogs(
           const streakType = lastResult === "W" || lastResult === "Win" || lastResult === "win" ? "W" : "L"
           currentStreak = `${streakType}${streakCount}`
 
-          console.log(`=== FINAL STREAK FOR ${teamCode}: ${currentStreak} ===`)
-          console.log(`Calculated from ${streakCount} consecutive games ending with ${lastResult}`)
         }
       }
 
@@ -1878,7 +1749,6 @@ export async function calculateStandingsFromGameLogs(
       team.position = index + 1
     })
 
-    console.log("Calculated standings for", sortedStandings.length, "teams")
     return sortedStandings
   } catch (error) {
     console.error("Error calculating standings from game logs:", error)
@@ -1928,8 +1798,6 @@ export async function getTeamNamesAndLogos(
 // NEW FUNCTION: Get all unique team codes from game logs for a specific season and league
 export async function getUniqueTeamCodesFromGameLogs(season: number, league = "euroleague"): Promise<string[]> {
   try {
-    console.log("=== FETCHING UNIQUE TEAM CODES FROM GAME LOGS ===")
-    console.log("Season:", season, "League:", league)
 
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
@@ -1951,7 +1819,6 @@ export async function getUniqueTeamCodesFromGameLogs(season: number, league = "e
     })
 
     const codes = teamCodes.map((row) => row.teamcode).filter(Boolean)
-    console.log("Found unique team codes:", codes)
     return codes
   } catch (error) {
     console.error("Error fetching unique team codes from game logs:", error)
@@ -1964,13 +1831,10 @@ export async function getAllPlayersAcrossSeasons(
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
   try {
-    console.log("=== FETCHING ALL PLAYERS ACROSS SEASONS FOR SEARCH ===")
-    console.log("League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
 
-    console.log("Using table name:", tableName)
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -1982,7 +1846,6 @@ export async function getAllPlayersAcrossSeasons(
       )) as PlayerStatsFromGameLogs[]
     })
 
-    console.log("All players across seasons found:", stats.length)
     return stats
   } catch (error) {
     console.error("Error fetching all players across seasons:", error)
@@ -1997,13 +1860,10 @@ export async function getGameLogsByGamecode(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-    console.log("=== FETCHING GAME LOGS BY GAMECODE ===")
-    console.log("Season:", season, "Gamecode:", gamecode, "League:", league)
 
     const tables = getTableNames(league)
     const tableName = tables.gameLogs
 
-    console.log("Using table name:", tableName)
 
     const logs = await executeWithRetry(async () => {
       return (await sql.query(
@@ -2013,10 +1873,6 @@ export async function getGameLogsByGamecode(
       )) as EuroleagueGameLog[]
     })
 
-    console.log("Game logs found for gamecode:", logs.length)
-    if (logs.length > 0) {
-      console.log("Sample game log:", logs[0])
-    }
     
     return logs
   } catch (error) {

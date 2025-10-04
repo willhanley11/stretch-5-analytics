@@ -25,11 +25,6 @@ function StatisticsTab({
   teamStats = [],
   league = "euroleague",
 }: StatisticsTabProps) {
-  console.log("=== StatisticsTab RENDER ===")
-  console.log("Season prop:", season, "Type:", typeof season)
-  console.log("League prop:", league)
-  console.log("Phase prop:", phase)
-  console.log("TeamStats received:", teamStats.length, "teams")
 
   // State - simplified since we're using pre-calculated data
   const [playerStatsData, setPlayerStatsData] = useState<PlayerStatsFromGameLogs[]>([])
@@ -254,10 +249,6 @@ function StatisticsTab({
   // Fetch pre-calculated player stats - THIS IS WHERE THE DATA LOADING HAPPENS
   useEffect(() => {
     const loadPlayerStatsData = async () => {
-      console.log("=== USEEFFECT TRIGGERED ===")
-      console.log("Season:", season, "Type:", typeof season)
-      console.log("SelectedPhase:", selectedPhase)
-      console.log("League:", league)
 
       if (!season) {
         console.warn("No season provided, skipping data load")
@@ -266,8 +257,6 @@ function StatisticsTab({
 
       setIsPlayerStatsLoading(true)
       try {
-        console.log("=== STARTING DATA FETCH ===")
-        console.log("Season:", season, "Phase:", selectedPhase, "League:", league)
 
         // Convert phase selection to database phase format
         let dbPhase = "Regular Season" // Default to Regular Season
@@ -279,20 +268,9 @@ function StatisticsTab({
           dbPhase = "Playoffs"
         }
 
-        console.log("Final dbPhase to use:", dbPhase)
-        console.log("About to call fetchPlayerStatsFromGameLogs with:", { season, dbPhase, league })
 
         const playerStats = await fetchPlayerStatsFromGameLogs(season, dbPhase, league)
 
-        console.log("=== DATA FETCH COMPLETED ===")
-        console.log("Raw result type:", typeof playerStats)
-        console.log("Raw result length:", Array.isArray(playerStats) ? playerStats.length : "Not an array")
-        console.log("Raw result:", playerStats)
-
-        if (Array.isArray(playerStats) && playerStats.length > 0) {
-          console.log("First player sample:", playerStats[0])
-          console.log("Sample player keys:", Object.keys(playerStats[0]))
-        }
 
         setPlayerStatsData(playerStats || [])
       } catch (error) {
@@ -306,7 +284,6 @@ function StatisticsTab({
         setPlayerStatsData([])
       } finally {
         setIsPlayerStatsLoading(false)
-        console.log("=== DATA FETCH FINISHED (finally block) ===")
       }
     }
 
@@ -315,13 +292,8 @@ function StatisticsTab({
 
   // Filter and sort players - now using pre-calculated data
   const filteredAndSortedPlayers = useMemo(() => {
-    console.log("=== FILTERING AND SORTING ===")
-    console.log("isPlayerStatsLoading:", isPlayerStatsLoading)
-    console.log("playerStatsData.length:", playerStatsData.length)
-    console.log("searchQuery:", searchQuery)
 
     if (isPlayerStatsLoading || playerStatsData.length === 0) {
-      console.log("Returning empty array - loading or no data")
       return []
     }
 
@@ -347,8 +319,6 @@ function StatisticsTab({
       return matchesSearch
     })
 
-    console.log("After filtering:", filtered.length, "players")
-    console.log("Search query:", searchQuery)
 
     // Sort the filtered results
     const sorted = filtered.sort((a, b) => {
@@ -368,7 +338,6 @@ function StatisticsTab({
       return playerSortDirectionLocal === "asc" ? aValue - bValue : bValue - aValue
     })
 
-    console.log("After sorting:", sorted.length, "players")
     return sorted
   }, [
     playerStatsData,
@@ -556,12 +525,6 @@ function StatisticsTab({
     return `${seasonValue}-${(seasonValue + 1).toString().slice(-2)}`
   }
 
-  console.log("=== FINAL RENDER STATE ===")
-  console.log("Season:", season)
-  console.log("Pre-calculated player stats:", playerStatsData.length)
-  console.log("Filtered players:", filteredAndSortedPlayers.length)
-  console.log("Current players:", currentPlayers.length)
-  console.log("Is loading:", isPlayerStatsLoading)
 
   if (isPlayerStatsLoading) {
     return (

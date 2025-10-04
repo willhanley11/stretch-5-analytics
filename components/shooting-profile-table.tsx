@@ -115,12 +115,8 @@ export function ShootingProfileTable({
   }
 
   const calculateZoneStats = () => {
-    console.log("=== SHOOTING PROFILE TABLE: CALCULATING ZONE STATS ===")
-    console.log("Team shot data length:", teamShotData?.length || 0)
-    console.log("League averages data length:", leagueAveragesData?.length || 0)
 
     if (!teamShotData || teamShotData.length === 0) {
-      console.log("No team shot data available")
       return {
         totalTwoPointStats: { attempts: 0, makes: 0, percentage: 0, leagueAvg: 0, diff: 0, hasLeagueData: false },
         atTheRim: { attempts: 0, makes: 0, percentage: 0, leagueAvg: 0, diff: 0, hasLeagueData: false },
@@ -138,7 +134,6 @@ export function ShootingProfileTable({
     const teamFieldGoals = classifyShots(teamShotData, courtParams)
 
     if (teamFieldGoals.length === 0) {
-      console.log("No team field goals found after filtering")
       return {
         totalTwoPointStats: { attempts: 0, makes: 0, percentage: 0, leagueAvg: 0, diff: 0, hasLeagueData: false },
         atTheRim: { attempts: 0, makes: 0, percentage: 0, leagueAvg: 0, diff: 0, hasLeagueData: false },

@@ -187,11 +187,7 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
 
   // Transforms the fetched LeagueAverageData into a more accessible object format
   const calculateLeagueAverages = (fetchedLeagueAverages: LeagueAverageData[]) => {
-    console.log("=== PROCESSING LEAGUE AVERAGES ===")
-    console.log("Processing fetched league averages:", fetchedLeagueAverages.length, "entries")
-
     if (!fetchedLeagueAverages || fetchedLeagueAverages.length === 0) {
-      console.log("No fetched league average data available")
       return {}
     }
 
@@ -201,7 +197,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
     fetchedLeagueAverages.forEach((avg) => {
       const cleanedBin = avg.bin?.trim()
       if (!cleanedBin) {
-        console.log("Skipping entry with invalid bin name:", avg)
         return // Skip if bin name is invalid
       }
 
@@ -211,18 +206,9 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
           percentage: avg.shot_percentage,
           attempts: avg.total_shots,
         }
-        console.log(
-          `✓ League average for "${cleanedBin}": ${(avg.shot_percentage * 100).toFixed(1)}% (${avg.made_shots}/${avg.total_shots}) - Meets threshold`,
-        )
-      } else {
-        console.log(
-          `✗ League average for "${cleanedBin}": ${(avg.shot_percentage * 100).toFixed(1)}% (${avg.made_shots}/${avg.total_shots}) - Below threshold (${minAttemptsForLeagueAverage} attempts), not used.`,
-        )
       }
     })
 
-    console.log("Final league averages processed for", Object.keys(leagueAverages).length, "zones")
-    console.log("Available zones:", Object.keys(leagueAverages))
     return leagueAverages
   }
 
@@ -235,22 +221,16 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
   ) => {
     // Return grey if player has insufficient attempts in this zone
     if (playerAttempts < minAttempts) {
-      console.log(`Player attempts (${playerAttempts}) < minAttemptsForColor (${minAttempts}), returning grey.`)
       return "#9CA3AF" // Grey
     }
 
     // Return grey if no reliable league data is available for comparison
     if (leaguePercentage === 0 || isNaN(leaguePercentage)) {
-      console.log(`League percentage is 0 or NaN (${leaguePercentage}), returning grey.`)
       return "#9CA3AF" // Grey
     }
 
     // Calculate the difference between player's percentage and league average
     const performanceDiff = playerPercentage - leaguePercentage
-
-    console.log(
-      `Performance comparison - Player: ${(playerPercentage * 100).toFixed(1)}%, League: ${(leaguePercentage * 100).toFixed(1)}%, Diff: ${(performanceDiff * 100).toFixed(1)}%`,
-    )
 
     // Enhanced color scale with more granular differences
     // RED = ABOVE LEAGUE AVERAGE (GOOD/HOT)
@@ -430,11 +410,8 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
 
   // Main function to generate and render the shot chart
   const generateShotChart = () => {
-    console.log("=== GENERATING SHOT CHART ===")
-
     // Check if player shot data is available
     if (!shotData || shotData.length === 0) {
-      console.log("No player shot data available")
       setIsLoading(false)
       return
     }
@@ -445,17 +422,14 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
 
     // Process player shots (filter free throws, assign 'made' status and 'bin')
     const playerFieldGoals = classifyShots(shotData, courtParams)
-    console.log("Player field goals after filtering:", playerFieldGoals.length)
 
     if (playerFieldGoals.length === 0) {
-      console.log("No player field goals found after filtering")
       setIsLoading(false)
       return
     }
 
     // Calculate league averages from the provided leagueAveragesData prop
     const leagueAverages = calculateLeagueAverages(leagueAveragesData || [])
-    console.log("League averages calculated for zones:", Object.keys(leagueAverages))
 
     // Calculate player's shot statistics per bin
     const playerBinGroups: { [key: string]: { attempts: number; makes: number } } = {}
@@ -471,7 +445,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
       playerBinGroups[cleanedBin].makes += shot.made
     })
 
-    console.log("Player bin groups:", playerBinGroups)
 
     // Create player bin stats with league comparison for display
     const playerBinStats: { [key: string]: ZoneStat } = {} // Typed as ZoneStat
@@ -490,9 +463,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
         hasLeagueData: leagueAverages[bin] !== undefined && leagueAverages[bin].attempts >= minAttemptsForLeagueAverage,
       }
 
-      console.log(
-        `Zone "${bin}": Player ${(playerPercentage * 100).toFixed(1)}% (${playerStats.makes}/${playerStats.attempts}), League ${(leaguePercentage * 100).toFixed(1)}%, Diff ${((playerPercentage - leaguePercentage) * 100).toFixed(1)}%, Has League Data: ${playerBinStats[bin].hasLeagueData}`,
-      )
     })
 
     setZoneStats(playerBinStats) // Update state for displaying zone statistics (for D3)
@@ -669,10 +639,7 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
     // Filter hexbins based on the minimum attempts for display
     const activeBins = Object.values(hexBins).filter((bin: any) => bin.attempts >= minAttemptsForHexbinDisplay)
 
-    console.log(`Active hexbins for display: ${activeBins.length}`)
-
     if (activeBins.length === 0) {
-      console.log("No active hexbins to display")
       setIsLoading(false)
       return
     }
@@ -710,9 +677,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
 
       if (zoneStats && zoneStats.hasLeagueData && zoneStats.attempts >= minAttemptsForColor) {
         // Use zone-level performance for coloring (all hexbins in same zone get same color)
-        console.log(
-          `Coloring zone "${hexBinName}": Player ${(zoneStats.percentage * 100).toFixed(1)}%, League ${(zoneStats.leagueAvg * 100).toFixed(1)}%`,
-        )
         fillColor = getPerformanceColor(
           zoneStats.percentage,
           zoneStats.leagueAvg,
@@ -720,13 +684,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
           minAttemptsForColor,
         )
       } else {
-        const reason = !zoneStats
-          ? "No player stats for this zone"
-          : !zoneStats.hasLeagueData
-            ? `Insufficient league data (< ${minAttemptsForLeagueAverage} attempts)`
-            : `Zone attempts (${zoneStats?.attempts || 0}) < minimum (${minAttemptsForColor})`
-
-        console.log(`Zone "${hexBinName}": Using grey color. Reason: ${reason}`)
         fillColor = "#9CA3AF" // Grey for insufficient data
       }
 
@@ -842,7 +799,6 @@ const BasketballShotChart: React.FC<BasketballShotChartProps> = ({
       }
     })
 
-    console.log("Shot chart generation complete")
     setIsLoading(false) // Chart generation complete
   }
 

@@ -303,15 +303,13 @@ function YamagataTeamStats({
   const getInitialTeam = () => {
     if (typeof initialTeam === 'string') return initialTeam
     if (initialTeam?.name) return initialTeam.name
-    return "Olympiacos"
+    return ""
   }
   
   const [selectedTeam, setSelectedTeamInternal] = useState(getInitialTeam())
   
   // Wrapped setSelectedTeam with debugging
   const setSelectedTeam = (teamName: string) => {
-    console.log("YamagataTeamStats: setSelectedTeam called with:", teamName, "from:", selectedTeam)
-    console.log("YamagataTeamStats: activeTab:", activeTab)
     setSelectedTeamInternal(teamName)
   }
   // Add this new state for the player stats view mode
@@ -340,13 +338,6 @@ function YamagataTeamStats({
   const [currentLeague, setCurrentLeague] = useState<string>(getLeagueFromId(propSelectedLeague))
 
   // Debug initial values
-  console.log("=== YamagataTeamStats INITIALIZATION ===")
-  console.log("propSelectedSeason (initial):", propSelectedSeason, "type:", typeof propSelectedSeason)
-  console.log("propSelectedLeague (initial):", propSelectedLeague, "type:", typeof propSelectedLeague)
-  console.log("selectedSeason (initial state):", selectedSeason, "type:", typeof selectedSeason)
-  console.log("currentLeague (initial state):", currentLeague)
-  console.log("Will data fetching wait for proper season?", !propSelectedSeason ? "YES (will wait)" : "NO (will use initial season)")
-  console.log("=== END INITIALIZATION ===")
 
   // Get the current team logo mapping based on selected season
   const currentTeamLogoMapping = useMemo(() => {
@@ -358,9 +349,6 @@ function YamagataTeamStats({
     const debugData = async () => {
       if (selectedSeason) {
         const debugInfo = await fetchDebugPlayerData(selectedSeason)
-        console.log("=== DEBUG INFO ===")
-        console.log("Season:", selectedSeason)
-        console.log("Debug data:", debugInfo)
       }
     }
 
@@ -370,10 +358,6 @@ function YamagataTeamStats({
   // Update currentLeague when propSelectedLeague changes
   useEffect(() => {
     const newLeague = getLeagueFromId(propSelectedLeague)
-    console.log("=== LEAGUE CHANGE DETECTED ===")
-    console.log("Previous league:", currentLeague)
-    console.log("New league ID:", propSelectedLeague)
-    console.log("New league:", newLeague)
 
     if (newLeague !== currentLeague) {
       setCurrentLeague(newLeague)
@@ -391,8 +375,7 @@ function YamagataTeamStats({
     const teamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
     if (teamName && teamStats.length > 0) {
       const teamExists = teamStats.some((team) => team.name === teamName)
-      if (teamExists && (!selectedTeam || selectedTeam === "Olympiacos")) { // Only set if no team selected or default
-        console.log("Setting team from landing page initialTeam:", teamName)
+      if (teamExists && (!selectedTeam || selectedTeam === "")) { // Only set if no team selected
         setSelectedTeam(teamName)
       }
     }
@@ -402,18 +385,13 @@ function YamagataTeamStats({
   useEffect(() => {
     const loadSeasons = async () => {
       try {
-        console.log("Fetching seasons...")
         const seasonsData = await fetchSeasons()
-        console.log("Seasons fetched:", seasonsData)
 
         if (seasonsData && seasonsData.length > 0) {
           setSeasons(seasonsData)
           // Only set the most recent season if no prop was provided
           if (!propSelectedSeason) {
-            console.log("No propSelectedSeason provided, setting to most recent season:", seasonsData[0])
             setSelectedSeason(seasonsData[0])
-          } else {
-            console.log("propSelectedSeason provided:", propSelectedSeason, "- NOT overriding with most recent season")
           }
         }
       } catch (error) {
@@ -429,9 +407,7 @@ function YamagataTeamStats({
     const loadPhases = async () => {
       if (selectedSeason > 0) {
         try {
-          console.log("Fetching phases for season:", selectedSeason)
           const phasesData = await fetchPhases(selectedSeason)
-          console.log("Phases fetched:", phasesData)
 
           if (phasesData && phasesData.length > 0) {
             setPhases(phasesData)
@@ -452,13 +428,7 @@ function YamagataTeamStats({
       if (selectedSeason > 0 && selectedPhase && currentLeague) {
         setIsLoading(true)
         try {
-          console.log("=== FETCHING TEAM STATS ===")
-          console.log("Season:", selectedSeason, "type:", typeof selectedSeason)
-          console.log("Phase:", selectedPhase, "League:", currentLeague)
-          console.log("About to call fetchTeamStats with selectedSeason:", selectedSeason)
-
           const stats = await fetchTeamStats(selectedSeason, selectedPhase, currentLeague)
-          console.log("Team stats fetched:", stats.length, "teams for league:", currentLeague)
           setTeamStats(stats)
 
           // Auto-selection logic: prioritize initialTeam, then preserve current selection, then fallback to first team
@@ -466,21 +436,15 @@ function YamagataTeamStats({
             // First check if we have an initialTeam that exists in the data
             const initialTeamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
             if (initialTeamName && stats.some((team) => team.name === initialTeamName)) {
-              console.log("Setting team from initialTeam (landing page):", initialTeamName)
               setSelectedTeam(initialTeamName)
             } else {
               // Check if current selected team exists in new data
               const teamExists = stats.some((team) => team.name === selectedTeam)
               if (!teamExists) {
                 // Only fallback to first team if no valid team is selected
-                if (!selectedTeam || selectedTeam === "" || selectedTeam === "Olympiacos") {
-                  console.log("Auto-selecting first team:", stats[0].name)
+                if (!selectedTeam || selectedTeam === "") {
                   setSelectedTeam(stats[0].name)
-                } else {
-                  console.log("Current team doesn't exist in new data, keeping:", selectedTeam)
                 }
-              } else {
-                console.log("Keeping existing team selection:", selectedTeam)
               }
             }
           }
@@ -501,7 +465,6 @@ function YamagataTeamStats({
     const loadTeamAdvancedStats = async () => {
       if (selectedTeam && selectedSeason && selectedPhase && teamStats.length > 0) {
         try {
-          console.log("Fetching advanced stats for team:", selectedTeam)
 
           // Get teamcode from the current team stats
           const selectedTeamData = teamStats.find((team) => team.name === selectedTeam)
@@ -516,9 +479,7 @@ function YamagataTeamStats({
           // Add a small delay to avoid rate limiting
           await new Promise((resolve) => setTimeout(resolve, 300))
 
-          console.log("Using teamcode for advanced stats:", teamCode)
           const advancedStats = await fetchTeamAdvancedStatsByTeamCode(teamCode, selectedSeason, selectedPhase)
-          console.log("Advanced stats fetched:", advancedStats ? "success" : "not found")
           setTeamAdvancedStats(advancedStats)
         } catch (error) {
           console.error("Error fetching team advanced stats:", error)
@@ -570,23 +531,12 @@ function YamagataTeamStats({
 
   // Update selectedSeason when the prop changes
   useEffect(() => {
-    console.log("=== YamagataTeamStats Season Tracking ===")
-    console.log("YamagataTeamStats - propSelectedSeason changed:", propSelectedSeason, "type:", typeof propSelectedSeason)
-    console.log("YamagataTeamStats - current internal selectedSeason:", selectedSeason, "type:", typeof selectedSeason)
-    console.log("YamagataTeamStats - propSelectedSeason truthy?", !!propSelectedSeason)
-    console.log("YamagataTeamStats - propSelectedSeason !== selectedSeason?", propSelectedSeason !== selectedSeason)
-    
     if (propSelectedSeason && propSelectedSeason !== selectedSeason) {
-      console.log("YamagataTeamStats - updating internal selectedSeason from", selectedSeason, "to", propSelectedSeason)
       setSelectedSeason(propSelectedSeason)
     } else if (!propSelectedSeason && selectedSeason === 0) {
       // If no prop is provided and we're waiting (selectedSeason is 0), set default
-      console.log("YamagataTeamStats - no prop provided, setting default season 2024")
       setSelectedSeason(2024)
-    } else {
-      console.log("YamagataTeamStats - NOT updating selectedSeason because it's already the same value or conditions not met")
     }
-    console.log("=== End Season Tracking ===")
   }, [propSelectedSeason, selectedSeason])
 
   // Update the handleTabChange function
@@ -906,29 +856,6 @@ function YamagataTeamStats({
   }
 
   // Add this right before the return statement
-  console.log("YamagataTeamStats state:", {
-    seasons,
-    selectedSeason,
-    phases,
-    selectedPhase,
-    isLoading,
-    teamPlayers: teamPlayers.length,
-    filteredTeamPlayers: filteredTeamPlayers.length,
-    availablePlayerPhases,
-    selectedPlayerPhase,
-    currentLeague,
-    propSelectedLeague,
-    teamStatsCount: teamStats.length,
-  })
-  console.log("=== YAMAGATA TEAM STATS DEBUG ===", {
-    currentLeague,
-    propSelectedLeague,
-    selectedSeason,
-    selectedTeam,
-    initialTeam,
-    initialTeamName: typeof initialTeam === 'string' ? initialTeam : initialTeam?.name,
-    initialTableMode,
-  })
 
   return (
     <div className="w-full">

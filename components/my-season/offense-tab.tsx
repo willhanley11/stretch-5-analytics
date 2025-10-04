@@ -580,16 +580,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [allPlayers, setAllPlayers] = useState<PlayerStatsFromGameLogs[]>([])
 
-  // Debug logging for props
-  console.log("=== OFFENSE TAB DEBUG ===", {
-    selectedSeason,
-    league,
-    initialPlayer: initialPlayer?.player_name,
-    initialTeam: typeof initialTeam === 'string' ? initialTeam : initialTeam?.name,
-    initialTeamCode: typeof initialTeam === 'object' ? initialTeam?.teamcode : 'N/A',
-    selectedPlayer: selectedPlayer?.player_name,
-    selectedTeam: selectedTeam?.player_team_name
-  })
 
   // Function to get position from player code (mock implementation)
   const getPositionFromCode = (code: string): string => {
@@ -601,21 +591,15 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   // Load teams for the current season using pre-calculated stats
   useEffect(() => {
     const loadTeams = async () => {
-      console.log(`=== LOADING TEAMS FOR SEASON: ${currentSeason}, LEAGUE: ${league} ===`)
       setIsLoading(true)
       try {
         // Load pre-calculated player stats for both regular season and playoffs
-        console.log("Fetching RS players...")
         const rsPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Regular Season", league)
-        console.log(`Loaded ${rsPlayers.length} RS players`)
 
-        console.log("Fetching PO players...")
         const poPlayers = await fetchAllPlayerStatsFromGameLogs(currentSeason, "Playoffs", league)
-        console.log(`Loaded ${poPlayers.length} PO players`)
 
         // Combine all players for ranking calculations
         const allPlayersData = [...rsPlayers, ...poPlayers]
-        console.log(`Total players loaded: ${allPlayersData.length}`)
         setAllPlayers(allPlayersData)
 
         // Extract unique teams from regular season players (for team selection)
@@ -642,10 +626,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
           }[],
         )
 
-        console.log(`Extracted ${teams.length} unique teams:`)
-        teams.forEach((team) => {
-          console.log(`- ${team.player_team_name} (${team.player_team_code})`)
-        })
         setAvailableTeams(teams)
 
         // Auto-select based on initialPlayer or random selection
@@ -655,10 +635,8 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
             // Find the team from player's team code
             const landingTeam = teams.find(team => team.player_team_code === initialPlayer.player_team_code)
             if (landingTeam) {
-              console.log(`Auto-selecting team from landing page: ${landingTeam.player_team_name}`)
               setSelectedTeam(landingTeam)
               
-              console.log(`Auto-selecting player from landing page: ${initialPlayer.player_name}`)
               setSelectedPlayer(initialPlayer)
               await loadPlayerData(initialPlayer)
             }
@@ -675,10 +653,8 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
               const randomTeam = teams.find(team => team.player_team_code === randomPlayer.player_team_code)
               
               if (randomTeam) {
-                console.log(`Auto-selecting random team: ${randomTeam.player_team_name}`)
                 setSelectedTeam(randomTeam)
                 
-                console.log(`Auto-selecting random player: ${randomPlayer.player_name}`)
                 setSelectedPlayer(randomPlayer)
                 await loadPlayerData(randomPlayer)
               }
@@ -710,7 +686,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     if (initialPlayer && availableTeams.length > 0) {
       const landingTeam = availableTeams.find(team => team.player_team_code === initialPlayer.player_team_code)
       if (landingTeam && selectedPlayer?.player_id !== initialPlayer.player_id) {
-        console.log("Setting team and player from landing page:", landingTeam.player_team_name, initialPlayer.player_name)
         setSelectedTeam(landingTeam)
         setSelectedPlayer(initialPlayer)
         loadPlayerData(initialPlayer)
@@ -722,37 +697,26 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
   useEffect(() => {
     const loadPlayers = async () => {
       if (!selectedTeam) {
-        console.log("No team selected, clearing players")
         setTeamPlayers([])
         return
       }
 
-      console.log(`=== LOADING PLAYERS FOR TEAM: ${selectedTeam.player_team_name} ===`)
       setIsLoading(true)
       try {
         // OPTIMIZED: Use server-side filtering instead of client-side filtering
-        console.log(`Fetching players for team ${selectedTeam.player_team_code} using server-side filtering...`)
         const filteredPlayers = await fetchTeamPlayerStatsFromGameLogs(
           selectedTeam.player_team_code,
           currentSeason,
           "Regular Season",
           league
         )
-        console.log(`Server returned ${filteredPlayers.length} players for team ${selectedTeam.player_team_name}`)
 
-        if (filteredPlayers.length > 0) {
-          console.log("Sample players:")
-          filteredPlayers.slice(0, 3).forEach((player) => {
-            console.log(`- ${player.player_name} (${player.points_scored} PPG)`)
-          })
-        }
 
         setTeamPlayers(filteredPlayers)
 
         // Auto-select first player if no player is selected and we have players
         if (filteredPlayers.length > 0 && !selectedPlayer) {
           const firstPlayer = filteredPlayers[0]
-          console.log(`Auto-selecting player: ${firstPlayer.player_name}`)
           setSelectedPlayer(firstPlayer)
           await loadPlayerData(firstPlayer)
         } else if (!selectedPlayer) {
@@ -769,11 +733,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
 
   // Function to load player data when a player is selected
   const loadPlayerData = async (player: PlayerStatsFromGameLogs) => {
-    console.log("=== LOADING PLAYER DATA ===")
-    console.log("Player:", player.player_name)
-    console.log("Team:", player.player_team_name)
-    console.log("Points:", player.points_scored)
-    console.log("Games:", player.games_played)
 
     // Set loading state for all player data
     setIsLoading(true)
@@ -815,23 +774,18 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     if (!player) return
 
     try {
-      console.log(`Loading year-over-year stats for player: ${player.player_name}`)
 
       // OPTIMIZED: Fetch all players across all seasons in one call, then filter
-      console.log("Fetching all players across all seasons for comparison...")
       const allPlayersAllSeasons = await fetchAllPlayersAcrossSeasons(league)
-      console.log(`Loaded ${allPlayersAllSeasons.length} total player records across all seasons`)
       
       // Filter for this specific player across all seasons
       const allSeasonStats = allPlayersAllSeasons.filter(
         (p) => p.player_name === player.player_name && p.phase === "Regular Season"
       )
-      console.log(`Found ${allSeasonStats.length} seasons of data for ${player.player_name}`)
 
       // Sort by season (most recent first)
       allSeasonStats.sort((a, b) => (b.season || 0) - (a.season || 0))
 
-      console.log(`Found stats for ${allSeasonStats.length} seasons for ${player.player_name}`)
       setYearOverYearStats(allSeasonStats)
     } catch (error) {
       console.error("Error loading year-over-year stats:", error)
@@ -850,9 +804,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     teamlogo: string
     games_played: number
   }) => {
-    console.log("🔥 PLAYER SEARCH SELECTION STARTED 🔥")
-    console.log("Selected player:", searchOption.player_name)
-    console.log("Selected team:", searchOption.player_team_name)
 
     // Find the player in the current allPlayers (which contains current season data)
     const selectedPlayerData = allPlayers.find(
@@ -861,7 +812,6 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
     )
 
     if (selectedPlayerData) {
-      console.log("✅ Player data found! Updating states...")
       
       // Find and set the team
       const teamData = {
@@ -871,20 +821,15 @@ const [isPlayerDropdownOpen, setIsPlayerDropdownOpen] = useState(false)
         phase: selectedPlayerData.phase,
         teamlogo: selectedPlayerData.teamlogo || "",
       }
-      console.log("🏀 Setting team to:", teamData.player_team_name)
       setSelectedTeam(teamData)
 
       // Set the player and always default to Regular Season
-      console.log("👤 Setting selected player to:", selectedPlayerData.player_name)
       setSelectedPlayer(selectedPlayerData)
       setSelectedPhaseToggle("Regular Season")
       
       // Load the player data
-      console.log("📈 Loading player data...")
       await loadPlayerData(selectedPlayerData)
-      console.log("🎉 PLAYER SELECTION COMPLETED SUCCESSFULLY!")
     } else {
-      console.log("❌ ERROR: No player data found for:", searchOption)
     }
   }
 
@@ -909,7 +854,6 @@ useEffect(() => {
 }, [isTeamDropdownOpen, isPlayerDropdownOpen])
   // Reset selections when season changes
   useEffect(() => {
-    console.log("Season changed, resetting selections")
     setSelectedTeam(null)
     setSelectedPlayer(null)
     setTeamPlayers([])
@@ -917,7 +861,6 @@ useEffect(() => {
 
   // Reset selections when league changes
   useEffect(() => {
-    console.log("League changed, resetting selections")
     setSelectedTeam(null)
     setSelectedPlayer(null)
     setTeamPlayers([])
@@ -969,10 +912,8 @@ useEffect(() => {
               const randomTeam = teams.find(team => team.player_team_code === randomPlayer.player_team_code)
               
               if (randomTeam) {
-                console.log(`Auto-selecting random team for ${league}: ${randomTeam.player_team_name}`)
                 setSelectedTeam(randomTeam)
                 
-                console.log(`Auto-selecting random player for ${league}: ${randomPlayer.player_name}`)
                 setSelectedPlayer(randomPlayer)
                 await loadPlayerData(randomPlayer)
               }
@@ -1000,9 +941,7 @@ useEffect(() => {
       }
 
       try {
-        console.log("Loading game logs for:", selectedPlayer.player_name, "season:", selectedSeason)
         const logs = await fetchPlayerGameLogs(selectedPlayer.player_name, selectedSeason, league)
-        console.log("Received game logs:", logs.length)
 
         setGameData(logs)
       } catch (error) {
@@ -1183,10 +1122,6 @@ useEffect(() => {
 
   // Calculate ranks for the selected player using pre-calculated stats
   const playerRanks = useMemo(() => {
-    console.log("=== CALCULATING PLAYER RANKS ===")
-    console.log("Selected player:", selectedPlayer?.player_name)
-    console.log("Selected phase:", selectedPhase)
-    console.log("Players for ranking:", getPlayersForRanking().length)
 
     if (!selectedPlayer || !getPlayersForRanking().length) return {}
 
@@ -1249,9 +1184,6 @@ useEffect(() => {
     if (!targetPlayer) return
 
     try {
-      console.log(
-        `Loading shot data for player: ${targetPlayer.player_id}, name: ${targetPlayer.player_name}, season: ${selectedSeason}`,
-      )
 
       // Pass both player ID and name to increase chances of finding data
       const response = await fetch(
@@ -1260,8 +1192,6 @@ useEffect(() => {
 
       if (response.ok) {
         const data = await response.json()
-        console.log("Shot data response:", data)
-        console.log("Debug info:", data.debug)
         setShotData(data.data || [])
       } else {
         console.error("Failed to load shot data")

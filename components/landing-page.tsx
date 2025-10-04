@@ -373,15 +373,6 @@ export default function LandingPage({
         left = scrollLeft + 10
       }
       
-      console.log(`Positioning ${dropdownId} dropdown:`, {
-        buttonRect: rect,
-        scrollTop,
-        scrollLeft,
-        calculatedTop: top,
-        calculatedLeft: left,
-        viewportHeight,
-        viewportWidth
-      })
       
       setDropdownPositions(prev => ({
         ...prev,
@@ -555,7 +546,6 @@ export default function LandingPage({
   useEffect(() => {
     const newLeagueKey = `${selectedLeague}_${selectedSeason}`
     if (currentLeagueKey !== newLeagueKey && currentLeagueKey !== "") {
-      console.log(`League/Season changed from ${currentLeagueKey} to: ${newLeagueKey}, resetting all selections`)
       setSelectedTeam("")
       setSelectedPlayerTeam("")
       setSelectedPlayer(null)
@@ -582,18 +572,15 @@ export default function LandingPage({
         try {
           const currentLeague = selectedLeague.includes('euroleague') ? 'euroleague' : 'eurocup'
           const stats = await fetchTeamStats(selectedSeason, "RS", currentLeague)
-          console.log("Loaded team stats for landing page:", stats.length, "teams")
           setTeamStats(stats)
           
           // Set random team for initial load or league change
           const teamNames = stats.map(team => team.name)
           
           // Always select a random team when team data loads (after league/season change)
-          console.log(`Team loading for ${currentLeague}: ${teamNames.length} teams available`)
           if (teamNames.length > 0) {
             const randomIndex = Math.floor(Math.random() * teamNames.length)
             const randomTeam = teamNames[randomIndex]
-            console.log(`Auto-selecting random team for ${currentLeague}: ${randomTeam}`)
             setSelectedTeam(randomTeam)
           }
           
@@ -622,13 +609,9 @@ export default function LandingPage({
         setIsPlayerDataLoading(true)
         try {
           const currentLeague = selectedLeague.includes('euroleague') ? 'euroleague' : 'eurocup'
-          console.log("Fetching RS players for landing page...")
           const rsPlayers = await fetchAllPlayerStatsFromGameLogs(selectedSeason, "Regular Season", currentLeague)
-          console.log(`Loaded ${rsPlayers.length} RS players for landing page`)
 
-          console.log("Fetching PO players for landing page...")
           const poPlayers = await fetchAllPlayerStatsFromGameLogs(selectedSeason, "Playoffs", currentLeague)
-          console.log(`Loaded ${poPlayers.length} PO players for landing page`)
 
           // Combine all players
           const combinedPlayers = [...rsPlayers, ...poPlayers]
@@ -646,7 +629,6 @@ export default function LandingPage({
               const randomIndex = Math.floor(Math.random() * top40Players.length)
               const randomPlayer = top40Players[randomIndex]
               
-              console.log(`Auto-selecting random player from top 40 for ${currentLeague}: ${randomPlayer.player_name}`)
               setSelectedPlayer(randomPlayer)
               setSelectedPlayerTeam(randomPlayer.player_team_name)
               
@@ -744,7 +726,6 @@ export default function LandingPage({
               const player1 = top40Players[randomIndex1]
               const player2 = top40Players[randomIndex2]
               
-              console.log(`Auto-selecting comparison players from top 40 for ${selectedLeague}: ${player1.player_name} and ${player2.player_name}`)
               
               // Set teams and players
               setCompSelectedTeams([player1.player_team_code, player2.player_team_code])
@@ -1665,13 +1646,7 @@ export default function LandingPage({
       ),
       goButton: {
         onClick: () => {
-          console.log("=== LANDING PAGE TEAMS NAVIGATION ===")
-          console.log("selectedTeam:", selectedTeam)
-          console.log("selectedLeague:", selectedLeague) 
-          console.log("selectedSeason:", selectedSeason)
-          console.log("About to call onNavigate with season:", selectedSeason)
           onNavigate("teams", { team: selectedTeam, league: selectedLeague, season: selectedSeason })
-          console.log("=== END TEAMS NAVIGATION ===")
         },
         disabled: !selectedTeam
       }
@@ -1996,12 +1971,8 @@ export default function LandingPage({
                           <button
                             key={league.id}
                             onClick={() => {
-                              console.log("=== LANDING PAGE LEAGUE CHANGE (WELCOME) ===")
-                              console.log("Changing league from", selectedLeague, "to", league.id)
-                              console.log("League name:", league.name)
                               onLeagueChange(league.id)
                               setIsWelcomeLeagueDropdownOpen(false)
-                              console.log("=== END LEAGUE CHANGE ===")
                             }}
                             className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-sm md:text-lg ${
                               selectedLeague === league.id ? "bg-gray-50 border-l-4 border-slate-500" : ""
@@ -2053,12 +2024,8 @@ export default function LandingPage({
                           <button
                             key={season.id}
                             onClick={() => {
-                              console.log("=== LANDING PAGE SEASON CHANGE (WELCOME) ===")
-                              console.log("Changing season from", selectedSeason, "to", season.id)
-                              console.log("Season display:", season.display)
                               onSeasonChange(season.id)
                               setIsWelcomeYearDropdownOpen(false)
-                              console.log("=== END SEASON CHANGE ===")
                             }}
                             className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors text-sm md:text-lg ${
                               selectedSeason === season.id ? "bg-gray-50 border-l-4 border-slate-500" : ""
@@ -2419,9 +2386,6 @@ export default function LandingPage({
                     <button
                       key={league.id}
                       onClick={() => {
-                        console.log("=== LANDING PAGE LEAGUE CHANGE (MAIN) ===")
-                        console.log("Changing league from", selectedLeague, "to", league.id)
-                        console.log("League name:", league.name)
                         onLeagueChange(league.id)
                         setIsLandingLeagueDropdownOpen(false)
                         console.log("=== END LEAGUE CHANGE ===")
@@ -2468,9 +2432,6 @@ export default function LandingPage({
                     <button
                       key={season.id}
                       onClick={() => {
-                        console.log("=== LANDING PAGE SEASON CHANGE (MAIN) ===")
-                        console.log("Changing season from", selectedSeason, "to", season.id)
-                        console.log("Season display:", season.display)
                         onSeasonChange(season.id)
                         setIsLandingYearDropdownOpen(false)
                         console.log("=== END SEASON CHANGE ===")

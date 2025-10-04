@@ -89,10 +89,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   
   // Debug when selectedSeason changes
   useEffect(() => {
-    console.log(`=== PRO-LEAGUE-NAV selectedSeason CHANGED ===`)
-    console.log(`New selectedSeason:`, selectedSeason)
-    console.log(`Season display:`, seasons.find((s) => s.id === selectedSeason)?.display || "not found")
-    console.log(`=== END selectedSeason CHANGE ===`)
   }, [selectedSeason])
 
 
@@ -295,19 +291,12 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   }
 
   const handleLandingPageNavigation = (tab: string, selections: any) => {
-    console.log(`=== LANDING PAGE NAVIGATION ===`)
-    console.log(`Tab: ${tab}`)
-    console.log(`Selections:`, selections)
-    console.log(`Current selectedSeason before update:`, selectedSeason)
-    console.log(`Current selectedLeague before update:`, selectedLeague)
     
     // Update season and league FIRST before other state changes
     if (selections?.season) {
-      console.log(`Updating selectedSeason from ${selectedSeason} to ${selections.season}`)
       setSelectedSeason(selections.season)
     }
     if (selections?.league) {
-      console.log(`Updating selectedLeague from ${selectedLeague} to ${selections.league}`)
       setSelectedLeague(selections.league)
     }
     
@@ -320,13 +309,11 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     
     // Navigate to the appropriate URL
     
-    console.log(`=== END LANDING PAGE NAVIGATION ===`)
   }
 
   const renderActiveContent = () => {
     switch (activeSection) {
       case "teams":
-        console.log("Pro-league-nav: Rendering teams case with selectedSeason:", selectedSeason, "and selectedLeague:", selectedLeague)
         return (
           <motion.div
           className=" px-2 pb-4 pt-6 md:px-8 md:pt-2" 

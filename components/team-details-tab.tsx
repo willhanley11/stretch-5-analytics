@@ -394,7 +394,6 @@ export function TeamDetailsTab({
         )
         if (foundTeam) {
           teamCode = foundTeam.teamcode
-          console.log(`Team name variation match: "${teamName}" -> "${foundTeam.name}" (${teamCode})`)
           break
         }
       }
@@ -429,7 +428,6 @@ export function TeamDetailsTab({
       [cacheKey]: teamCode,
     }))
 
-    console.log(`getTeamCodeForSeason: ${teamName} for season ${season} -> ${teamCode || "NOT FOUND"}`)
     return teamCode
   }
 
@@ -455,7 +453,6 @@ export function TeamDetailsTab({
       selectedTeam.toLowerCase().includes(team.name.toLowerCase())
     )
     if (partialMatch?.teamcode) {
-      console.log(`Team code partial match: "${selectedTeam}" -> "${partialMatch.name}" (${partialMatch.teamcode})`)
       return partialMatch.teamcode
     }
     
@@ -468,17 +465,14 @@ export function TeamDetailsTab({
     // First check if we have a direct logo URL from the database for this team
     const teamData = teamStats.find((team) => team.teamcode === teamCode)
     if (teamData?.teamlogo) {
-      console.log(`Using database logo for ${teamCode}:`, teamData.teamlogo)
       return teamData.teamlogo
     }
 
     // Fallback to the mapping using teamcode
     if (teamCode && team_logo_mapping[teamCode]) {
-      console.log(`Using mapping logo for ${teamCode}:`, team_logo_mapping[teamCode])
       return team_logo_mapping[teamCode]
     }
 
-    console.log(`No logo found for ${teamCode}, using placeholder`)
     return null
   }
 
@@ -571,20 +565,11 @@ export function TeamDetailsTab({
   useEffect(() => {
     // Simplified component readiness - just check for basic props
     const isReady = !!(selectedTeam && selectedSeason)
-    console.log("TeamDetailsTab: Component readiness check:", {
-      selectedTeam,
-      selectedSeason,
-      isReady,
-      availableTeamNames: teamStats.map(t => t.name).slice(0, 5), // Show first 5 team names
-      selectedTeamCode: getSelectedTeamCode()
-    })
     setIsComponentReady(isReady)
   }, [selectedTeam, selectedSeason, teamStats])
 
   // Reset all phase filters to Regular Season when season changes
   useEffect(() => {
-    console.log("Season changed, resetting all phase filters to Regular Season")
-    console.log("Previous selectedGameLogPhase:", selectedGameLogPhase)
     // Reset other filters immediately
     setSelectedScheduleFilter("regular")
     setSelectedTeamReportPhase("RS")
@@ -597,7 +582,6 @@ export function TeamDetailsTab({
   // Reset selectedGameLogPhase to Regular when component is ready after season change
   useEffect(() => {
     if (isComponentReady && selectedGameLogPhase === "_RESETTING_") {
-      console.log("Component ready, setting selectedGameLogPhase to Regular")
       setSelectedGameLogPhase("Regular")
     }
   }, [isComponentReady, selectedGameLogPhase])
@@ -687,7 +671,6 @@ export function TeamDetailsTab({
             return
           }
 
-          console.log("Using team code:", teamCode)
 
           // Fetch all game logs for the team at once instead of individual player requests
           const teamGameLogs = await fetchTeamGameLogs(teamCode, selectedSeason, league) // Use league prop
@@ -745,7 +728,6 @@ export function TeamDetailsTab({
               selectedTeamReportPhase,
               league,
             )
-            console.log("Team advanced stats fetched:", teamStats)
             setTeamAdvancedStats(teamStats)
 
             // Fetch league averages
@@ -782,45 +764,6 @@ export function TeamDetailsTab({
 
   // Add debugging for teamPlayers data
   useEffect(() => {
-    console.log("=== TEAM PLAYERS DEBUG ===")
-    console.log("teamPlayers length:", teamPlayers.length)
-    console.log("selectedPhase:", selectedPhase)
-    console.log("selectedTeam:", selectedTeam)
-    console.log("selectedSeason:", selectedSeason)
-
-    if (teamPlayers.length > 0) {
-      console.log("First player sample:", teamPlayers[0])
-      console.log("First player stats:", {
-        points_scored: teamPlayers[0].points_scored,
-        assists: teamPlayers[0].assists,
-        total_rebounds: teamPlayers[0].total_rebounds,
-        games_played: teamPlayers[0].games_played,
-        minutes_played: teamPlayers[0].minutes_played,
-      })
-
-      // Check the raw object keys and values
-      console.log("Raw player object keys:", Object.keys(teamPlayers[0]))
-      console.log(
-        "Raw points_scored value:",
-        teamPlayers[0].points_scored,
-        "Type:",
-        typeof teamPlayers[0].points_scored,
-      )
-      console.log("Raw assists value:", teamPlayers[0].assists, "Type:", typeof teamPlayers[0].assists)
-
-      // Check if any players match the selected phase
-      const playersInPhase = teamPlayers.filter((p) => p.phase === selectedPhase)
-      console.log("Players in selected phase:", playersInPhase.length)
-
-      if (playersInPhase.length > 0) {
-        console.log("First player in phase:", playersInPhase[0])
-        console.log("First player in phase stats:", {
-          points_scored: playersInPhase[0].points_scored,
-          assists: playersInPhase[0].assists,
-          total_rebounds: playersInPhase[0].total_rebounds,
-        })
-      }
-    }
   }, [teamPlayers, selectedPhase, selectedTeam, selectedSeason])
   // Fetch team shot data
   // Fetch team shot data
@@ -836,7 +779,6 @@ export function TeamDetailsTab({
 
             if (!response.ok || (await response.clone().json()).count === 0) {
               // If team code doesn't work, try the full team name
-              console.log("Team code failed, trying full team name:", selectedTeam)
               response = await fetch(
                 `/api/shot-data?team=${encodeURIComponent(selectedTeam)}&season=${selectedSeason}&league=${league}`,
               )
@@ -844,7 +786,6 @@ export function TeamDetailsTab({
 
             if (response.ok) {
               const data = await response.json()
-              console.log("Team shot data fetched:", data.data?.length || data.length, "shots")
               setTeamShotData(data.data || data)
             } else {
               console.error("Failed to fetch team shot data")
@@ -881,7 +822,6 @@ export function TeamDetailsTab({
       // Check if current team exists in new data
       if (teams.includes(selectedTeam)) {
         // Team exists in new data, keep it selected
-        console.log(`Preserving team selection: "${selectedTeam}"`)
       } else if (teams.length > 0) {
         // Current team doesn't exist in new season - delay the switch to prevent jarring transition
         console.log(
@@ -919,7 +859,6 @@ export function TeamDetailsTab({
 
   // Game log expandable handlers
   const handleGameRowClick = async (game: ScheduleResult) => {
-    console.log("Game row clicked:", game)
 
     // If clicking the same game, collapse it
     if (expandedGameForLogs?.id === game.id) {
@@ -936,12 +875,10 @@ export function TeamDetailsTab({
     try {
       const logs = await fetchGameLogsByGamecode(selectedSeason, game.gamecode, league)
       setExpandedGameLogsData(logs)
-      console.log("Fetched game logs:", logs.length, "for gamecode:", game.gamecode)
 
       // Set default team to the selected team's code (from the game data)
       const selectedTeamCode = game.team === selectedTeam ? game.teamcode : game.opponentcode
       setSelectedGameTeam(selectedTeamCode)
-      console.log("Default game team set to:", selectedTeamCode, "for team:", selectedTeam)
     } catch (error) {
       console.error("Error fetching game logs:", error)
       setExpandedGameLogsData([])

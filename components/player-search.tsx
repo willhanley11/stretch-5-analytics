@@ -49,12 +49,6 @@ export function PlayerSearch({
         games_played: player.games_played
       }))
     
-    // Debug logging (only when options change)
-    console.log("PlayerSearch - allPlayers count:", allPlayers.length)
-    console.log("PlayerSearch - searchOptions count:", options.length)
-    if (options.length > 0) {
-      console.log("PlayerSearch - sample option:", options[0])
-    }
     
     return options
   }, [allPlayers])
@@ -101,12 +95,9 @@ export function PlayerSearch({
   }
 
   const handleOptionSelect = (option: PlayerSearchOption) => {
-    console.log("PlayerSearch - handleOptionSelect called with:", option)
-    console.log("PlayerSearch - About to call onPlayerSelect")
     setSearchTerm(`${option.player_name} - ${option.season}`)
     setIsOpen(false)
     onPlayerSelect(option)
-    console.log("PlayerSearch - onPlayerSelect called successfully")
   }
 
   const handleInputFocus = () => {

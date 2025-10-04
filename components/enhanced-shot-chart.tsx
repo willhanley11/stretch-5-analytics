@@ -73,14 +73,12 @@ const EnhancedShotChart: React.FC<EnhancedShotChartProps> = ({
 
         if (shotResponse.success) {
           setShotData(shotResponse.data || [])
-          console.log(`Loaded ${shotResponse.data?.length || 0} shots`)
         } else {
           console.error("Failed to fetch shot data:", shotResponse.error)
         }
 
         if (averagesResponse.success) {
           setLeagueAverages(averagesResponse.data || [])
-          console.log(`Loaded ${averagesResponse.data?.length || 0} league averages`)
         } else {
           console.error("Failed to fetch league averages:", averagesResponse.error)
         }

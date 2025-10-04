@@ -28,15 +28,11 @@ import { neon } from "@neondatabase/serverless"
 import type { EuroleaguePlayerStats, EuroleagueGameLog, PlayerStatsFromGameLogs } from "@/lib/db"
 
 // Debug the database URL
-console.log("DATABASE_URL available:", !!process.env.DATABASE_URL)
 
 export async function fetchTeamStats(season: number, phase: string, league = "euroleague"): Promise<any> {
-  console.log("=== fetchTeamStats CALLED (USING CUMULATIVE STANDINGS) ===")
-  console.log("Season:", season, "Phase:", phase, "League:", league)
 
   try {
     const result = await getTeamStats(season, phase, league)
-    console.log("Cumulative standings result:", result.length, "teams found")
     return result
   } catch (error) {
     console.error("Error in fetchTeamStats:", error)
@@ -59,13 +55,10 @@ export async function fetchTeamAdvancedStatsByTeamCode(
   phase: string,
   league = "euroleague",
 ): Promise<any> {
-  console.log("=== fetchTeamAdvancedStatsByTeamCode (NEW PRE-CALCULATED VERSION) ===")
-  console.log("TeamCode:", teamCode, "Season:", season, "Phase:", phase, "League:", league)
 
   try {
     // Use the new pre-calculated function from the new tables
     const result = await getTeamAdvancedStatsPrecalculated(teamCode, season, phase, league)
-    console.log("Pre-calculated advanced stats result:", result ? "found" : "not found")
     return result
   } catch (error) {
     console.error("Error in fetchTeamAdvancedStatsByTeamCode:", error)
@@ -79,12 +72,9 @@ export async function fetchAllTeamAdvancedStatsCalculated(
   phase: string,
   league = "euroleague",
 ): Promise<any[]> {
-  console.log("=== fetchAllTeamAdvancedStatsCalculated (NEW PRE-CALCULATED VERSION) ===")
-  console.log("Season:", season, "Phase:", phase, "League:", league)
 
   try {
     const result = await getAllTeamAdvancedStatsPrecalculated(season, phase, league)
-    console.log("All teams pre-calculated stats result:", result.length, "teams found")
     return result
   } catch (error) {
     console.error("Error in fetchAllTeamAdvancedStatsCalculated:", error)
@@ -93,41 +83,29 @@ export async function fetchAllTeamAdvancedStatsCalculated(
 }
 
 export async function fetchTeamAdvancedStatsByTeam(teamName: string, season: number, phase: string): Promise<any> {
-  console.log("=== DEPRECATED: fetchTeamAdvancedStatsByTeam ===")
-  console.log("This function should not be used anymore. Use fetchTeamAdvancedStatsByTeamCode instead.")
-  console.log("TeamName:", teamName, "Season:", season, "Phase:", phase)
 
   // For now, return null to avoid errors
   return null
 }
 
 export async function fetchTeamPlayers(teamNameOrCode: string, season: number, phase: string): Promise<any[]> {
-  console.log("=== SERVER ACTION DEBUG ===")
-  console.log("fetchTeamPlayers called with:", { teamNameOrCode, season, phase })
-  console.log("DATABASE_URL available:", !!process.env.DATABASE_URL)
 
   try {
     let teamCode: string
 
     // Check if the input is already a team code (3 letters, all caps)
     if (teamNameOrCode.length === 3 && teamNameOrCode === teamNameOrCode.toUpperCase()) {
-      console.log("Input appears to be a team code:", teamNameOrCode)
       teamCode = teamNameOrCode
     } else {
       // For team names, we should not use hardcoded mappings anymore
       // Instead, we should get the teamcode from the database
-      console.log("Input appears to be a team name, but we should use teamcode instead:", teamNameOrCode)
-      console.log("This function should be called with teamcode directly")
       return []
     }
 
-    console.log("Using team code:", teamCode, "for input:", teamNameOrCode)
 
     const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
-    console.log("Server action received players:", players.length)
 
     if (players.length > 0) {
-      console.log("First player from server action:", players[0])
     }
 
     return players
@@ -147,12 +125,9 @@ export async function fetchTeamPlayers(teamNameOrCode: string, season: number, p
 }
 
 export async function fetchTeamPlayersDirectly(teamCode: string, season: number, phase: string): Promise<any[]> {
-  console.log("=== fetchTeamPlayersDirectly CALLED ===")
-  console.log("Direct teamcode:", teamCode, "Season:", season, "Phase:", phase)
 
   try {
     const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
-    console.log("Direct fetch received players:", players.length)
     return players
   } catch (error) {
     console.error("Error in fetchTeamPlayersDirectly:", error)
@@ -174,8 +149,6 @@ export async function fetchAllPlayers(
   phase = "RS",
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
-  console.log("=== fetchAllPlayers CALLED ===")
-  console.log("Fetching players for season:", season, "phase:", phase, "league:", league)
 
   try {
     const sql = neon(process.env.DATABASE_URL!)
@@ -195,16 +168,9 @@ export async function fetchAllPlayers(
           [season, phase],
         )
 
-        console.log("Query executed successfully, received", result.length, "rows")
 
         // Log a sample of the first result if available
         if (result.length > 0) {
-          console.log("Sample result:", {
-            id: result[0].id,
-            player_name: result[0].player_name,
-            season: result[0].season,
-            phase: result[0].phase,
-          })
         }
 
         return result as EuroleaguePlayerStats[]
@@ -216,7 +182,6 @@ export async function fetchAllPlayers(
         retries++
 
         if (isRateLimit && retries <= maxRetries) {
-          console.log(`Rate limit hit, retrying in ${delay}ms (attempt ${retries}/${maxRetries})`)
           await new Promise((resolve) => setTimeout(resolve, delay))
           delay *= 2 // Exponential backoff
         } else {
@@ -238,26 +203,13 @@ export async function fetchPlayerStatsFromGameLogs(
   phase = "RS",
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
-  console.log("=== fetchPlayerStatsFromGameLogs CALLED (SERVER ACTION) ===")
-  console.log("Input parameters:")
-  console.log("- Season:", season, "Type:", typeof season)
-  console.log("- Phase:", phase, "Type:", typeof phase)
-  console.log("- League:", league, "Type:", typeof league)
 
   try {
-    console.log("About to call getPlayerStatsFromGameLogs from lib/db")
     const result = await getPlayerStatsFromGameLogs(season, phase, league)
 
-    console.log("=== SERVER ACTION RESULT ===")
-    console.log("Result type:", typeof result)
-    console.log("Result is array:", Array.isArray(result))
-    console.log("Result length:", Array.isArray(result) ? result.length : "N/A")
 
     if (Array.isArray(result) && result.length > 0) {
-      console.log("First result sample:", result[0])
-      console.log("First result keys:", Object.keys(result[0]))
     } else {
-      console.log("No results returned or result is not an array")
     }
 
     return result
@@ -280,21 +232,9 @@ export async function fetchTeamPlayerStatsFromGameLogs(
   phase = "RS",
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
-  console.log("=== fetchTeamPlayerStatsFromGameLogs CALLED ===")
-  console.log(
-    "Fetching team pre-calculated player stats for:",
-    teamCode,
-    "season:",
-    season,
-    "phase:",
-    phase,
-    "league:",
-    league,
-  )
 
   try {
     const result = await getTeamPlayerStatsFromGameLogs(teamCode, season, phase, league)
-    console.log("Team pre-calculated player stats result:", result.length, "players found")
     return result
   } catch (error) {
     console.error("Error in fetchTeamPlayerStatsFromGameLogs:", error)
@@ -307,15 +247,11 @@ export async function fetchPlayerGameLogs(
   season = 2024,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-  console.log("=== fetchPlayerGameLogs CALLED ===")
-  console.log("Fetching game logs for:", playerName, "season:", season)
 
   try {
     const logs = await getPlayerGameLogs(playerName, season, league)
-    console.log("Server action received game logs:", logs.length)
 
     if (logs.length > 0) {
-      console.log("First game log from server action:", logs[0])
     }
 
     return logs
@@ -340,15 +276,11 @@ export async function fetchTeamGameLogs(
   season: number,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-  console.log("=== fetchTeamGameLogs CALLED ===")
-  console.log("Fetching team game logs for:", teamCode, "season:", season, "league:", league)
 
   try {
     const logs = await getTeamGameLogs(teamCode, season, league)
-    console.log("Server action received team game logs:", logs.length)
 
     if (logs.length > 0) {
-      console.log("First team game log from server action:", logs[0])
     }
 
     return logs
@@ -363,15 +295,11 @@ export async function fetchTeamGameLogsWithOpponent(
   season: number,
   league = "euroleague",
 ): Promise<any[]> {
-  console.log("=== fetchTeamGameLogsWithOpponent CALLED ===")
-  console.log("Fetching team game logs with opponent for:", teamCode, "season:", season, "league:", league)
 
   try {
     const logs = await getTeamGameLogsWithOpponent(teamCode, season, league)
-    console.log("Server action received team game logs with opponent:", logs.length)
 
     if (logs.length > 0) {
-      console.log("First team game log with opponent from server action:", logs[0])
     }
 
     return logs
@@ -382,12 +310,9 @@ export async function fetchTeamGameLogsWithOpponent(
 }
 
 export async function fetchAllTeamGameLogsWithOpponent(season: number, league = "euroleague"): Promise<any[]> {
-  console.log("=== fetchAllTeamGameLogsWithOpponent CALLED ===")
-  console.log("Fetching all teams game logs for season:", season, "league:", league)
 
   try {
     const logs = await getAllTeamGameLogsWithOpponent(season, league)
-    console.log("Server action received all teams game logs:", logs.length)
 
     return logs
   } catch (error) {
@@ -402,8 +327,6 @@ export async function fetchTeamInfoByCode(teamCode: string, season: number): Pro
 
 // NEW: Fetch standings calculated from game logs
 export async function fetchStandingsFromGameLogs(season: number, phase: string, league = "euroleague"): Promise<any[]> {
-  console.log("=== fetchStandingsFromGameLogs CALLED ===")
-  console.log("Season:", season, "Phase:", phase, "League:", league)
 
   try {
     // Get standings calculated from game logs
@@ -419,7 +342,6 @@ export async function fetchStandingsFromGameLogs(season: number, phase: string, 
       teamlogo: teamInfo[team.teamcode]?.logo || team.teamlogo || "",
     }))
 
-    console.log("Calculated standings from game logs:", standingsWithTeamInfo.length, "teams")
     return standingsWithTeamInfo
   } catch (error) {
     console.error("Error in fetchStandingsFromGameLogs:", error)
@@ -429,12 +351,9 @@ export async function fetchStandingsFromGameLogs(season: number, phase: string, 
 
 // NEW: Get all unique team codes from game logs for a specific season and league
 export async function getAllTeamCodesFromGameLogs(season: number, league = "euroleague"): Promise<string[]> {
-  console.log("=== getAllTeamCodesFromGameLogs CALLED ===")
-  console.log("Season:", season, "League:", league)
 
   try {
     const teamCodes = await getUniqueTeamCodesFromGameLogs(season, league)
-    console.log("Found unique team codes:", teamCodes.length, "teams")
     return teamCodes
   } catch (error) {
     console.error("Error in getAllTeamCodesFromGameLogs:", error)
@@ -448,12 +367,9 @@ export async function fetchLeagueAveragesPrecalculated(
   phase: string,
   league = "euroleague",
 ): Promise<any> {
-  console.log("=== fetchLeagueAveragesPrecalculated ===")
-  console.log("Season:", season, "Phase:", phase, "League:", league)
 
   try {
     const result = await getLeagueAveragesPrecalculated(season, phase, league)
-    console.log("League averages result:", result ? "found" : "not found")
     return result
   } catch (error) {
     console.error("Error in fetchLeagueAveragesPrecalculated:", error)
@@ -467,15 +383,11 @@ export async function fetchGameLogsByGamecode(
   gamecode: string,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-  console.log("=== fetchGameLogsByGamecode CALLED ===")
-  console.log("Fetching game logs for gamecode:", gamecode, "season:", season, "league:", league)
 
   try {
     const logs = await getGameLogsByGamecode(season, gamecode, league)
-    console.log("Server action received game logs:", logs.length)
 
     if (logs.length > 0) {
-      console.log("First game log from server action:", logs[0])
     }
 
     return logs
