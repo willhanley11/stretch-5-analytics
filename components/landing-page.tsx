@@ -24,7 +24,7 @@ const seasons = [
   { id: 2024, display: "2024-25" },
   { id: 2023, display: "2023-24" },
   { id: 2022, display: "2022-23" },
-  { id: 2021, display: "2021-22" },
+  { id: 2021, display: "2021-22" }
 ]
 
 const leagues = [
