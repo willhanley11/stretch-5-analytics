@@ -21,9 +21,6 @@ const teamColors = {
   VIR: "#2f2f2f", // Virtus Segafredo Bologna - Darker black
   BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
   OLY: "#bf5050", // Olympiacos Piraeus - Darker red
-  DUB: "#2A3439",
-  MAN: "#A10022", 
-  NIN: "#E35205",
   MCO: "#b03340", // AS Monaco - Darker red
   ASV: "#8a8d90", // LDLC ASVEL Villeurbanne - Darker gray
   PRS: "#4e565f", // Paris Basketball - Darker slate
