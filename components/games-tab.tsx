@@ -162,6 +162,14 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     setSelectedGameTeam(teamCode)
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-gray-500">Loading games...</div>
+      </div>
+    )
+  }
+
   // Game log expandable component (exact copy from team-details-tab.tsx)
   const renderGameLogExpansion = (game: GameMatchup) => {
     // Ensure the log is for the correct game before rendering anything
@@ -482,14 +490,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     )
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading games...</div>
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-0 py-2 md:p-6">
       {/* Round Selector - Mobile Style */}
@@ -581,19 +581,37 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       {roundGames.length > 0 ? (
         <div className="px-0 md:px-0">
           <div className="grid gap-2 md:gap-3 md:grid-cols-2">
-            {roundGames.map((game, index) => (
-              <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
-                <div
-                  onClick={game.is_played && game.gamecode ? () => handleGameRowClick(game) : undefined}
-                  className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 p-1 md:p-2 ${
-                    game.is_played && game.gamecode 
-                      ? "hover:shadow-md cursor-pointer hover:bg-gray-50" 
-                      : "hover:shadow-md"
-                  } ${
-                    expandedGameForLogs?.gamecode === game.gamecode ? "shadow-md bg-gray-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center w-full">
+            {roundGames.map((game, index) => {
+              const gameDate = new Date(game.game_date)
+              const monthShort = gameDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+              const day = gameDate.getDate()
+
+              return (
+                <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
+                  {/* Game Card with integrated date */}
+                  <div
+                    onClick={game.is_played && game.gamecode ? () => handleGameRowClick(game) : undefined}
+                    className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 p-1 md:p-2 w-full max-w-full overflow-hidden ${
+                      game.is_played && game.gamecode 
+                        ? "hover:shadow-md cursor-pointer hover:bg-gray-50" 
+                        : "hover:shadow-md"
+                    } ${
+                      expandedGameForLogs?.gamecode === game.gamecode ? "shadow-md bg-gray-50" : ""
+                    }`}
+                  >
+                    <div className="flex items-center w-full">
+                      {/* Date Section */}
+                      <div className="flex-shrink-0 flex flex-col justify-center items-center text-center w-[30px] mr-0">
+                        <div className="text-[7px] md:text-[8px] font-bold text-gray-600 leading-none">
+                          {monthShort}
+                        </div>
+                        <div className="text-[10px] md:text-[11px] font-bold text-gray-800 leading-none">
+                          {day}
+                        </div>
+                      </div>
+                      
+                      {/* Divider Line */}
+                      <div className="h-8 w-px bg-gray-300 mr-2 flex-shrink-0"></div>
                 {/* Home Team */}
                 <div className="flex items-center space-x-0.5 flex-1 min-w-0 max-w-[40%]">
                   <img
@@ -648,8 +666,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     />
                   )}
                 </div>
-              </div>
-                </div>
+                    </div>
+                  </div>
                 
                 {/* Game log expansion - positioned correctly within grid */}
                 {game.is_played && game.gamecode && expandedGameForLogs?.gamecode === game.gamecode && (
@@ -658,7 +676,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                   </div>
                 )}
               </React.Fragment>
-            ))}
+              )
+            })}
           </div>
         </div>
       ) : (

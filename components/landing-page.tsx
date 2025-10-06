@@ -811,989 +811,17 @@ export default function LandingPage({
   }
 
 
-  const TeamDropdown = () => {
-    if (isTeamDataLoading) {
-      return (
-        <select 
-          disabled 
-          className="w-full h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-sm"
-        >
-          <option>Loading teams...</option>
-        </select>
-      )
-    }
+  
 
-    return (
-      <div className="relative w-full h-full">
-        {/* Simple looking button that mimics a select */}
-        <button 
-          ref={teamButtonRef}
-          className=" text-sm shadow w-full h-8 border border-gray-300 bg-white rounded-md px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative"
-          onClick={() => {
-            closeAllDropdowns()
-            if (!isTeamDropdownOpen) {
-              setIsTeamDropdownOpen(true)
-              calculateDropdownPosition(teamButtonRef, 'team')
-            }
-          }}
-        >
-          {/* Color strip */}
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-            style={{ backgroundColor: getTeamColor(selectedTeam) }}
-          />
-          <div className="flex items-center pl-2">
-            {selectedTeam ? (
-              <>
-                <div className="w-6 h-6 mr-2 flex-shrink-0">
-                  <div className="w-6 h-6  rounded flex items-center justify-center p-0.5">
-                    {getTeamLogo(selectedTeam, getSelectedTeamData(selectedTeam), selectedSeason)}
-                  </div>
-                </div>
-                <span className="truncate">{selectedTeam}</span>
-              </>
-            ) : (
-              <span>Select Team</span>
-            )}
-          </div>
-          <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`} />
-        </button>
+  
 
-        {/* Portal dropdown menu with logos */}
-        <PortalDropdown isOpen={isTeamDropdownOpen} dropdownId="team">
-          {availableTeams.map((teamName) => {
-            const teamData = getSelectedTeamData(teamName)
-            const isSelected = teamName === selectedTeam
+  
 
-            return (
-              <button
-                key={teamName}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTeam(teamName)
-                  setSelectedPlayerTeam(teamName)
-                  setSelectedPlayer(null)
-                  setIsTeamDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  isSelected ? "bg-gray-50 border-l-4 border-orange-500" : ""
-                }`}
-              >
-                <div className="w-6 h-6 mr-2 flex-shrink-0">
-                  <div className="w-6 h-6  rounded flex items-center justify-center p-0.5 ">
-                    {getTeamLogo(teamName, teamData, selectedSeason)}
-                  </div>
-                </div>
-                <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-              </button>
-            )
-          })}
-        </PortalDropdown>
-      </div>
-    )
-  }
+  
 
-  const PlayerTeamSelector = () => {
-    if (isPlayerDataLoading) {
-      return (
-        <div className="flex gap-2 w-full">
-          <button disabled className="flex-1 h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-left text-sm">
-            Loading...
-          </button>
-          <button disabled className="flex-1 h-8 md:h-10 border border-gray-200 bg-gray-100 rounded-md px-2 md:px-3 text-gray-500 cursor-not-allowed text-left text-sm">
-            Loading...
-          </button>
-        </div>
-      )
-    }
+  
 
-    return (
-      <div className="flex gap-2 w-full relative min-w-0">
-        {/* Team Select Button */}
-        <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
-          <button 
-            ref={playerTeamButtonRef}
-            className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
-            onClick={() => {
-              closeAllDropdowns()
-              if (!isPlayerTeamDropdownOpen) {
-                setIsPlayerTeamDropdownOpen(true)
-                calculateDropdownPosition(playerTeamButtonRef, 'playerTeam')
-              }
-            }}
-          >
-            {/* Color strip */}
-            <div 
-              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-              style={{ backgroundColor: getTeamColor(selectedPlayerTeam) }}
-            />
-            <div className="flex items-center pl-2">
-              {selectedPlayerTeam ? (
-                <div className="w-6 h-6 mr-2 flex-shrink-0">
-                  <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
-                    {getTeamLogo(selectedPlayerTeam, getSelectedTeamData(selectedPlayerTeam), selectedSeason)}
-                  </div>
-                </div>
-              ) : (
-                <span>Select Team</span>
-              )}
-            </div>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerTeamDropdownOpen ? "rotate-180" : ""}`} />
-          </button>
-
-          {/* Portal team dropdown menu with logos */}
-          <PortalDropdown isOpen={isPlayerTeamDropdownOpen} dropdownId="playerTeam" className="min-w-64 max-w-96">
-            {availableTeams.map((teamName) => {
-              const teamData = getSelectedTeamData(teamName)
-              const isSelected = selectedPlayerTeam === teamName
-
-              return (
-                <button
-                  key={teamName}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedPlayerTeam(teamName)
-                    setSelectedPlayer(null)
-                    setIsPlayerTeamDropdownOpen(false)
-                    setIsPlayerDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
-                      {getTeamLogo(teamName, teamData, selectedSeason)}
-                    </div>
-                  </div>
-                  <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-                </button>
-              )
-            })}
-          </PortalDropdown>
-        </div>
-
-        {/* Player Select Button */}
-        <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
-          <button 
-            ref={playerButtonRef}
-            className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
-            onClick={() => {
-              closeAllDropdowns()
-              if (!isPlayerDropdownOpen) {
-                setIsPlayerDropdownOpen(true)
-                calculateDropdownPosition(playerButtonRef, 'player')
-              }
-            }}
-            disabled={!selectedPlayerTeam}
-          >
-            {/* Color strip */}
-            <div 
-              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-              style={{ backgroundColor: getTeamColor(selectedPlayerTeam) }}
-            />
-            <span className="truncate pl-2">{selectedPlayer?.player_name || (!selectedPlayerTeam ? "Select Team First" : "Select Player")}</span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isPlayerDropdownOpen ? "rotate-180" : ""}`} />
-          </button>
-
-          {/* Portal player dropdown menu */}
-          <PortalDropdown isOpen={isPlayerDropdownOpen} dropdownId="player">
-            {teamPlayers.map((player, index) => {
-              const isSelected = player.player_id === selectedPlayer?.player_id
-
-              return (
-                <button
-                  key={`${player.player_id}-${player.player_name}-${index}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedPlayer(player)
-                    setIsPlayerDropdownOpen(false)
-                    setIsPlayerTeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
-                </button>
-              )
-            })}
-          </PortalDropdown>
-        </div>
-      </div>
-    )
-  }
-
-  // Comparison Player Selector Components (matching comparison tab exactly)
-  const CompPlayerSelectorLeft = () => {
-    const selectedTeamId = compSelectedTeams[0]
-    const selectedPlayerId = compSelectedPlayerIds[0]
-    const selectedTeam = selectedTeamId ? compTeamsList.find(t => t.id === selectedTeamId) : null
-    const selectedPlayer = selectedTeamId && selectedPlayerId ? compPlayersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
-    const selectedTeamColor = selectedPlayer ? getCompTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
-    
-    return (
-      <div className="bg-black shadow-md rounded-l-xl border-r border-black relative team-dropdown-container w-full h-full">
-        <div className="w-full h-full text-left">
-          <div
-            className="rounded-l-xl overflow-hidden shadow-xl w-full h-full hover:shadow-xl transition-shadow border-r-0 flex items-center"
-            style={{
-              border: '1px solid black',
-              borderRight: 'none',
-              backgroundColor: selectedTeamColor,
-            }}
-          >
-            <div className="flex flex-row items-center p-2 w-full">
-              {/* Team Logo Section - Clickable - Fixed width */}
-              <button 
-                ref={comp1TeamButtonRef}
-                onClick={() => {
-                  closeAllDropdowns()
-                  if (!isCompPlayer1TeamDropdownOpen) {
-                    setIsCompPlayer1TeamDropdownOpen(true)
-                    calculateDropdownPosition(comp1TeamButtonRef, 'comp1Team')
-                  }
-                }}
-                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-6"
-              >
-                <div className="flex-shrink-0 mr-0.5">
-                  {selectedPlayer && selectedPlayer.teamlogo ? (
-                    <div
-                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <img
-                        src={selectedPlayer.teamlogo}
-                        alt={`${selectedPlayer.player_team_name} logo`}
-                        className="w-4 h-4 object-contain"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
-                      style={{
-                        backgroundColor: "white",
-                        color: selectedTeamColor,
-                        border: '1px solid black',
-                      }}
-                    >
-                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Team Dropdown arrow */}
-                <div className=" mr-0.5">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isCompPlayer1TeamDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-              
-              {/* Player Name Section - Clickable - Takes remaining space */}
-              <button 
-                onClick={() => {
-                  closeAllDropdowns()
-                  if (!isCompPlayer1PlayerDropdownOpen) {
-                    setIsCompPlayer1PlayerDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
-                }}
-                className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
-              >
-                {/* Player Name - Fixed container with proper truncation */}
-                <div className="flex items-left flex-1 min-w-0 overflow-hidden">
-                  <span
-                    className="text-[10px] font-bold truncate block w-full text-left"
-                    style={{
-                      color: "white",
-                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                    }}
-                  >
-                    {selectedPlayer?.player_name || "Select Player 1"}
-                  </span>
-                </div>
-                
-                {/* Player Dropdown arrow */}
-                <div className="-ml-0.5 flex-shrink-0">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Team dropdown menu */}
-        {isCompPlayer1TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
-            {compTeamsList.map((team) => {
-              const isSelected = team.id === selectedTeamId
-              
-              return (
-                <button
-                  key={team.id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCompTeamSelect(0, team.id)
-                    // Auto-select first player from selected team
-                    const firstPlayer = compPlayersByTeam[team.id]?.[0]
-                    if (firstPlayer) {
-                      handleCompPlayerSelect(0, firstPlayer.player_id)
-                    }
-                    setIsCompPlayer1TeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div
-                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    />
-                  </div>
-                  <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {team.name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-        
-        {/* Player dropdown menu */}
-        {isCompPlayer1PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
-            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
-              const isSelected = player.player_id === selectedPlayerId
-              
-              return (
-                <button
-                  key={`comp1-${player.player_id}-${player.player_name}-${index}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCompPlayerSelect(0, player.player_id)
-                    setIsCompPlayer1PlayerDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {player.player_name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const CompPlayerSelectorRight = () => {
-    const selectedTeamId = compSelectedTeams[1]
-    const selectedPlayerId = compSelectedPlayerIds[1]
-    const selectedTeam = selectedTeamId ? compTeamsList.find(t => t.id === selectedTeamId) : null
-    const selectedPlayer = selectedTeamId && selectedPlayerId ? compPlayersByTeam[selectedTeamId]?.find(p => p.player_id === selectedPlayerId) : null
-    const selectedTeamColor = selectedPlayer ? getCompTeamColorStyles(selectedPlayer.player_team_code).backgroundColor : "#6b7280"
-    
-    return (
-      <div className="bg-black shadow-md rounded-r-xl relative team-dropdown-container w-full h-full">
-        <div className="w-full h-full text-left">
-          <div
-            className="rounded-r-xl overflow-hidden shadow-xl w-full h-full hover:shadow-xl transition-shadow border-l-0 flex items-center"
-            style={{
-              border: '1px solid black',
-              borderLeft: 'none',
-              backgroundColor: selectedTeamColor,
-            }}
-          >
-            <div className="flex flex-row items-center p-2 w-full">
-              {/* Team Logo Section - Clickable - Fixed width */}
-              <button 
-                onClick={() => {
-                  closeAllDropdowns()
-                  if (!isCompPlayer2TeamDropdownOpen) {
-                    setIsCompPlayer2TeamDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
-                }}
-                className="flex items-center flex-shrink-0 border-r border-gray-200 pr-1 cursor-pointer w-8"
-              >
-                <div className="flex-shrink-0 mr-0.5">
-                  {selectedPlayer && selectedPlayer.teamlogo ? (
-                    <div
-                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <img
-                        src={selectedPlayer.teamlogo}
-                        alt={`${selectedPlayer.player_team_name} logo`}
-                        className="w-4 h-4 object-contain"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-5 h-5 rounded-lg flex items-center justify-center font-bold text-[10px] shadow-sm"
-                      style={{
-                        backgroundColor: "white",
-                        color: selectedTeamColor,
-                        border: '1px solid black',
-                      }}
-                    >
-                      {selectedTeam?.name?.split(" ").map(word => word[0]).join("") || "?"}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Team Dropdown arrow */}
-                <div className=" mr-0.5">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isCompPlayer2TeamDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-              
-              {/* Player Name Section - Clickable - Takes remaining space */}
-              <button 
-                onClick={() => {
-                  closeAllDropdowns()
-                  if (!isCompPlayer2PlayerDropdownOpen) {
-                    setIsCompPlayer2PlayerDropdownOpen(true)
-                    setCategoryHeight('comparison', 200)
-                  }
-                }}
-                className="flex items-center flex-1 min-w-0 overflow-hidden pl-1 cursor-pointer"
-              >
-                {/* Player Name - Fixed container with proper truncation */}
-                <div className="flex items-left flex-1 min-w-0 overflow-hidden">
-                  <span
-                    className="text-[10px] font-bold truncate block w-full text-left"
-                    style={{
-                      color: "white",
-                      textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                    }}
-                  >
-                    {selectedPlayer?.player_name || "Select Player 2"}
-                  </span>
-                </div>
-                
-                {/* Player Dropdown arrow */}
-                <div className="-ml-0.5 flex-shrink-0">
-                  <ChevronDown
-                    className={`h-3 w-3 text-white transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Team dropdown menu */}
-        {isCompPlayer2TeamDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
-            {compTeamsList.map((team) => {
-              const isSelected = team.id === selectedTeamId
-              
-              return (
-                <button
-                  key={team.id}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCompTeamSelect(1, team.id)
-                    // Auto-select first player from selected team
-                    const firstPlayer = compPlayersByTeam[team.id]?.[0]
-                    if (firstPlayer) {
-                      handleCompPlayerSelect(1, firstPlayer.player_id)
-                    }
-                    setIsCompPlayer2TeamDropdownOpen(false)
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div
-                      className="w-6 h-6 bg-light-beige rounded-lg flex items-center justify-center p-0.5"
-                      style={{
-                        border: "1px solid black",
-                        backgroundColor: "white",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    />
-                  </div>
-                  <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {team.name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-        
-        {/* Player dropdown menu */}
-        {isCompPlayer2PlayerDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto">
-            {selectedTeamId && compPlayersByTeam[selectedTeamId]?.map((player, index) => {
-              const isSelected = player.player_id === selectedPlayerId
-              
-              return (
-                <button
-                  key={`comp2-${player.player_id}-${player.player_name}-${index}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCompPlayerSelect(1, player.player_id)
-                    setIsCompPlayer2PlayerDropdownOpen(false)
-                    // Navigation handled by Go button now
-                  }}
-                  className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                    isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                  }`}
-                >
-                  <span className={`font-medium text-[9px] truncate ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                    {player.player_name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const ComparisonSelector = () => {
-    const selectedPlayer1 = compSelectedPlayerIds[0] && compSelectedTeams[0] 
-      ? compPlayersByTeam[compSelectedTeams[0]]?.find(p => p.player_id === compSelectedPlayerIds[0])
-      : null
-    
-    const selectedPlayer2 = compSelectedPlayerIds[1] && compSelectedTeams[1]
-      ? compPlayersByTeam[compSelectedTeams[1]]?.find(p => p.player_id === compSelectedPlayerIds[1])
-      : null
-
-    return (
-      <div className="flex flex-col gap-1 w-full relative">
-        {/* Player 1 Team + Player Selection */}
-        <div className="flex gap-2 w-full relative min-w-0">
-          {/* Player 1 Team Button */}
-          <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
-            <button 
-              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
-              onClick={() => {
-                closeAllDropdowns()
-                if (!isCompPlayer1TeamDropdownOpen) {
-                  setIsCompPlayer1TeamDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
-              }}
-            >
-              {/* Color strip */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getTeamColor(selectedPlayer1?.player_team_name) }}
-              />
-              <div className="flex items-center pl-2">
-                {selectedPlayer1 ? (
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
-                      {getTeamLogo(selectedPlayer1.player_team_name, getSelectedTeamData(selectedPlayer1.player_team_name), selectedSeason)}
-                    </div>
-                  </div>
-                ) : (
-                  <span>Select Team</span>
-                )}
-              </div>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1TeamDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Player 1 Team dropdown menu */}
-            {isCompPlayer1TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
-                {compTeamsList.map((team) => {
-                  const isSelected = compSelectedTeams[0] === team.id
-                  const teamName = team.name
-                  const teamData = getSelectedTeamData(teamName)
-
-                  return (
-                    <button
-                      key={team.id}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCompTeamSelect(0, team.id)
-                        setIsCompPlayer1TeamDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                      }`}
-                    >
-                      <div className="w-6 h-6 mr-2 flex-shrink-0">
-                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
-                          {getTeamLogo(teamName, teamData, selectedSeason)}
-                        </div>
-                      </div>
-                      <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Player 1 Player Button */}
-          <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
-            <button 
-              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
-              onClick={() => {
-                closeAllDropdowns()
-                if (!isCompPlayer1PlayerDropdownOpen) {
-                  setIsCompPlayer1PlayerDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
-              }}
-              disabled={!compSelectedTeams[0]}
-            >
-              {/* Color strip */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getTeamColor(selectedPlayer1?.player_team_name) }}
-              />
-              <span className="truncate pl-2">{selectedPlayer1?.player_name || (!compSelectedTeams[0] ? "Select Team First" : "Select Player 1")}</span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer1PlayerDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Player 1 Player dropdown menu */}
-            {isCompPlayer1PlayerDropdownOpen && compSelectedTeams[0] && (
-              <div className="absolute top-full left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]">
-                {(compPlayersByTeam[compSelectedTeams[0]] || []).map((player, index) => {
-                  const isSelected = player.player_id === selectedPlayer1?.player_id
-
-                  return (
-                    <button
-                      key={`newcomp1-${player.player_id}-${player.player_name}-${index}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCompPlayerSelect(0, player.player_id)
-                        setIsCompPlayer1PlayerDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                      }`}
-                    >
-                      <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Player 2 Team + Player Selection */}
-        <div className="flex gap-2 w-full relative min-w-0">
-          {/* Player 2 Team Button */}
-          <div className="flex-.3 relative min-w-0" style={{maxWidth: '120px'}}>
-            <button 
-              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
-              onClick={() => {
-                closeAllDropdowns()
-                if (!isCompPlayer2TeamDropdownOpen) {
-                  setIsCompPlayer2TeamDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
-              }}
-            >
-              {/* Color strip */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getTeamColor(selectedPlayer2?.player_team_name) }}
-              />
-              <div className="flex items-center pl-2">
-                {selectedPlayer2 ? (
-                  <div className="w-6 h-6 mr-2 flex-shrink-0">
-                    <div className="w-6 h-6 rounded flex items-center justify-center p-0.5">
-                      {getTeamLogo(selectedPlayer2.player_team_name, getSelectedTeamData(selectedPlayer2.player_team_name), selectedSeason)}
-                    </div>
-                  </div>
-                ) : (
-                  <span>Select Team</span>
-                )}
-              </div>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2TeamDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Player 2 Team dropdown menu */}
-            {isCompPlayer2TeamDropdownOpen && (
-              <div className="absolute top-full left-0 border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 bg-white" style={{minWidth: '256px', width: 'max-content', maxWidth: '400px'}}>
-                {compTeamsList.map((team) => {
-                  const isSelected = compSelectedTeams[1] === team.id
-                  const teamName = team.name
-                  const teamData = getSelectedTeamData(teamName)
-
-                  return (
-                    <button
-                      key={team.id}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCompTeamSelect(1, team.id)
-                        setIsCompPlayer2TeamDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                      }`}
-                    >
-                      <div className="w-6 h-6 mr-2 flex-shrink-0">
-                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
-                          {getTeamLogo(teamName, teamData, selectedSeason)}
-                        </div>
-                      </div>
-                      <span className="font-medium text-sm text-gray-900 truncate">{teamName}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Player 2 Player Button */}
-          <div className="flex-1 relative min-w-0 sm:max-w-[280px]">
-            <button 
-              className="w-full h-8 md:h-10 border border-gray-200 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed relative text-sm"
-              onClick={() => {
-                closeAllDropdowns()
-                if (!isCompPlayer2PlayerDropdownOpen) {
-                  setIsCompPlayer2PlayerDropdownOpen(true)
-                  setCategoryHeight('comparison', 200)
-                }
-              }}
-              disabled={!compSelectedTeams[1]}
-            >
-              {/* Color strip */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getTeamColor(selectedPlayer2?.player_team_name) }}
-              />
-              <span className="truncate pl-2">{selectedPlayer2?.player_name || (!compSelectedTeams[1] ? "Select Team First" : "Select Player 2")}</span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isCompPlayer2PlayerDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Player 2 Player dropdown menu */}
-            {isCompPlayer2PlayerDropdownOpen && compSelectedTeams[1] && (
-              <div className="absolute top-full left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] max-h-48 overflow-y-auto mt-1 min-w-[300px]">
-                {(compPlayersByTeam[compSelectedTeams[1]] || []).map((player, index) => {
-                  const isSelected = player.player_id === selectedPlayer2?.player_id
-
-                  return (
-                    <button
-                      key={`newcomp2-${player.player_id}-${player.player_name}-${index}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCompPlayerSelect(1, player.player_id)
-                        setIsCompPlayer2PlayerDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                        isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                      }`}
-                    >
-                      <span className="font-medium text-sm text-gray-900 truncate">{player.player_name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const categories = [
-    {
-      id: "teams",
-      title: "Teams",
-      icon: BarChart,
-      description: "Reports, Schedule/Results, Rosters",
-      color: "#3E5C76",
-      content: (
-        <div className="w-full h-8 md:h-10 flex items-center">
-          {isTeamDataLoading ? (
-            <div className="w-full flex justify-center items-center">
-              <LeagueSpinner 
-                league={selectedLeague as "euroleague" | "eurocup"} 
-                size="sm" 
-                message="Loading teams..."
-              />
-            </div>
-          ) : (
-            <TeamDropdown />
-          )}
-        </div>
-      ),
-      goButton: {
-        onClick: () => {
-          onNavigate("teams", { team: selectedTeam, league: selectedLeague, season: selectedSeason })
-        },
-        disabled: !selectedTeam
-      }
-    },
-    {
-      id: "players", 
-      title: "Players",
-      icon: Users,
-      description: "Profiles, Shot Charts, Game Logs",
-      color: "#3E5C76",
-      content: (
-        <div className="w-full h-8 md:h-10 flex items-center">
-          {isPlayerDataLoading || isTeamDataLoading ? (
-            <div className="w-full flex justify-center items-center">
-              <LeagueSpinner 
-                league={selectedLeague as "euroleague" | "eurocup"} 
-                size="sm" 
-                message="Loading players..."
-              />
-            </div>
-          ) : (
-            <PlayerTeamSelector />
-          )}
-        </div>
-      ),
-      goButton: {
-        onClick: () => onNavigate("statistics", { team: selectedPlayerTeam, player: selectedPlayer, league: selectedLeague, season: selectedSeason }),
-        disabled: !selectedPlayer
-      }
-    },
-    {
-      id: "league",
-      title: "Leaders", 
-      icon: Trophy,
-      description: "League Standings, Player Statistics",
-      color: "#bf5050",
-      content: (
-        <div className="w-full flex items-center gap-2 h-8 md:h-10">
-          {isLeadersDataLoading ? (
-            <div className="w-full flex justify-center items-center">
-              <LeagueSpinner 
-                league={selectedLeague as "euroleague" | "eurocup"} 
-                size="sm" 
-                message="Loading standings..."
-              />
-            </div>
-          ) : (
-            <>
-          {/* League Standings Dropdown */}
-          <div className="relative w-full h-full flex-1">
-            <button 
-              ref={leagueButtonRef}
-              className="shadow w-full h-8 md:h-10 border border-gray-300 bg-white rounded-md px-2 md:px-3 text-left text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 flex items-center justify-between relative text-sm"
-              onClick={() => {
-                closeAllDropdowns()
-                if (!isLeagueDropdownOpen) {
-                  setIsLeagueDropdownOpen(true)
-                  calculateDropdownPosition(leagueButtonRef, 'league')
-                }
-              }}
-            >
-              {/* Color strip */}
-              <div 
-                className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                style={{ backgroundColor: getCurrentLeagueColor() }}
-              />
-              <span className="truncate pl-2">
-                {selectedTableMode === "league" ? "League Standings" : "Player Statistics"}
-              </span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Portal league dropdown menu */}
-            <PortalDropdown isOpen={isLeagueDropdownOpen} dropdownId="league">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTableMode("league")
-                  setIsLeagueDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  selectedTableMode === "league" ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                }`}
-              >
-                <span className="truncate text-sm">League Standings</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedTableMode("player")
-                  setIsLeagueDropdownOpen(false)
-                }}
-                className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                  selectedTableMode === "player" ? "bg-gray-50 border-l-4 border-blue-500" : ""
-                }`}
-              >
-                <span className="truncate text-sm">Player Statistics</span>
-              </button>
-            </PortalDropdown>
-          </div>
-          
-            </>
-          )}
-        </div>
-      ),
-      goButton: {
-        onClick: () => onNavigate("standings", { mode: selectedTableMode, league: selectedLeague, season: selectedSeason }),
-        disabled: false
-      }
-    },
-    {
-      id: "comparison",
-      title: "Player Comparison", 
-      icon: Scale,
-      description: "Averages, Per-40",
-      color: "#3E5C76",
-      content: (
-        <div className="w-full flex items-center" style={{height: "60px"}}>
-          {isComparisonDataLoading ? (
-            <div className="w-full flex justify-center items-center">
-              <LeagueSpinner 
-                league={selectedLeague as "euroleague" | "eurocup"} 
-                size="sm" 
-                message="Loading players..."
-              />
-            </div>
-          ) : (
-            <ComparisonSelector />
-          )}
-        </div>
-      ),
-      goButton: {
-        onClick: () => onNavigate("comparison", { 
-          players: [
-            compSelectedPlayerIds[0] && compSelectedTeams[0] 
-              ? compPlayersByTeam[compSelectedTeams[0]]?.find(p => p.player_id === compSelectedPlayerIds[0])
-              : null,
-            compSelectedPlayerIds[1] && compSelectedTeams[1]
-              ? compPlayersByTeam[compSelectedTeams[1]]?.find(p => p.player_id === compSelectedPlayerIds[1])
-              : null
-          ].filter(Boolean),
-          league: selectedLeague,
-          season: selectedSeason
-        }),
-        disabled: !compSelectedPlayerIds[0] || !compSelectedPlayerIds[1]
-      }
-    }
-  ]
+  
 
   // State for showing the 4-box menu after welcome
   const [showMenu, setShowMenu] = useState(false)
@@ -1838,6 +866,7 @@ export default function LandingPage({
     
     // Map menu selections to the appropriate tabs
     const tabMapping = {
+      'games':'games',
       'teams': 'teams',
       'players': 'statistics', 
       'leaders': 'standings',
@@ -2082,6 +1111,65 @@ export default function LandingPage({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
               >
+                {/* Games Box */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="bg-black shadow-md rounded-xl relative"
+                  style={{ zIndex: 10, contain: 'layout style', willChange: 'opacity' }}
+                >
+                  <button 
+                    className="w-full text-left"
+                    onClick={() => handleMenuSelection('games')}
+                  >
+                    <div
+                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
+                      style={{
+                        border: `1px solid black`,
+                        backgroundColor: '#763E5C',
+                      }}
+                    >
+                      <div className="flex items-center p-3 gap-3">
+                        {/* Icon section */}
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
+                            <div
+                              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2"
+                              style={{
+                                border: "1px solid black",
+                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                              }}
+                            >
+                              <Users className="w-6 h-6 text-black" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Title and description */}
+                        <div className="flex-grow">
+                          <h3
+                            className="text-md font-bold text-white"
+                            style={{
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                            }}
+                          >
+                            Games
+                          </h3>
+                          <p
+                            className="text-sm text-white opacity-90"
+                            style={{
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                            }}
+                          >
+                            Upcoming Games & Round Results
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </motion.div>
+
                 {/* Teams Box */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -2120,7 +1208,7 @@ export default function LandingPage({
                         {/* Title and description */}
                         <div className="flex-grow">
                           <h3
-                            className="text-lg font-bold text-white mb-1"
+                            className="text-md font-bold text-white"
                             style={{
                               textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                             }}
@@ -2157,7 +1245,7 @@ export default function LandingPage({
                       className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
                       style={{
                         border: `1px solid black`,
-                        backgroundColor: '#15803D',
+                        backgroundColor: '#36454F',
                       }}
                     >
                       <div className="flex items-center p-3 gap-3">
@@ -2179,7 +1267,7 @@ export default function LandingPage({
                         {/* Title and description */}
                         <div className="flex-grow">
                           <h3
-                            className="text-lg font-bold text-white mb-1"
+                            className="text-md font-bold text-white"
                             style={{
                               textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                             }}
@@ -2238,7 +1326,7 @@ export default function LandingPage({
                         {/* Title and description */}
                         <div className="flex-grow">
                           <h3
-                            className="text-lg font-bold text-white mb-1"
+                            className="text-md font-bold text-white "
                             style={{
                               textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                             }}
@@ -2275,7 +1363,7 @@ export default function LandingPage({
                       className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
                       style={{
                         border: `1px solid black`,
-                        backgroundColor: '#6D28D9',
+                        backgroundColor: '#5C763E',
                       }}
                     >
                       <div className="flex items-center p-3 gap-3">
@@ -2297,7 +1385,7 @@ export default function LandingPage({
                         {/* Title and description */}
                         <div className="flex-grow">
                           <h3
-                            className="text-lg font-bold text-white mb-1"
+                            className="text-md font-bold text-white"
                             style={{
                               textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                             }}
@@ -2310,7 +1398,7 @@ export default function LandingPage({
                               textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
                             }}
                           >
-                            Player H2H: Averages, Per-40
+                            Player Head to Head
                           </p>
                         </div>
                       </div>
