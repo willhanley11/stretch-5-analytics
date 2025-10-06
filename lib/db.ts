@@ -902,6 +902,83 @@ export async function getTeamSchedule(
   }
 }
 
+// Function to get team schedule including upcoming games from vwschedule_hardcoded_euroleague
+export async function getTeamScheduleWithUpcoming(
+  teamcode: string,
+  season: number,
+  league = "euroleague",
+): Promise<ScheduleResult[]> {
+  try {
+    // Get played games from existing schedule_results table
+    const playedGames = await getTeamSchedule(teamcode, season, league)
+
+    // Get upcoming games from vwschedule_hardcoded_euroleague table (only for Euroleague 2025)
+    let upcomingGames: ScheduleResult[] = []
+    if (league === "euroleague" && season === 2025) {
+      // Get the rounds that have already been played
+      const playedRounds = new Set(playedGames.map(game => game.round))
+      
+      const upcomingResults = await executeWithRetry(async () => {
+        return await sql.query(
+          `SELECT 
+             date as game_date,
+             round,
+             teamcode,
+             name as team,
+             teamlogo,
+             opponentcode,
+             opponentname as opponent,
+             opponentlogo,
+             CASE 
+               WHEN teamcode = $1 THEN 'Home'
+               ELSE 'Away'
+             END as location,
+             'RS' as phase
+           FROM vwschedule_hardcoded_euroleague 
+           WHERE (teamcode = $1 OR opponentcode = $1)
+           ORDER BY date ASC, round ASC`,
+          [teamcode]
+        )
+      })
+
+      // Filter out games that have already been played
+      const filteredUpcomingResults = upcomingResults.filter(game => !playedRounds.has(game.round))
+
+      // Transform upcoming games to match ScheduleResult interface
+      upcomingGames = filteredUpcomingResults.map((game: any) => ({
+        id: `upcoming-${game.round}-${game.teamcode}-${game.opponentcode}`,
+        teamcode: game.teamcode === teamcode ? game.teamcode : game.opponentcode,
+        team: game.teamcode === teamcode ? game.team : game.opponent,
+        teamlogo: game.teamcode === teamcode ? game.teamlogo : game.opponentlogo,
+        opponentcode: game.teamcode === teamcode ? game.opponentcode : game.teamcode,
+        opponent: game.teamcode === teamcode ? game.opponent : game.team,
+        opponentlogo: game.teamcode === teamcode ? game.opponentlogo : game.teamlogo,
+        game_date: game.game_date,
+        round: game.round,
+        location: game.location,
+        team_score: null, // No result yet
+        opponent_score: null, // No result yet
+        result: null, // No result yet
+        record: null, // No record yet
+        wins: null,
+        losses: null,
+        phase: game.phase,
+        gamecode: null, // No gamecode for upcoming games
+        boxscore: null, // No boxscore for upcoming games
+        is_upcoming: true // Flag to identify upcoming games
+      }))
+    }
+
+    // Combine played and upcoming games, sort by round
+    const allGames = [...playedGames, ...upcomingGames].sort((a, b) => a.round - b.round)
+
+    return allGames
+  } catch (error) {
+    console.error("Error fetching team schedule with upcoming games:", error)
+    return []
+  }
+}
+
 // Updated function to get players for a specific team using team code
 export async function getTeamPlayers(
   teamCode: string,

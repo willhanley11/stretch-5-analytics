@@ -7,6 +7,7 @@ import { euroleague_team_colors } from "./yamagata-team-stats"
 
 import {
   fetchTeamSchedule,
+  fetchTeamScheduleWithUpcoming,
   fetchTeamGameLogs,
   fetchTeamAdvancedStatsByTeamCode,
   fetchLeagueAveragesPrecalculated,
@@ -87,7 +88,7 @@ export interface EuroleaguePlayerStats {
 }
 
 export interface ScheduleResult {
-  id: number
+  id: number | string
   teamcode: string
   team: string // Added team name
   teamlogo: string // Added team logo
@@ -97,13 +98,14 @@ export interface ScheduleResult {
   game_date: string
   round: number
   location: string
-  team_score: number
-  opponent_score: number
-  result: string
-  record: string
+  team_score?: number | null
+  opponent_score?: number | null
+  result?: string | null
+  record?: string | null
   phase: string
-  boxscore: string
-  gamecode: string // Added gamecode
+  boxscore?: string
+  gamecode?: string // Added gamecode
+  is_upcoming?: boolean // Flag for upcoming games
 }
 
 export interface EuroleagueGameLog {
@@ -634,7 +636,7 @@ export function TeamDetailsTab({
         try {
           const teamCode = await getTeamCodeForSeason(selectedTeam, selectedSeason)
           if (teamCode) {
-            const data = await fetchTeamSchedule(teamCode, selectedSeason, league)
+            const data = await fetchTeamScheduleWithUpcoming(teamCode, selectedSeason, league)
             setScheduleData(data)
           } else {
             console.warn("No team code found for:", selectedTeam)
@@ -969,30 +971,36 @@ export function TeamDetailsTab({
             // Format the date to remove time
             const formattedDate = game.game_date ? new Date(game.game_date).toLocaleDateString() : ""
 
+            // Check if this is an upcoming game
+            const isUpcoming = game.is_upcoming === true
+
             // Format the result to show W/L before score in tabular format
-            const isWin = game.result === "W" || game.result === "Win"
-            const isLoss = game.result === "L" || game.result === "Loss"
+            const isWin = !isUpcoming && (game.result === "W" || game.result === "Win")
+            const isLoss = !isUpcoming && (game.result === "L" || game.result === "Loss")
 
-            // Convert result to W/L format
-            const resultDisplay = isWin ? "W" : isLoss ? "L" : game.result || "-"
+            // Convert result to W/L format for played games, blank for upcoming
+            const resultDisplay = isUpcoming ? "" : isWin ? "W" : isLoss ? "L" : game.result || "-"
 
-            const formattedResult =
-              game.team_score !== null && game.opponent_score !== null
+            const formattedResult = isUpcoming 
+              ? ""
+              : game.team_score !== null && game.opponent_score !== null
                 ? `${resultDisplay} ${game.team_score}-${game.opponent_score}`
                 : "-"
 
-            // Determine row background color based on result
-            const rowBgColor = isWin
-              ? "bg-green-100 hover:bg-green-200"
-              : isLoss
-                ? "bg-red-100 hover:bg-red-200"
-                : "hover:bg-gray-50"
+            // Determine row background color based on result (no colors for upcoming games)
+            const rowBgColor = isUpcoming
+              ? "hover:bg-gray-50"
+              : isWin
+                ? "bg-green-100 hover:bg-green-200"
+                : isLoss
+                  ? "bg-red-100 hover:bg-red-200"
+                  : "hover:bg-gray-50"
 
             return (
               <React.Fragment key={game.id}>
                 <tr
-                  onClick={() => handleGameRowClick(game)}
-                  className={`border-b border-black transition-colors cursor-pointer ${rowBgColor} ${
+                  onClick={isUpcoming ? undefined : () => handleGameRowClick(game)}
+                  className={`border-b border-black transition-colors ${isUpcoming ? "cursor-default" : "cursor-pointer"} ${rowBgColor} ${
                     expandedGameForLogs?.id === game.id ? "bg-gray-100" : ""
                   } ${expandedGameForLogs && expandedGameForLogs.id !== game.id ? "opacity-30" : ""}`}
                 >
@@ -1015,7 +1023,7 @@ export function TeamDetailsTab({
                   </td>
                   <td className="py-0.5 px-0.5 text-center border-r border-gray-200 font-mono text-[10px] md:text-xs">
                     <span
-                      className={`font-medium ${isWin ? "text-green-800" : isLoss ? "text-red-800" : ""} whitespace-nowrap`}
+                      className={`font-medium ${isUpcoming ? "" : isWin ? "text-green-800" : isLoss ? "text-red-800" : ""} whitespace-nowrap`}
                     >
                       {formattedResult}
                     </span>
@@ -1024,14 +1032,14 @@ export function TeamDetailsTab({
                     {game.location}
                   </td>
                   <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
-                    {game.record || "-"}
+                    {isUpcoming ? "-" : game.record || "-"}
                   </td>
                   <td className="py-0.5 px-0.5 text-center text-gray-400 text-xs">
-                    +
+                    {isUpcoming ? "" : "+"}
                   </td>
                 </tr>
                 {/* Game log expansion */}
-                {renderGameLogExpansion(game)}
+                {!isUpcoming && renderGameLogExpansion(game)}
               </React.Fragment>
             )
           })}
