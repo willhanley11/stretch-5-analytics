@@ -902,6 +902,101 @@ export async function getTeamSchedule(
   }
 }
 
+// Function to get all games by round and season for Games tab
+export async function getAllGamesByRoundAndSeason(
+  season: number,
+  league = "euroleague",
+): Promise<any[]> {
+  try {
+    const tables = getTableNames(league)
+    const scheduleTable = tables.scheduleResults
+    
+    // Get played games from schedule_results table
+    const playedGames = await executeWithRetry(async () => {
+      return await sql.query(
+        `SELECT 
+           round,
+           game_date,
+           teamcode as home_teamcode,
+           team as home_team,
+           teamlogo as home_teamlogo,
+           opponentcode as away_teamcode,
+           opponent as away_team,
+           opponentlogo as away_teamlogo,
+           team_score as home_score,
+           opponent_score as away_score,
+           gamecode,
+           true as is_played
+         FROM ${scheduleTable}
+         WHERE season = $1 AND location = 'Home'
+         ORDER BY round ASC, game_date ASC`,
+        [season]
+      )
+    })
+
+    // Get upcoming games from vwschedule_hardcoded_euroleague (only for Euroleague 2025)
+    let upcomingGames: any[] = []
+    if (league === "euroleague" && season === 2025) {
+      // Get rounds that have already been played
+      const playedRounds = new Set(playedGames.map(game => game.round))
+      
+      const upcomingResults = await executeWithRetry(async () => {
+        return await sql.query(
+          `SELECT DISTINCT
+             round,
+             date as game_date,
+             teamcode as home_teamcode,
+             name as home_team,
+             teamlogo as home_teamlogo,
+             opponentcode as away_teamcode,
+             opponentname as away_team,
+             opponentlogo as away_teamlogo
+           FROM vwschedule_hardcoded_euroleague
+           WHERE teamcode IS NOT NULL AND opponentcode IS NOT NULL
+           ORDER BY round ASC, date ASC`
+        )
+      })
+
+      // Filter out games that have already been played and remove duplicates
+      const seenGames = new Set()
+      upcomingGames = upcomingResults
+        .filter(game => !playedRounds.has(game.round))
+        .filter(game => {
+          // Create a unique key for each matchup (regardless of home/away order)
+          const teams = [game.home_teamcode, game.away_teamcode].sort().join('-')
+          const gameKey = `${game.round}-${teams}`
+          
+          if (seenGames.has(gameKey)) {
+            return false
+          }
+          seenGames.add(gameKey)
+          return true
+        })
+        .map(game => ({
+          round: game.round,
+          game_date: game.game_date,
+          home_teamcode: game.home_teamcode,
+          home_team: game.home_team,
+          home_teamlogo: game.home_teamlogo,
+          away_teamcode: game.away_teamcode,
+          away_team: game.away_team,
+          away_teamlogo: game.away_teamlogo,
+          home_score: null,
+          away_score: null,
+          is_played: false
+        }))
+    }
+
+    // Combine played and upcoming games
+    const allGames = [...playedGames, ...upcomingGames].sort((a, b) => a.round - b.round)
+
+    return allGames
+  } catch (error) {
+    console.error("Error fetching all games by round and season:", error)
+    return []
+  }
+}
+
 // Function to get team schedule including upcoming games from vwschedule_hardcoded_euroleague
 export async function getTeamScheduleWithUpcoming(
   teamcode: string,

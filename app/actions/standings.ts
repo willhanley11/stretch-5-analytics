@@ -7,6 +7,7 @@ import {
   getTeamPlayers,
   getTeamSchedule,
   getTeamScheduleWithUpcoming,
+  getAllGamesByRoundAndSeason,
   debugPlayerData,
   getPlayerGameLogs,
   getTeamGameLogs,
@@ -142,6 +143,10 @@ export async function fetchTeamSchedule(teamCode: string, season: number, league
 
 export async function fetchTeamScheduleWithUpcoming(teamCode: string, season: number, league = "euroleague"): Promise<any> {
   return await getTeamScheduleWithUpcoming(teamCode, season, league)
+}
+
+export async function fetchAllGamesByRoundAndSeason(season: number, league = "euroleague"): Promise<any[]> {
+  return await getAllGamesByRoundAndSeason(season, league)
 }
 
 export async function fetchDebugPlayerData(season: number): Promise<any> {

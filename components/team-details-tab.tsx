@@ -2625,8 +2625,8 @@ export function TeamDetailsTab({
                         <div className="text-black-500">Loading schedule...</div>
                       </div>
                     ) : (
-                      <div className="flex-1 min-h-0 overflow-x-auto">
-                        <table className="w-full text-xs border-collapse table-fixed rounded-sm min-w-[600px]">
+                      <div className="flex-1 min-h-0">
+                        <table className="w-full text-xs border-collapse table-fixed rounded-sm">
                           <colgroup>
                             {/* Mobile-first responsive column widths */}
                             <col className="w-[12%] md:w-[8%]" />

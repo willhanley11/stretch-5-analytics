@@ -4,13 +4,14 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Trophy, Group, Users, Shield, LineChart, Scale, BarChart, PersonStanding } from "lucide-react"
+import { ChevronDown, Trophy, Group, Users, Shield, LineChart, Scale, BarChart, PersonStanding, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import OffenseTab from "./my-season/offense-tab"
 import ComparisonTab from "./my-season/comparison-tab"
 import YamagataTeamStats from "./yamagata-team-stats"
 import StatisticsTab from "./statistics-tab"
 import LandingPage from "./landing-page"
+import GamesTab from "./games-tab"
 
 // Add International section with Euroleague
 const countries = [{ id: "international", name: "International", flag: "🌍" }]
@@ -37,11 +38,11 @@ const leaguesByCountry = {
 // Flatten leagues for easy lookup
 const allLeagues = Object.values(leaguesByCountry).flat()
 
-// League sections - reordered and renamed "Statistics" to "Profiles"
+// League sections - reordered with Games first
 const leagueSections = [
+  { id: "games", label: "Games", initial: "G", icon: Calendar },
   { id: "teams", label: "Teams", initial: "T", icon: BarChart },
   { id: "statistics", label: "Players", initial: "P", icon: Users },
-
   { id: "standings", label: "Leaders", initial: "S", icon: Trophy },
   { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
 ]
@@ -56,7 +57,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   
   // Initialize state from props or defaults
   const [activeLeague, setActiveLeague] = useState("international-euroleague")
-  const [activeSection, setActiveSection] = useState(initialSection || "teams")
+  const [activeSection, setActiveSection] = useState(initialSection || "games")
   const [showLandingPage, setShowLandingPage] = useState(initialShowLandingPage)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -402,6 +403,25 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             </div>
           </motion.div>
         );
+      case "games":
+        return (
+          <motion.div
+            className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
+            style={{
+              background: "background-color: #f9fafb",
+            }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <div className="max-w-10xl mx-auto">
+              <GamesTab
+                selectedSeason={selectedSeason}
+                selectedLeague={selectedLeague}
+              />
+            </div>
+          </motion.div>
+        );
       case "comparison":
         return (
           <motion.div
@@ -722,10 +742,10 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             </div>
 
             {/* Mobile Navigation Tabs */}
-            <div className="sm:hidden px-4 py-1">
+            <div className="sm:hidden px-2 py-1">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
-                <nav className="flex items-center space-x-10 overflow-x-auto">
+                <nav className="flex items-center space-x-7 overflow-x-auto">
                   {leagueSections.map((section) => {
                     const IconComponent = section.icon
                     return (
@@ -733,7 +753,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                         key={section.id}
                         onClick={() => handleTabClick(section.id)}
                         className={cn(
-                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1.5 flex-shrink-0 flex flex-col items-center rounded-md",
+                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-1 py-1.5 flex-shrink-0 flex flex-col items-center rounded-md",
                           activeSection === section.id ? "text-gray-900" : "text-gray-600 hover:text-gray-900",
                         )}
                       >
