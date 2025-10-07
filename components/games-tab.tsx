@@ -357,11 +357,11 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-lg my-2 overflow-hidden">
+      <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
         <div
-          className="p-2 md:p-2.5"
+          className="p-4 pb-2 border-b-2 border-gray-300"
           style={{
-            background: `linear-gradient(to right, ${homeTeamColor}10, #ffffff, ${awayTeamColor}10)`,
+            background: `linear-gradient(to right, ${homeTeamColor}15, #f9fafb, ${awayTeamColor}15)`,
           }}
         >
           {isPreviewLoading ? (
@@ -371,7 +371,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
           ) : homeTeamStats && awayTeamStats ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               <div className="space-y-0">
-                <div className="border-2 border-gray-500 rounded-lg overflow-hidden shadow-md">
+                <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm bg-white">
                   <table className="w-full text-[10px] md:text-xs border-collapse">
                     {/* Team Logos Header */}
                     <thead>
@@ -380,16 +380,16 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                           background: `linear-gradient(to right, ${homeTeamColor}20, #f9fafb, ${awayTeamColor}20)`,
                         }}
                       >
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b-2 border-gray-500">
+                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Home
                             </span>
                             <div
-                              className="p-1 rounded-lg shadow-md border-2"
+                              className="p-1.5 rounded-lg shadow-sm border"
                               style={{
-                                backgroundColor: `${homeTeamColor}15`,
-                                borderColor: homeTeamColor,
+                                backgroundColor: `${homeTeamColor}10`,
+                                borderColor: `${homeTeamColor}40`,
                               }}
                             >
                               <img
@@ -403,7 +403,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 font-semibold text-gray-600 border-b-2 border-gray-500 w-[30%]">
+                        <th className="text-center py-1.5 md:py-2 px-1 font-semibold text-gray-600 border-b border-gray-300 w-[30%]">
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[9px] md:text-[10px] uppercase">vs.</span>
                             {timeDisplay && (
@@ -424,16 +424,16 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b-2 border-gray-500">
+                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Away
                             </span>
                             <div
-                              className="p-1 rounded-lg shadow-md border-2"
+                              className="p-1.5 rounded-lg shadow-sm border"
                               style={{
-                                backgroundColor: `${awayTeamColor}15`,
-                                borderColor: awayTeamColor,
+                                backgroundColor: `${awayTeamColor}10`,
+                                borderColor: `${awayTeamColor}40`,
                               }}
                             >
                               <img
@@ -451,7 +451,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     </thead>
                     <tbody>
                       {/* Pace */}
-                      <tr className="border-b border-gray-300 hover:bg-gray-50">
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
@@ -462,10 +462,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Pace
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-300">
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_pace)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -478,7 +478,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
 
                       {/* Offensive Efficiency */}
-                      <tr className="border-b border-gray-300 hover:bg-gray-50">
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
@@ -489,10 +489,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Offense
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-300">
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_o)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -505,7 +505,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
 
                       {/* Defensive Efficiency */}
-                      <tr className="hover:bg-gray-50">
+                      <tr className="hover:bg-gray-50 transition-colors">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
@@ -516,10 +516,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Defense
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-300">
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_d)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -1096,9 +1096,12 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
         <div className="px-0 md:px-0">
           <div className="grid gap-2 md:gap-3 md:grid-cols-2">
             {sortedRoundGames.map((game, index) => {
-              const gameDate = new Date(game.game_date)
+              // Parse the date string manually to avoid UTC conversion
+              const [year, month, day] = game.game_date.split("T")[0].split("-")
+              const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
+
               const monthShort = gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
-              const day = gameDate.getDate()
+              const dayNum = gameDate.getDate()
 
               // Check if this is the first game of a new date
               const currentGameDateString = gameDate.toDateString()
