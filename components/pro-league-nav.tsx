@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Trophy, Group, Users, Shield, LineChart, Scale, BarChart, PersonStanding, Calendar } from "lucide-react"
+import { ChevronDown, Trophy, Users, Scale, BarChart, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import OffenseTab from "./my-season/offense-tab"
 import ComparisonTab from "./my-season/comparison-tab"
@@ -54,7 +54,7 @@ interface ProLeagueNavProps {
 
 export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandingPage = false }: ProLeagueNavProps) {
   const router = useRouter()
-  
+
   // Initialize state from props or defaults
   const [activeLeague, setActiveLeague] = useState("international-euroleague")
   const [activeSection, setActiveSection] = useState(initialSection || "games")
@@ -81,18 +81,14 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
   const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
   const [selectedSeason, setSelectedSeason] = useState<number>(2025)
-  
+
   // Sync activeLeague with selectedLeague when it changes
   useEffect(() => {
     setActiveLeague(selectedLeague)
   }, [selectedLeague])
-  
+
   // Debug when selectedSeason changes
-  useEffect(() => {
-  }, [selectedSeason])
-
-
-  
+  useEffect(() => {}, [selectedSeason])
 
   // Function to close all dropdowns
   const closeAllDropdowns = () => {
@@ -101,7 +97,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     setIsUserMenuOpen(false)
     setIsMobileSeasonOpen(false)
   }
-  
+
   // State for landing page selections
   const [landingPageSelections, setLandingPageSelections] = useState<any>(null)
 
@@ -231,7 +227,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     }
 
     function handleEscapeKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         closeAllDropdowns()
       }
     }
@@ -291,7 +287,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   }
 
   const handleLandingPageNavigation = (tab: string, selections: any) => {
-    
     // Update season and league FIRST before other state changes
     if (selections?.season) {
       setSelectedSeason(selections.season)
@@ -299,16 +294,15 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     if (selections?.league) {
       setSelectedLeague(selections.league)
     }
-    
+
     // Store landing page selections to pass to tabs
     setLandingPageSelections({ tab, ...selections })
-    
+
     // Then update other states
     setShowLandingPage(false)
     setActiveSection(tab)
-    
+
     // Navigate to the appropriate URL
-    
   }
 
   const renderActiveContent = () => {
@@ -316,11 +310,12 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
       case "teams":
         return (
           <motion.div
-          className=" px-2 pb-4 pt-6 md:px-8 md:pt-2" 
-          style={{ background: "background-color: #f3f4f6" }}
-           initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, ease: "easeOut" }} >
+            className=" px-2 pb-4 pt-6 md:px-8 md:pt-2"
+            style={{ background: "background-color: #f3f4f6" }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             <div className="max-w-10xl mx-auto ">
               <YamagataTeamStats
                 initialTab="teams"
@@ -331,7 +326,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               />
             </div>
           </motion.div>
-        );
+        )
       case "statistics":
         return (
           <motion.div
@@ -358,7 +353,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               />
             </div>
           </motion.div>
-        );
+        )
       case "standings":
         return (
           <motion.div
@@ -381,7 +376,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               />
             </div>
           </motion.div>
-        );
+        )
       case "players":
         return (
           <motion.div
@@ -402,7 +397,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               />
             </div>
           </motion.div>
-        );
+        )
       case "games":
         return (
           <motion.div
@@ -415,13 +410,10 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto">
-              <GamesTab
-                selectedSeason={selectedSeason}
-                selectedLeague={selectedLeague}
-              />
+              <GamesTab selectedSeason={selectedSeason} selectedLeague={selectedLeague} />
             </div>
           </motion.div>
-        );
+        )
       case "comparison":
         return (
           <motion.div
@@ -434,14 +426,14 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="max-w-10xl mx-auto ">
-              <ComparisonTab 
-                selectedSeason={selectedSeason} 
+              <ComparisonTab
+                selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
                 initialPlayers={landingPageSelections?.players}
               />
             </div>
           </motion.div>
-        );
+        )
       default:
         return (
           <div className="px-4 sm:px-6 md:px-8 pt-6 md:pt-2 pb-4 bg-white">
@@ -455,14 +447,14 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               />
             </div>
           </div>
-        );
+        )
     }
-  };
+  }
 
   // Show landing page if showLandingPage is true
   if (showLandingPage) {
     return (
-      <LandingPage 
+      <LandingPage
         onNavigate={handleLandingPageNavigation}
         selectedSeason={selectedSeason}
         selectedLeague={selectedLeague}
@@ -473,7 +465,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen relative overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -481,25 +473,27 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     >
       {/* Fixed header container that holds both rows */}
       <header
-        ref={headerRef} // Attach ref to the entire header
-        className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
+        ref={headerRef}
+        className="relative top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
       >
         {/* Top row - Logo + League Buttons + Season + Actions */}
-        <div
-          ref={topHeaderRowRef} // Attach ref here to measure its height
-          className="w-full"
-        >
+        <div ref={topHeaderRowRef} className="w-full">
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation */}
             <div className="hidden sm:block">
               <div className="flex items-center justify-between h-16 px-4 sm:px-8 gap-4">
                 {/* Left - Brand + League Buttons */}
                 <div className="flex items-center space-x-6 flex-shrink-0">
-                  <button 
+                  <button
                     onClick={() => setShowLandingPage(true)}
                     className="relative h-10 w-32 cursor-pointer hover:opacity-80 transition-opacity"
                   >
-                    <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
+                    <Image
+                      src="/stretch5-logo-original.png"
+                      alt="Stretch 5 Analytics"
+                      fill
+                      className="object-contain"
+                    />
                   </button>
 
                   {/* League Dropdown */}
@@ -514,11 +508,16 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                       <span className="text-sm font-medium">
                         {allLeagues.find((l) => l.id === activeLeague)?.name || "Select League"}
                       </span>
-                      <svg className={`h-4 w-4 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className={`h-4 w-4 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    
+
                     {isLeagueDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
                         <div className="py-2">
@@ -594,7 +593,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                       )}
                     </AnimatePresence>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -603,7 +601,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             <div className="sm:hidden">
               <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-100">
                 {/* Logo */}
-                <button 
+                <button
                   onClick={() => setShowLandingPage(true)}
                   className="relative h-7 w-24 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 >
@@ -621,14 +619,17 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                       }}
                       className="flex items-center space-x-1 px-3 py-1 rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-all duration-200 text-[11px] font-semibold"
                     >
-                      <span className="text-xs">
-                        {allLeagues.find((l) => l.id === activeLeague)?.name || "League"}
-                      </span>
-                      <svg className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="text-xs">{allLeagues.find((l) => l.id === activeLeague)?.name || "League"}</span>
+                      <svg
+                        className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    
+
                     {isLeagueDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-32 rounded-lg overflow-hidden z-[9999] border border-gray-200 shadow-lg bg-white">
                         <div className="py-2 max-h-40 overflow-y-auto">
@@ -712,7 +713,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         {/* Bottom row - Navigation tabs */}
         <div
           ref={bottomRowRef}
-          className="w-full border-t border-gray-100"
+          className="sticky top-0 w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50"
         >
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation Tabs */}
@@ -776,14 +777,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           </div>
         </div>
       </header>
-
-      {/* Spacer to prevent content from hiding behind the sticky header */}
-      <div
-        style={{
-          height: `${headerHeight}px`,
-        }}
-        className="w-full bg-transparent"
-      ></div>
 
       {/* Main Content Area */}
       <main className="relative z-10">{renderActiveContent()}</main>
