@@ -132,6 +132,25 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   // Filter games by selected round
   const roundGames = games.filter((game) => game.round === selectedRound)
 
+  const sortedRoundGames = [...roundGames].sort((a, b) => {
+    // First sort by date
+    const dateA = new Date(a.game_date).getTime()
+    const dateB = new Date(b.game_date).getTime()
+
+    if (dateA !== dateB) {
+      return dateA - dateB
+    }
+
+    // If dates are the same, sort by time
+    const getTimeValue = (game: GameMatchup) => {
+      const timeStr = game.time || game.game_time || "00:00:00"
+      const [hours, minutes] = timeStr.split(":")
+      return Number.parseInt(hours) * 60 + Number.parseInt(minutes)
+    }
+
+    return getTimeValue(a) - getTimeValue(b)
+  })
+
   const handleRoundChange = (round: number) => {
     setSelectedRound(round)
     setIsRoundDropdownOpen(false)
@@ -322,7 +341,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-2 md:py-3 px-1 font-semibold text-gray-500 uppercase text-[9px] md:text-[10px] border-b border-gray-300 w-[30%]">vs.</th>
+                        <th className="text-center py-2 md:py-3 px-1 font-semibold text-gray-500 uppercase text-[9px] md:text-[10px] border-b border-gray-300 w-[30%]">
+                          vs.
+                        </th>
                         <th className="text-center py-2 md:py-3 px-1 w-[35%] border-b border-gray-300">
                           <div className="flex flex-col items-center gap-1.5">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
@@ -993,17 +1014,17 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       </div>
 
       {/* Games Grid */}
-      {roundGames.length > 0 ? (
+      {sortedRoundGames.length > 0 ? (
         <div className="px-0 md:px-0">
           <div className="grid gap-2 md:gap-3 md:grid-cols-2">
-            {roundGames.map((game, index) => {
+            {sortedRoundGames.map((game, index) => {
               const gameDate = new Date(game.game_date)
               const monthShort = gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
               const day = gameDate.getDate()
 
               // Check if this is the first game of a new date
               const currentGameDateString = gameDate.toDateString()
-              const previousGame = index > 0 ? roundGames[index - 1] : null
+              const previousGame = index > 0 ? sortedRoundGames[index - 1] : null
               const previousGameDateString = previousGame ? new Date(previousGame.game_date).toDateString() : null
               const isNewDate = index === 0 || currentGameDateString !== previousGameDateString
 
@@ -1015,14 +1036,50 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                 // First try to use game_time if available
                 if (game.time && game.time !== "00:00:00") {
-                  // Assume the game time is in CET (Central European Time) for Euroleague
+                  // Parse the time string (HH:MM:SS format)
                   const [hours, minutes] = game.time.split(":")
-                  gameTime = new Date()
-                  gameTime.setHours(Number.parseInt(hours), Number.parseInt(minutes), 0, 0)
+
+                  // Create a date string in ISO format assuming CET timezone
+                  // CET is UTC+1 (or UTC+2 during DST, but we'll use UTC+1 as baseline)
+                  const gameDateStr = game.game_date.split("T")[0] // Get YYYY-MM-DD
+
+                  // Create the time in CET by manually constructing a UTC timestamp
+                  // If the game is at 20:00 CET, that's 19:00 UTC (20:00 - 1 hour)
+                  const cetHours = Number.parseInt(hours)
+                  const cetMinutes = Number.parseInt(minutes)
+                  const utcHours = cetHours // Convert CET to UTC
+
+                  // Create a UTC date string
+                  const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+                  gameTime = new Date(utcDateStr)
+
+                  console.log("[v0] Time conversion:", {
+                    original: game.time,
+                    gameDateStr,
+                    cetTime: `${hours}:${minutes}`,
+                    utcTime: `${utcHours}:${cetMinutes}`,
+                    utcDateStr,
+                    localTime: gameTime.toLocaleTimeString(),
+                  })
                 } else if (game.game_time && game.game_time !== "00:00:00") {
                   const [hours, minutes] = game.game_time.split(":")
-                  gameTime = new Date()
-                  gameTime.setHours(Number.parseInt(hours), Number.parseInt(minutes), 0, 0)
+
+                  const gameDateStr = game.game_date.split("T")[0]
+                  const cetHours = Number.parseInt(hours)
+                  const cetMinutes = Number.parseInt(minutes)
+                  const utcHours = cetHours
+
+                  const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+                  gameTime = new Date(utcDateStr)
+
+                  console.log("[v0] Time conversion (game_time):", {
+                    original: game.game_time,
+                    gameDateStr,
+                    cetTime: `${hours}:${minutes}`,
+                    utcTime: `${utcHours}:${cetMinutes}`,
+                    utcDateStr,
+                    localTime: gameTime.toLocaleTimeString(),
+                  })
                 } else {
                   // Try to extract time from the game_date if it includes time
                   const time = gameDate.toLocaleTimeString("en-US", {
@@ -1055,8 +1112,15 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       .split(", ")[1] || userTimezone.split("/").pop()
 
                   timezoneDisplay = tzShort
+
+                  console.log("[v0] Final display:", {
+                    timeDisplay,
+                    timezoneDisplay,
+                    userTimezone,
+                  })
                 }
               } catch (e) {
+                console.error("[v0] Error parsing game time:", e)
                 // If parsing fails, no time display
               }
 
