@@ -308,9 +308,62 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       return "bg-red-200 text-black rounded px-0.5 md:px-1 py-0 md:py-0.5 inline-block border border-gray-400"
     }
 
+    const homeTeamColor = euroleague_team_colors[game.home_teamcode] || "#4b5563"
+    const awayTeamColor = euroleague_team_colors[game.away_teamcode] || "#4b5563"
+
+    // Format game time
+    let timeDisplay = ""
+    let timezoneDisplay = ""
+    try {
+      let gameTime = null
+      const gameDate = new Date(game.game_date)
+
+      if (game.time && game.time !== "00:00:00") {
+        const [hours, minutes] = game.time.split(":")
+        const gameDateStr = game.game_date.split("T")[0]
+        const cetHours = Number.parseInt(hours)
+        const cetMinutes = Number.parseInt(minutes)
+        const utcDateStr = `${gameDateStr}T${String(cetHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+        gameTime = new Date(utcDateStr)
+      } else if (game.game_time && game.game_time !== "00:00:00") {
+        const [hours, minutes] = game.game_time.split(":")
+        const gameDateStr = game.game_date.split("T")[0]
+        const cetHours = Number.parseInt(hours)
+        const cetMinutes = Number.parseInt(minutes)
+        const utcDateStr = `${gameDateStr}T${String(cetHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+        gameTime = new Date(utcDateStr)
+      }
+
+      if (gameTime) {
+        timeDisplay = gameTime.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const tzShort =
+          new Date()
+            .toLocaleDateString("en-US", {
+              timeZoneName: "short",
+              timeZone: userTimezone,
+            })
+            .split(", ")[1] || userTimezone.split("/").pop()
+
+        timezoneDisplay = tzShort
+      }
+    } catch (e) {
+      console.error("[v0] Error parsing game time:", e)
+    }
+
     return (
-      <div className="bg-white border border-gray-300 rounded-lg shadow-sm my-2 overflow-hidden">
-        <div className="p-2 md:p-2.5">
+      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-lg my-2 overflow-hidden">
+        <div
+          className="p-2 md:p-2.5"
+          style={{
+            background: `linear-gradient(to right, ${homeTeamColor}10, #ffffff, ${awayTeamColor}10)`,
+          }}
+        >
           {isPreviewLoading ? (
             <div className="text-center py-4">
               <div className="text-gray-500 text-sm">Loading team statistics...</div>
@@ -318,18 +371,27 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
           ) : homeTeamStats && awayTeamStats ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               <div className="space-y-0">
-                {/* Advanced Stats Table with integrated logos */}
-                <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                <div className="border-2 border-gray-500 rounded-lg overflow-hidden shadow-md">
                   <table className="w-full text-[10px] md:text-xs border-collapse">
                     {/* Team Logos Header */}
                     <thead>
-                      <tr className="bg-gradient-to-r from-gray-50 via-white to-gray-50">
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
+                      <tr
+                        style={{
+                          background: `linear-gradient(to right, ${homeTeamColor}20, #f9fafb, ${awayTeamColor}20)`,
+                        }}
+                      >
+                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b-2 border-gray-500">
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Home
                             </span>
-                            <div className="p-1 bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div
+                              className="p-1 rounded-lg shadow-md border-2"
+                              style={{
+                                backgroundColor: `${homeTeamColor}15`,
+                                borderColor: homeTeamColor,
+                              }}
+                            >
                               <img
                                 src={game.home_teamlogo || "/placeholder.svg"}
                                 alt={`${game.home_team} logo`}
@@ -341,15 +403,39 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 font-semibold text-gray-500 uppercase text-[9px] md:text-[10px] border-b border-gray-300 w-[30%]">
-                          vs.
+                        <th className="text-center py-1.5 md:py-2 px-1 font-semibold text-gray-600 border-b-2 border-gray-500 w-[30%]">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] md:text-[10px] uppercase">vs.</span>
+                            {timeDisplay && (
+                              <>
+                                <span className="text-[11px] md:text-sm font-bold text-gray-900">{timeDisplay}</span>
+                                {timezoneDisplay && (
+                                  <span className="text-[7px] md:text-[8px] text-gray-500 font-medium">
+                                    {timezoneDisplay}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                            <span className="text-[8px] md:text-[9px] text-gray-500">
+                              {new Date(game.game_date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
+                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b-2 border-gray-500">
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Away
                             </span>
-                            <div className="p-1 bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div
+                              className="p-1 rounded-lg shadow-md border-2"
+                              style={{
+                                backgroundColor: `${awayTeamColor}15`,
+                                borderColor: awayTeamColor,
+                              }}
+                            >
                               <img
                                 src={game.away_teamlogo || "/placeholder.svg"}
                                 alt={`${game.away_team} logo`}
@@ -365,7 +451,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     </thead>
                     <tbody>
                       {/* Pace */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                      <tr className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
@@ -376,10 +462,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
                           Pace
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-1 px-1 border-l border-gray-300">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_pace)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -392,7 +478,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
 
                       {/* Offensive Efficiency */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                      <tr className="border-b border-gray-300 hover:bg-gray-50">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
@@ -403,10 +489,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Off. Eff
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
+                          Offense
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-1 px-1 border-l border-gray-300">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_o)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -430,10 +516,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Def. Eff
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-300">
+                          Defense
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-1 px-1 border-l border-gray-300">
                           <div className="flex justify-center">
                             <div
                               className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_d)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
@@ -462,7 +548,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                   }
 
                   const allPlayers = [...homeTeamPlayers, ...awayTeamPlayers]
-                  console.log("[v0] All players for game leaders:", allPlayers.length)
 
                   // Helper function to safely parse numeric values
                   const parseStatValue = (value: any): number => {
@@ -496,13 +581,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     return player3pt > max3pt ? player : max
                   }, allPlayers[0])
 
-                  console.log("[v0] Game leaders found:", {
-                    scorer: { name: leadingScorer?.player_name, pts: leadingScorer?.points_scored },
-                    rebounder: { name: leadingRebounder?.player_name, reb: leadingRebounder?.total_rebounds },
-                    assister: { name: leadingAssister?.player_name, ast: leadingAssister?.assists },
-                    threePointer: { name: leading3pt?.player_name, threes: leading3pt?.three_pointers_made },
-                  })
-
                   const getTeamLogo = (teamCode: string) => {
                     return teamCode === game.home_teamcode ? game.home_teamlogo : game.away_teamlogo
                   }
@@ -511,21 +589,21 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     <div className="space-y-1">
                       {/* Leading Scorer */}
                       {leadingScorer?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingScorer.player_team_code) || "/placeholder.svg"}
                               alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain"
+                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
                             />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-gray-800 truncate max-w-[100px] md:max-w-[140px]">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
                                 {leadingScorer.player_name}
                               </span>
                               <span className="text-[8px] text-gray-500 uppercase">Points</span>
                             </div>
                           </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs">
+                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
                             {formatStat(parseStatValue(leadingScorer.points_scored), 1)}
                           </div>
                         </div>
@@ -533,21 +611,21 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading Rebounder */}
                       {leadingRebounder?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingRebounder.player_team_code) || "/placeholder.svg"}
                               alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain"
+                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
                             />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-gray-800 truncate max-w-[100px] md:max-w-[140px]">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
                                 {leadingRebounder.player_name}
                               </span>
                               <span className="text-[8px] text-gray-500 uppercase">Rebounds</span>
                             </div>
                           </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs">
+                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
                             {formatStat(parseStatValue(leadingRebounder.total_rebounds), 1)}
                           </div>
                         </div>
@@ -555,21 +633,21 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading Assister */}
                       {leadingAssister?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingAssister.player_team_code) || "/placeholder.svg"}
                               alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain"
+                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
                             />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-gray-800 truncate max-w-[100px] md:max-w-[140px]">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
                                 {leadingAssister.player_name}
                               </span>
                               <span className="text-[8px] text-gray-500 uppercase">Assists</span>
                             </div>
                           </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs">
+                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
                             {formatStat(parseStatValue(leadingAssister.assists), 1)}
                           </div>
                         </div>
@@ -577,21 +655,21 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading 3PT Maker */}
                       {leading3pt?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                          <div className="flex items-center gap-1.5">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leading3pt.player_team_code) || "/placeholder.svg"}
                               alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain"
+                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
                             />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-gray-800 truncate max-w-[100px] md:max-w-[140px]">
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
                                 {leading3pt.player_name}
                               </span>
                               <span className="text-[8px] text-gray-500 uppercase">3-Pointers</span>
                             </div>
                           </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs">
+                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
                             {formatStat(parseStatValue(leading3pt.three_pointers_made), 1)}
                           </div>
                         </div>
@@ -611,7 +689,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     )
   }
 
-  // Game log expandable component (exact copy from team-details-tab.tsx)
+  // Game log expansion component (exact copy from team-details-tab.tsx)
   const renderGameLogExpansion = (game: GameMatchup) => {
     // Ensure the log is for the correct game before rendering anything
     if (!expandedGameForLogs || expandedGameForLogs.gamecode !== game.gamecode) return null
