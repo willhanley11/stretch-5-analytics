@@ -13,7 +13,8 @@ interface GamesTabProps {
 
 interface GameMatchup {
   round: number
-  date: string
+  game_date: string
+  game_time?: string
   home_team: string
   home_teamcode: string
   home_teamlogo: string
@@ -24,6 +25,7 @@ interface GameMatchup {
   away_score?: number | null
   is_played: boolean
   gamecode?: string
+  time?: string
 }
 
 interface EuroleagueGameLog {
@@ -65,6 +67,14 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   const [expandedGameLogsData, setExpandedGameLogsData] = useState<EuroleagueGameLog[]>([])
   const [isExpandedGameLogsLoading, setIsExpandedGameLogsLoading] = useState(false)
   const [selectedGameTeam, setSelectedGameTeam] = useState<string>("")
+  
+  // Game preview expansion state
+  const [expandedGameForPreview, setExpandedGameForPreview] = useState<GameMatchup | null>(null)
+  const [homeTeamStats, setHomeTeamStats] = useState<any>(null)
+  const [awayTeamStats, setAwayTeamStats] = useState<any>(null)
+  const [homeTeamPlayers, setHomeTeamPlayers] = useState<any[]>([])
+  const [awayTeamPlayers, setAwayTeamPlayers] = useState<any[]>([])
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false)
 
   // Get league name for API calls
   const league = selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"
@@ -162,10 +172,317 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     setSelectedGameTeam(teamCode)
   }
 
+  // Game preview expansion handlers
+  const handleGamePreviewClick = async (game: GameMatchup) => {
+    // If clicking the same game, collapse it
+    if (expandedGameForPreview?.home_teamcode === game.home_teamcode && 
+        expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+        expandedGameForPreview?.round === game.round) {
+      setExpandedGameForPreview(null)
+      setHomeTeamStats(null)
+      setAwayTeamStats(null)
+      setHomeTeamPlayers([])
+      setAwayTeamPlayers([])
+      return
+    }
+
+    // Expand new game
+    setExpandedGameForPreview(game)
+    setIsPreviewLoading(true)
+    setHomeTeamStats(null)
+    setAwayTeamStats(null)
+    setHomeTeamPlayers([])
+    setAwayTeamPlayers([])
+
+    try {
+      // Fetch advanced stats and player stats for both teams
+      const [homeStatsResponse, awayStatsResponse, homePlayersResponse, awayPlayersResponse] = await Promise.all([
+        fetch(`/api/team-advanced-stats?teamCode=${game.home_teamcode}&season=${selectedSeason}&phase=RS&league=${league}`),
+        fetch(`/api/team-advanced-stats?teamCode=${game.away_teamcode}&season=${selectedSeason}&phase=RS&league=${league}`),
+        fetch(`/api/team-players?teamCode=${game.home_teamcode}&season=${selectedSeason}&phase=RS&league=${league}`),
+        fetch(`/api/team-players?teamCode=${game.away_teamcode}&season=${selectedSeason}&phase=RS&league=${league}`)
+      ])
+
+      const homeStats = await homeStatsResponse.json()
+      const awayStats = await awayStatsResponse.json()
+      const homePlayers = await homePlayersResponse.json()
+      const awayPlayers = await awayPlayersResponse.json()
+
+      setHomeTeamStats(homeStats)
+      setAwayTeamStats(awayStats)
+      setHomeTeamPlayers(homePlayers)
+      setAwayTeamPlayers(awayPlayers)
+    } catch (error) {
+      console.error("Error fetching team data:", error)
+      setHomeTeamStats(null)
+      setAwayTeamStats(null)
+      setHomeTeamPlayers([])
+      setAwayTeamPlayers([])
+    } finally {
+      setIsPreviewLoading(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-gray-500">Loading games...</div>
+      </div>
+    )
+  }
+
+  // Game preview expansion component
+  const renderGamePreviewExpansion = (game: GameMatchup) => {
+    if (!expandedGameForPreview || 
+        expandedGameForPreview.home_teamcode !== game.home_teamcode || 
+        expandedGameForPreview.away_teamcode !== game.away_teamcode ||
+        expandedGameForPreview.round !== game.round) return null
+
+    const formatStat = (value: number | null | undefined, decimals = 1) => {
+      if (value === null || value === undefined || isNaN(value)) return "N/A"
+      return Number(value).toFixed(decimals)
+    }
+
+    const formatRank = (rank: number | null | undefined) => {
+      if (rank === null || rank === undefined || isNaN(rank)) return "N/A"
+      return `#${rank}`
+    }
+
+    // Helper function for ranking-based conditional formatting (copied from team-details-tab.tsx)
+    const getBackgroundColorClass = (rank: number, total = 18) => {
+      if (!rank || rank <= 0) return "border border-gray-400 px-2 py-1 rounded"
+
+      // Calculate the percentile based on rank (1 is best, total is worst)
+      const percentile = 1 - (rank - 1) / Math.max(1, total - 1)
+
+      // Green to gray to red color scale with borders
+      if (rank === 1) return "bg-green-600 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === 2) return "bg-green-500 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === 3) return "bg-green-400 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.75) return "bg-green-200 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.6) return "bg-green-100 text-black border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.4) return "bg-gray-200 text-black border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.25) return "bg-red-100 text-black border border-gray-400 px-2 py-1 rounded"
+      if (rank === total - 2) return "bg-red-300 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (rank === total - 1) return "bg-red-400 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === total) return "bg-red-500 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+
+      return "bg-red-200 text-black border border-gray-400 px-2 py-1 rounded"
+    }
+
+    // Helper function for pace-specific coloring (blue for slow, orange for fast)
+    const getPaceColorClass = (rank: number, total = 18) => {
+      if (!rank || rank <= 0) return "border border-gray-400 px-2 py-1 rounded"
+
+      // Calculate the percentile based on rank (1 is fastest, total is slowest)
+      const percentile = 1 - (rank - 1) / Math.max(1, total - 1)
+
+      // Orange for fast (top ranks), blue for slow (bottom ranks)
+      if (rank === 1) return "bg-orange-600 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === 2) return "bg-orange-500 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === 3) return "bg-orange-400 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.75) return "bg-orange-200 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.6) return "bg-orange-100 text-black border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.4) return "bg-gray-200 text-black border border-gray-400 px-2 py-1 rounded"
+      if (percentile >= 0.25) return "bg-blue-100 text-black border border-gray-400 px-2 py-1 rounded"
+      if (rank === total - 2) return "bg-blue-300 text-black font-medium border border-gray-400 px-2 py-1 rounded"
+      if (rank === total - 1) return "bg-blue-400 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+      if (rank === total) return "bg-blue-500 text-white font-bold border border-gray-400 px-2 py-1 rounded"
+
+      return "bg-blue-200 text-black border border-gray-400 px-2 py-1 rounded"
+    }
+
+    return (
+      <div className="bg-white border border-gray-300 rounded-lg shadow-sm my-2 overflow-hidden">
+        <div className="p-3">
+          {isPreviewLoading ? (
+            <div className="text-center py-4">
+              <div className="text-gray-500 text-sm">Loading team statistics...</div>
+            </div>
+          ) : homeTeamStats && awayTeamStats ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left Side - Team Stats */}
+              <div className="space-y-2">
+                {/* Team Headers */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                  <div className="flex justify-center">
+                    <img
+                      src={game.home_teamlogo || "/placeholder.svg"}
+                      alt={`${game.home_team} logo`}
+                      className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                    />
+                  </div>
+                  <div className="flex justify-center">
+                    <img
+                      src={game.away_teamlogo || "/placeholder.svg"}
+                      alt={`${game.away_team} logo`}
+                      className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Compact Stats Grid */}
+                <div className="space-y-1">
+                  {/* Pace */}
+                  <div className="grid grid-cols-5 gap-1 items-center py-1 border-b border-gray-100">
+                    <div className="text-right">
+                      <div className={`inline-block text-[10px] md:text-xs ${getPaceColorClass(homeTeamStats.rank_pace)} whitespace-nowrap`}>
+                        {formatStat(homeTeamStats.pace)} {formatRank(homeTeamStats.rank_pace)}
+                      </div>
+                    </div>
+                    <div className="text-center text-[10px] md:text-xs font-medium text-gray-600 col-span-3">Pace</div>
+                    <div className="text-left">
+                      <div className={`inline-block text-[10px] md:text-xs ${getPaceColorClass(awayTeamStats.rank_pace)} whitespace-nowrap`}>
+                        {formatStat(awayTeamStats.pace)} {formatRank(awayTeamStats.rank_pace)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Offensive Efficiency */}
+                  <div className="grid grid-cols-5 gap-1 items-center py-1 border-b border-gray-100">
+                    <div className="text-right">
+                      <div className={`inline-block text-[10px] md:text-xs ${getBackgroundColorClass(homeTeamStats.rank_efficiency_o)} whitespace-nowrap`}>
+                        {formatStat(homeTeamStats.efficiency_o)} {formatRank(homeTeamStats.rank_efficiency_o)}
+                      </div>
+                    </div>
+                    <div className="text-center text-[10px] md:text-xs font-medium text-gray-600 col-span-3">Off. Efficiency</div>
+                    <div className="text-left">
+                      <div className={`inline-block text-[10px] md:text-xs ${getBackgroundColorClass(awayTeamStats.rank_efficiency_o)} whitespace-nowrap`}>
+                        {formatStat(awayTeamStats.efficiency_o)} {formatRank(awayTeamStats.rank_efficiency_o)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Defensive Efficiency */}
+                  <div className="grid grid-cols-5 gap-1 items-center py-1">
+                    <div className="text-right">
+                      <div className={`inline-block text-[10px] md:text-xs ${getBackgroundColorClass(homeTeamStats.rank_efficiency_d)} whitespace-nowrap`}>
+                        {formatStat(homeTeamStats.efficiency_d)} {formatRank(homeTeamStats.rank_efficiency_d)}
+                      </div>
+                    </div>
+                    <div className="text-center text-[10px] md:text-xs font-medium text-gray-600 col-span-3">Def. Efficiency</div>
+                    <div className="text-left">
+                      <div className={`inline-block text-[10px] md:text-xs ${getBackgroundColorClass(awayTeamStats.rank_efficiency_d)} whitespace-nowrap`}>
+                        {formatStat(awayTeamStats.efficiency_d)} {formatRank(awayTeamStats.rank_efficiency_d)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Leaders */}
+              <div className="space-y-1">
+                <div className="text-center text-[9px] md:text-[10px] font-semibold text-gray-700 mb-1">Leaders</div>
+                
+                {(() => {
+                  // Ensure we have player data
+                  if (!homeTeamPlayers?.length || !awayTeamPlayers?.length) {
+                    return <div className="text-[8px] text-gray-500 text-center">Loading...</div>
+                  }
+
+                  const allPlayers = [...homeTeamPlayers, ...awayTeamPlayers]
+                  
+                  // Find actual leaders with better null checking
+                  const leadingScorer = allPlayers.reduce((max, player) => {
+                    const maxScore = max?.points_scored || 0
+                    const playerScore = player?.points_scored || 0
+                    return playerScore > maxScore ? player : max
+                  }, null)
+                  
+                  const leadingRebounder = allPlayers.reduce((max, player) => {
+                    const maxRebs = max?.total_rebounds || 0
+                    const playerRebs = player?.total_rebounds || 0
+                    return playerRebs > maxRebs ? player : max
+                  }, null)
+                  
+                  const leadingAssister = allPlayers.reduce((max, player) => {
+                    const maxAsts = max?.assists || 0
+                    const playerAsts = player?.assists || 0
+                    return playerAsts > maxAsts ? player : max
+                  }, null)
+                  
+                  const leading3pt = allPlayers.reduce((max, player) => {
+                    const max3pt = max?.three_pointers_made || 0
+                    const player3pt = player?.three_pointers_made || 0
+                    return player3pt > max3pt ? player : max
+                  }, null)
+
+                  const getTeamLogo = (teamCode: string) => {
+                    return teamCode === game.home_teamcode ? game.home_teamlogo : game.away_teamlogo
+                  }
+
+                  return (
+                    <div className="space-y-0.5">
+                      {/* Leading Scorer */}
+                      {leadingScorer?.player_name && (
+                        <div className="flex items-center justify-between text-[8px] md:text-[9px] p-0.5 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-0.5">
+                            <img
+                              src={getTeamLogo(leadingScorer.player_team_code) || "/placeholder.svg"}
+                              alt="team logo"
+                              className="w-2.5 h-2.5 object-contain"
+                            />
+                            <span className="font-medium truncate max-w-[60px]">{leadingScorer.player_name}</span>
+                          </div>
+                          <div className="font-bold text-gray-700 text-[8px]">{formatStat(leadingScorer.points_scored, 1)}</div>
+                        </div>
+                      )}
+
+                      {/* Leading Rebounder */}
+                      {leadingRebounder?.player_name && (
+                        <div className="flex items-center justify-between text-[8px] md:text-[9px] p-0.5 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-0.5">
+                            <img
+                              src={getTeamLogo(leadingRebounder.player_team_code) || "/placeholder.svg"}
+                              alt="team logo"
+                              className="w-2.5 h-2.5 object-contain"
+                            />
+                            <span className="font-medium truncate max-w-[60px]">{leadingRebounder.player_name}</span>
+                          </div>
+                          <div className="font-bold text-gray-700 text-[8px]">{formatStat(leadingRebounder.total_rebounds, 1)}</div>
+                        </div>
+                      )}
+
+                      {/* Leading Assister */}
+                      {leadingAssister?.player_name && (
+                        <div className="flex items-center justify-between text-[8px] md:text-[9px] p-0.5 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-0.5">
+                            <img
+                              src={getTeamLogo(leadingAssister.player_team_code) || "/placeholder.svg"}
+                              alt="team logo"
+                              className="w-2.5 h-2.5 object-contain"
+                            />
+                            <span className="font-medium truncate max-w-[60px]">{leadingAssister.player_name}</span>
+                          </div>
+                          <div className="font-bold text-gray-700 text-[8px]">{formatStat(leadingAssister.assists, 1)}</div>
+                        </div>
+                      )}
+
+                      {/* Leading 3PT Maker */}
+                      {leading3pt?.player_name && (
+                        <div className="flex items-center justify-between text-[8px] md:text-[9px] p-0.5 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-0.5">
+                            <img
+                              src={getTeamLogo(leading3pt.player_team_code) || "/placeholder.svg"}
+                              alt="team logo"
+                              className="w-2.5 h-2.5 object-contain"
+                            />
+                            <span className="font-medium truncate max-w-[60px]">{leading3pt.player_name}</span>
+                          </div>
+                          <div className="font-bold text-gray-700 text-[8px]">{formatStat(leading3pt.three_pointers_made, 1)}</div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-3">
+              <div className="text-gray-500 text-sm">Unable to load team statistics</div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -585,59 +902,132 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               const gameDate = new Date(game.game_date)
               const monthShort = gameDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
               const day = gameDate.getDate()
+              
+              // Check if this is the first game of a new date
+              const currentGameDateString = gameDate.toDateString()
+              const previousGame = index > 0 ? roundGames[index - 1] : null
+              const previousGameDateString = previousGame ? new Date(previousGame.game_date).toDateString() : null
+              const isNewDate = index === 0 || currentGameDateString !== previousGameDateString
+              
+              // Extract time from the game_time field or game_date and convert to user timezone
+              let timeDisplay = ""
+              let timezoneDisplay = ""
+              try {
+                let gameTime = null
+                
+                // First try to use game_time if available
+                if (game.time && game.time !== "00:00:00") {
+                  // Assume the game time is in CET (Central European Time) for Euroleague
+                  const [hours, minutes] = game.time.split(':')
+                  gameTime = new Date()
+                  gameTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                } else if (game.game_time && game.game_time !== "00:00:00") {
+                  const [hours, minutes] = game.game_time.split(':')
+                  gameTime = new Date()
+                  gameTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                } else {
+                  // Try to extract time from the game_date if it includes time
+                  const time = gameDate.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  })
+                  // Only use if it's not midnight (indicating actual game time)
+                  if (time !== "00:00") {
+                    gameTime = gameDate
+                  }
+                }
+                
+                if (gameTime) {
+                  // Format time in user's timezone
+                  timeDisplay = gameTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  })
+                  
+                  // Get user's timezone abbreviation
+                  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                  const tzShort = new Date().toLocaleDateString('en-US', {
+                    timeZoneName: 'short',
+                    timeZone: userTimezone
+                  }).split(', ')[1] || userTimezone.split('/').pop()
+                  
+                  timezoneDisplay = tzShort
+                }
+              } catch (e) {
+                // If parsing fails, no time display
+              }
 
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
+                  {/* Date Divider */}
+                  {isNewDate && (
+                    <div className="md:col-span-2 w-full flex items-center my-2">
+                      <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                      <div className="px-3 py-1 mx-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-full shadow-sm">
+                        {gameDate.toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </div>
+                      <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                    </div>
+                  )}
+                  
                   {/* Game Card with integrated date */}
                   <div
-                    onClick={game.is_played && game.gamecode ? () => handleGameRowClick(game) : undefined}
-                    className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 p-1 md:p-2 w-full max-w-full overflow-hidden ${
-                      game.is_played && game.gamecode 
-                        ? "hover:shadow-md cursor-pointer hover:bg-gray-50" 
-                        : "hover:shadow-md"
-                    } ${
-                      expandedGameForLogs?.gamecode === game.gamecode ? "shadow-md bg-gray-50" : ""
+                    onClick={() => {
+                      if (game.is_played && game.gamecode) {
+                        handleGameRowClick(game)
+                      } else {
+                        handleGamePreviewClick(game)
+                      }
+                    }}
+                    className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-md hover:bg-gray-50 ${
+                      (expandedGameForLogs?.gamecode === game.gamecode) || 
+                      (expandedGameForPreview?.home_teamcode === game.home_teamcode && 
+                       expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+                       expandedGameForPreview?.round === game.round) 
+                        ? "shadow-md bg-gray-50" : ""
                     }`}
                   >
                     <div className="flex items-center w-full">
-                      {/* Date Section */}
-                      <div className="flex-shrink-0 flex flex-col justify-center items-center text-center w-[30px] mr-0">
-                        <div className="text-[7px] md:text-[8px] font-bold text-gray-600 leading-none">
-                          {monthShort}
-                        </div>
-                        <div className="text-[10px] md:text-[11px] font-bold text-gray-800 leading-none">
-                          {day}
-                        </div>
-                      </div>
-                      
-                      {/* Divider Line */}
-                      <div className="h-8 w-px bg-gray-300 mr-2 flex-shrink-0"></div>
+                
                 {/* Home Team */}
-                <div className="flex items-center space-x-0.5 flex-1 min-w-0 max-w-[40%]">
+                <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
                   <img
                     src={game.home_teamlogo || "/placeholder.svg"}
                     alt={`${game.home_team} logo`}
-                    className="w-8 h-8 md:w-8 md:h-8 object-contain flex-shrink-0"
+                    className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
                   />
-                  <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate ml-0.5">
+                  <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
                     {game.home_team}
                   </span>
                 </div>
 
-                {/* Score or VS with @ sign */}
-                <div className="flex items-center justify-center px-0.5 md:px-2 min-w-[20%] max-w-[20%]">
+                {/* Score or VS with time */}
+                <div className="flex items-center justify-center px-1 md:px-2 min-w-[20%] max-w-[25%]">
                   {game.is_played && game.home_score !== null && game.away_score !== null ? (
                     <div className="text-center">
-                      <div className="text-[10px] md:text-sm font-bold text-gray-900">
+                      <div className="text-[9px] md:text-sm font-bold text-gray-900">
                         {game.away_score}-{game.home_score}
                       </div>
                     </div>
                   ) : (
                     <div className="text-center">
-                      <div className="text-[10px] md:text-xs font-medium text-gray-500">vs.</div>
-                      {game.date && (
-                        <div className="text-[8px] md:text-[9px] text-gray-400 mt-0.5">
-                          {new Date(game.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      <div className="text-[8px] md:text-xs font-medium text-gray-500 mb-0.5">vs.</div>
+                      {timeDisplay && (
+                        <div className="flex flex-col items-center">
+                          <div className="text-[10px] md:text-sm text-gray-900 font-bold">
+                            {timeDisplay}
+                          </div>
+                          {timezoneDisplay && (
+                            <div className="text-[6px] md:text-[8px] text-gray-500 font-medium">
+                              {timezoneDisplay}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -645,22 +1035,22 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                 </div>
 
                 {/* Away Team */}
-                <div className="flex items-center space-x-0.5 flex-1 min-w-0 max-w-[40%]">
+                <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
                   <img
                     src={game.away_teamlogo || "/placeholder.svg"}
                     alt={`${game.away_team} logo`}
-                    className="w-8 h-8 md:w-8 md:h-8 object-contain flex-shrink-0"
+                    className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
                   />
-                  <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate ml-0.5">
+                  <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
                     {game.away_team}
                   </span>
                 </div>
 
                 {/* Expansion indicator for played games */}
-                <div className="flex items-center ml-2">
+                <div className="flex items-center ml-1">
                   {game.is_played && game.gamecode && (
                     <ChevronDown 
-                      className={`h-4 w-4 text-gray-400 transition-transform ${
+                      className={`h-3 w-3 md:h-4 md:w-4 text-gray-400 transition-transform ${
                         expandedGameForLogs?.gamecode === game.gamecode ? "rotate-180" : ""
                       }`} 
                     />
@@ -669,6 +1059,15 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     </div>
                   </div>
                 
+                {/* Game preview expansion - for upcoming games */}
+                {!game.is_played && expandedGameForPreview?.home_teamcode === game.home_teamcode &&
+                 expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+                 expandedGameForPreview?.round === game.round && (
+                  <div className="md:col-span-2 w-full max-w-full overflow-hidden">
+                    {renderGamePreviewExpansion(game)}
+                  </div>
+                )}
+
                 {/* Game log expansion - positioned correctly within grid */}
                 {game.is_played && game.gamecode && expandedGameForLogs?.gamecode === game.gamecode && (
                   <div className="md:col-span-2 w-full max-w-full overflow-hidden">

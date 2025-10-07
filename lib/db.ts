@@ -945,6 +945,7 @@ export async function getAllGamesByRoundAndSeason(
           `SELECT DISTINCT
              round,
              date as game_date,
+             time as game_time,
              teamcode as home_teamcode,
              name as home_team,
              teamlogo as home_teamlogo,
@@ -975,6 +976,7 @@ export async function getAllGamesByRoundAndSeason(
         .map(game => ({
           round: game.round,
           game_date: game.game_date,
+          game_time: game.game_time,
           home_teamcode: game.home_teamcode,
           home_team: game.home_team,
           home_teamlogo: game.home_teamlogo,
