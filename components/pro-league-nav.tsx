@@ -141,8 +141,20 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   const [topHeaderRowHeight, setTopHeaderRowHeight] = useState(0) // Height of the top row
   const [bottomRowHeight, setBottomRowHeight] = useState(0) // Height of the bottom row
   const [scrollY, setScrollY] = useState(0)
+  const [isBottomRowFixed, setIsBottomRowFixed] = useState(false)
 
-  // No scroll handling needed - header stays fixed
+  useEffect(() => {
+    const handleScroll = () => {
+      if (topHeaderRowRef.current) {
+        const topRowBottom = topHeaderRowRef.current.getBoundingClientRect().bottom
+        // When the top row scrolls out of view, fix the bottom row
+        setIsBottomRowFixed(topRowBottom <= 0)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Get heights of header rows on mount and resize
   useEffect(() => {
@@ -161,27 +173,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
     window.addEventListener("resize", updateHeaderHeights)
     return () => window.removeEventListener("resize", updateHeaderHeights)
   }, [])
-
-  // Recalculate header heights when transitioning from landing page
-  useEffect(() => {
-    if (!showLandingPage) {
-      // Small delay to ensure header is rendered
-      const timer = setTimeout(() => {
-        if (headerRef.current) {
-          setHeaderHeight(headerRef.current.offsetHeight)
-        }
-        if (topHeaderRowRef.current) {
-          setTopHeaderRowHeight(topHeaderRowRef.current.offsetHeight)
-        }
-        if (bottomRowRef.current) {
-          setBottomRowHeight(bottomRowRef.current.offsetHeight)
-        }
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-  }, [showLandingPage])
-
-  // Header stays fixed - no translation needed
 
   // --- END: Refined Changes for smooth shrink effect ---
 
@@ -471,7 +462,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Fixed header container that holds both rows */}
       <header
         ref={headerRef}
         className="relative top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
@@ -710,10 +700,12 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           </div>
         </div>
 
-        {/* Bottom row - Navigation tabs */}
         <div
           ref={bottomRowRef}
-          className="sticky top-0 w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50"
+          className={cn(
+            "w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50 transition-all duration-200",
+            isBottomRowFixed ? "fixed top-0 left-0 right-0 shadow-md" : "relative",
+          )}
         >
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation Tabs */}
@@ -777,6 +769,8 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           </div>
         </div>
       </header>
+
+      {isBottomRowFixed && <div style={{ height: `${bottomRowHeight}px` }} />}
 
       {/* Main Content Area */}
       <main className="relative z-10">{renderActiveContent()}</main>
