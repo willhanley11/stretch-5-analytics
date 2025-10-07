@@ -1096,17 +1096,24 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
         <div className="px-0 md:px-0">
           <div className="grid gap-2 md:gap-3 md:grid-cols-2">
             {sortedRoundGames.map((game, index) => {
-              // Parse the date string manually to avoid UTC conversion
               const [year, month, day] = game.game_date.split("T")[0].split("-")
               const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
 
               const monthShort = gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
               const dayNum = gameDate.getDate()
 
-              // Check if this is the first game of a new date
               const currentGameDateString = gameDate.toDateString()
               const previousGame = index > 0 ? sortedRoundGames[index - 1] : null
-              const previousGameDateString = previousGame ? new Date(previousGame.game_date).toDateString() : null
+              let previousGameDateString = null
+              if (previousGame) {
+                const [prevYear, prevMonth, prevDay] = previousGame.game_date.split("T")[0].split("-")
+                const prevGameDate = new Date(
+                  Number.parseInt(prevYear),
+                  Number.parseInt(prevMonth) - 1,
+                  Number.parseInt(prevDay),
+                )
+                previousGameDateString = prevGameDate.toDateString()
+              }
               const isNewDate = index === 0 || currentGameDateString !== previousGameDateString
 
               // Extract time from the game_time field or game_date and convert to user timezone
@@ -1207,18 +1214,17 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
-                  {/* Date Divider */}
                   {isNewDate && (
-                    <div className="md:col-span-2 w-full flex items-center my-2">
-                      <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                      <div className="px-3 py-1 mx-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-full shadow-sm">
+                    <div className="md:col-span-2 w-full flex items-center my-1">
+                      <div className="flex-grow h-px bg-gray-200"></div>
+                      <div className="px-2 py-0.5 mx-2 text-[10px] font-medium text-gray-500 bg-gray-50 rounded">
                         {gameDate.toLocaleDateString("en-US", {
                           weekday: "short",
                           month: "short",
                           day: "numeric",
                         })}
                       </div>
-                      <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                      <div className="flex-grow h-px bg-gray-200"></div>
                     </div>
                   )}
 
