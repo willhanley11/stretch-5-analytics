@@ -362,12 +362,12 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
+      <div className="bg-white border border--500 rounded-lg shadow-md my-2 overflow-hidden">
         <div className="text-center py-1.5 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
           <span className="text-[11px] md:text-sm font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
         </div>
         <div
-          className="p-4 pb-2 border-b-2 border-gray-400"
+          className="p-2 pb-1 border-b-2 border-gray-400"
           style={{
             background: `linear-gradient(to right, ${homeTeamColor}15, #f9fafb, ${awayTeamColor}15)`,
           }}
@@ -458,60 +458,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Pace */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_pace, awayTeamStats.rank_pace, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.pace)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_pace)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Pace
-                        </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_pace, awayTeamStats.rank_pace, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.pace)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_pace)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Offensive Efficiency */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_o, awayTeamStats.rank_efficiency_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.efficiency_o)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efficiency_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Off Eff
-                        </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_o, awayTeamStats.rank_efficiency_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.efficiency_o)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efficiency_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
                       {/* Offensive eFG% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                         <td className="text-center py-1 px-1">
@@ -620,30 +566,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         </td>
                       </tr>
 
-                      {/* Defensive Efficiency */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_d, awayTeamStats.rank_efficiency_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.efficiency_d)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efficiency_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Def Eff
-                        </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_d, awayTeamStats.rank_efficiency_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.efficiency_d)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efficiency_d)}</span>
-                            </div>
-                          </div>
+                      <tr>
+                        <td colSpan={3} className="py-0">
+                          <div className="border-t-2 border-gray-300"></div>
                         </td>
                       </tr>
 
