@@ -843,8 +843,8 @@ export default function LandingPage({
   const categories = [
     {
       id: "games",
-      title: "Games",
-      description: "Upcoming Games & Round Results",
+      title: "Upcoming Games",
+      description: "Previews & Round Results",
       icon: Users,
       color: "#763E5C", // Placeholder, will be overridden by menu styling
       goButton: {
