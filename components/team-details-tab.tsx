@@ -6,7 +6,6 @@ import { motion } from "framer-motion"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 
 import {
-  fetchTeamSchedule,
   fetchTeamScheduleWithUpcoming,
   fetchTeamGameLogs,
   fetchTeamAdvancedStatsByTeamCode,
@@ -158,28 +157,28 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node
-      
+
       // Check if click is within the dropdown button
       if (dropdownRef.current && dropdownRef.current.contains(target)) {
         return
       }
-      
+
       // For portal dropdowns, we'll handle closing in the button click handler
       if (isOpen) {
-        const portalElements = document.querySelectorAll('[data-portal-dropdown]')
+        const portalElements = document.querySelectorAll("[data-portal-dropdown]")
         for (const element of portalElements) {
           if (element.contains(target)) {
             return
           }
         }
       }
-      
+
       setIsOpen(false)
     }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [isOpen])
 
@@ -189,29 +188,29 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
       setDropdownPosition({
         top: rect.bottom + window.scrollY,
         left: rect.left + window.scrollX,
-        width: rect.width
+        width: rect.width,
       })
     }
   }, [isOpen])
 
-  const selectedOption = options.find(option => option.value === value)
+  const selectedOption = options.find((option) => option.value === value)
 
   const handleToggle = () => {
     setIsOpen(!isOpen)
   }
 
   const dropdownContent = isOpen ? (
-    <div 
+    <div
       data-portal-dropdown
       className="bg-white border border-gray-300 rounded-md shadow-xl"
-      style={{ 
-        position: 'absolute',
+      style={{
+        position: "absolute",
         top: dropdownPosition.top,
         left: dropdownPosition.left,
         width: dropdownPosition.width,
         zIndex: 999999,
-        backgroundColor: 'white',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+        backgroundColor: "white",
+        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
@@ -226,7 +225,7 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
             setIsOpen(false)
           }}
           className={`w-full px-2 py-1 text-[10px] sm:text-[11px] md:text-sm text-left hover:bg-gray-100 first:rounded-t-md last:rounded-b-md ${
-            value === option.value ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
+            value === option.value ? "bg-blue-50 text-blue-700" : "text-gray-900"
           }`}
         >
           {option.label}
@@ -248,8 +247,8 @@ function CustomDropdown({ value, onChange, options, className = "" }: CustomDrop
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      
-      {typeof document !== 'undefined' && dropdownContent && createPortal(dropdownContent, document.body)}
+
+      {typeof document !== "undefined" && dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   )
 }
@@ -384,15 +383,15 @@ export function TeamDetailsTab({
     // Strategy 3: Try name variations for common mismatches
     if (!teamCode) {
       const nameVariations = [
-        teamName.replace(' AKTOR', ''), // "Panathinaikos AKTOR" -> "Panathinaikos"
-        teamName.replace(' Piraeus', ''), // "Olympiacos Piraeus" -> "Olympiacos"
-        teamName.replace(' Istanbul', ''), // "Fenerbahce Beko Istanbul" -> "Fenerbahce Beko"
-        teamName.split(' ')[0], // First word only
+        teamName.replace(" AKTOR", ""), // "Panathinaikos AKTOR" -> "Panathinaikos"
+        teamName.replace(" Piraeus", ""), // "Olympiacos Piraeus" -> "Olympiacos"
+        teamName.replace(" Istanbul", ""), // "Fenerbahce Beko Istanbul" -> "Fenerbahce Beko"
+        teamName.split(" ")[0], // First word only
       ]
-      
+
       for (const variation of nameVariations) {
-        const foundTeam = teamStats.find((team) => 
-          team.name.toLowerCase().includes(variation.toLowerCase()) && team.season === season
+        const foundTeam = teamStats.find(
+          (team) => team.name.toLowerCase().includes(variation.toLowerCase()) && team.season === season,
         )
         if (foundTeam) {
           teamCode = foundTeam.teamcode
@@ -442,23 +441,27 @@ export function TeamDetailsTab({
     if (exactTeamData?.teamcode) {
       return exactTeamData.teamcode
     }
-    
+
     // Check the static mapping
     const mappedCode = teamNameToCode[selectedTeam]
     if (mappedCode) {
       return mappedCode
     }
-    
+
     // Try partial matching for team name variations
-    const partialMatch = teamStats.find((team) => 
-      team.name.toLowerCase().includes(selectedTeam.toLowerCase()) ||
-      selectedTeam.toLowerCase().includes(team.name.toLowerCase())
+    const partialMatch = teamStats.find(
+      (team) =>
+        team.name.toLowerCase().includes(selectedTeam.toLowerCase()) ||
+        selectedTeam.toLowerCase().includes(team.name.toLowerCase()),
     )
     if (partialMatch?.teamcode) {
       return partialMatch.teamcode
     }
-    
-    console.warn(`No team code found for: "${selectedTeam}". Available teams:`, teamStats.map(t => t.name))
+
+    console.warn(
+      `No team code found for: "${selectedTeam}". Available teams:`,
+      teamStats.map((t) => t.name),
+    )
     return ""
   }
 
@@ -556,11 +559,11 @@ export function TeamDetailsTab({
   }
 
   // Simplified loading logic - focus on core team data and current loading states
-  const isAnyDataLoading = 
-    isLoading || 
-    !selectedTeam || 
-    teamStats.length === 0 || 
-    isAdvancedStatsLoading || 
+  const isAnyDataLoading =
+    isLoading ||
+    !selectedTeam ||
+    teamStats.length === 0 ||
+    isAdvancedStatsLoading ||
     isTeamCodeLoading ||
     selectedGameLogPhase === "_RESETTING_"
 
@@ -673,7 +676,6 @@ export function TeamDetailsTab({
             return
           }
 
-
           // Fetch all game logs for the team at once instead of individual player requests
           const teamGameLogs = await fetchTeamGameLogs(teamCode, selectedSeason, league) // Use league prop
 
@@ -765,8 +767,7 @@ export function TeamDetailsTab({
   }, [selectedTeam, selectedSeason, selectedTeamReportPhase, teamStats, league, isComponentReady])
 
   // Add debugging for teamPlayers data
-  useEffect(() => {
-  }, [teamPlayers, selectedPhase, selectedTeam, selectedSeason])
+  useEffect(() => {}, [teamPlayers, selectedPhase, selectedTeam, selectedSeason])
   // Fetch team shot data
   // Fetch team shot data
   useEffect(() => {
@@ -861,7 +862,6 @@ export function TeamDetailsTab({
 
   // Game log expandable handlers
   const handleGameRowClick = async (game: ScheduleResult) => {
-
     // If clicking the same game, collapse it
     if (expandedGameForLogs?.id === game.id) {
       setExpandedGameForLogs(null)
@@ -981,7 +981,7 @@ export function TeamDetailsTab({
             // Convert result to W/L format for played games, blank for upcoming
             const resultDisplay = isUpcoming ? "" : isWin ? "W" : isLoss ? "L" : game.result || "-"
 
-            const formattedResult = isUpcoming 
+            const formattedResult = isUpcoming
               ? ""
               : game.team_score !== null && game.opponent_score !== null
                 ? `${resultDisplay} ${game.team_score}-${game.opponent_score}`
@@ -1034,9 +1034,7 @@ export function TeamDetailsTab({
                   <td className="py-0.5 px-0.5 text-center border-r border-gray-200 text-[10px] md:text-xs whitespace-nowrap">
                     {isUpcoming ? "-" : game.record || "-"}
                   </td>
-                  <td className="py-0.5 px-0.5 text-center text-gray-400 text-xs">
-                    {isUpcoming ? "" : "+"}
-                  </td>
+                  <td className="py-0.5 px-0.5 text-center text-gray-400 text-xs">{isUpcoming ? "" : "+"}</td>
                 </tr>
                 {/* Game log expansion */}
                 {!isUpcoming && renderGameLogExpansion(game)}
@@ -1086,9 +1084,9 @@ export function TeamDetailsTab({
     if (gameTotalLog) finalLogs.push(gameTotalLog)
 
     // Get team colors based on their actual positions, not selection
-    const team1Color = euroleague_team_colors[teamCode1] || "#4b5563"  // Home team color
-    const team2Color = euroleague_team_colors[teamCode2] || "#4b5563"  // Away team color
-    
+    const team1Color = euroleague_team_colors[teamCode1] || "#4b5563" // Home team color
+    const team2Color = euroleague_team_colors[teamCode2] || "#4b5563" // Away team color
+
     // Determine the color for the starter row based on the selected team for a visual cue
     const teamColor = euroleague_team_colors[selectedGameTeam] || "#4b5563"
     const starterRowStyle = {
@@ -1108,17 +1106,16 @@ export function TeamDetailsTab({
     // New constants for table styling based on your provided code
     const baseTableClasses = "w-full text-[9px] md:text-[11px] border-collapse rounded-none"
     const headerRowClasses = "bg-gray-50 h-10 md:h-10 border-b-2 border-gray-700"
-    const bodyRowClasses =
-      "h-7 border-b border-gray-200 hover:shadow-sm transition-all duration-200 ease-in-out group"
+    const bodyRowClasses = "h-7 border-b border-gray-200 hover:shadow-sm transition-all duration-200 ease-in-out group"
 
     return (
       <tr>
         <td colSpan={8} className="p-0">
           <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
-            <div 
+            <div
               className="p-4 pb-2 border-b-2 border-gray-300"
               style={{
-                background: `linear-gradient(to right, ${team1Color}15, #f9fafb, ${team2Color}15)`
+                background: `linear-gradient(to right, ${team1Color}15, #f9fafb, ${team2Color}15)`,
               }}
             >
               {/* Game Matchup Header */}
@@ -1142,7 +1139,9 @@ export function TeamDetailsTab({
                   <div className="text-xl md:text-2xl font-bold font-mono bg-gray-100 px-4 py-2 rounded-lg border-2 border-gray-300 shadow-sm">
                     {expandedGameForLogs.team_score} - {expandedGameForLogs.opponent_score}
                   </div>
-                  <div className="text-[10px] text-gray-600 mt-1 bg-gray-50 px-1.5 py-0.5 rounded text-center">Round {expandedGameForLogs.round}</div>
+                  <div className="text-[10px] text-gray-600 mt-1 bg-gray-50 px-1.5 py-0.5 rounded text-center">
+                    Round {expandedGameForLogs.round}
+                  </div>
                   <div className="text-[10px] text-gray-500 mt-0.5 text-center">
                     {new Date(expandedGameForLogs.game_date).toLocaleDateString()}
                   </div>
@@ -1157,9 +1156,7 @@ export function TeamDetailsTab({
                     />
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="font-semibold text-xs md:text-sm text-center">
-                      {expandedGameForLogs.opponent}
-                    </span>
+                    <span className="font-semibold text-xs md:text-sm text-center">{expandedGameForLogs.opponent}</span>
                     <span className="text-[10px] text-gray-600">
                       {expandedGameForLogs.location === "Home" ? "Away" : "Home"}
                     </span>
@@ -1210,9 +1207,7 @@ export function TeamDetailsTab({
                         if (isTeamRow) return null
 
                         // Team and Total rows use a specific styling, others use starter/default
-                        const rowStyling = isTotalRow
-                          ? "font-bold bg-gray-100 hover:bg-gray-200"
-                          : "bg-white"
+                        const rowStyling = isTotalRow ? "font-bold bg-gray-100 hover:bg-gray-200" : "bg-white"
                         const rowStyle = {}
                         const fontStyling = isTotalRow ? "font-bold" : "font-medium"
 
@@ -1225,7 +1220,9 @@ export function TeamDetailsTab({
                             <td className={`text-left py-0.5 px-1 ${fontStyling}`}>
                               <div className="flex items-center gap-1">
                                 <span className="text-[9px] md:text-[11px]">{log.player}</span>
-                                {log.is_starter === 1 && <span className="text-black text-[8px] md:text-[10px]">★</span>}
+                                {log.is_starter === 1 && (
+                                  <span className="text-black text-[8px] md:text-[10px]">★</span>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1285,9 +1282,7 @@ export function TeamDetailsTab({
                         const isTeamRow = log.player === "Team"
                         if (isTeamRow) return null
 
-                        const rowStyling = isTotalRow
-                          ? "font-bold bg-gray-100 hover:bg-gray-200"
-                          : "bg-white"
+                        const rowStyling = isTotalRow ? "font-bold bg-gray-100 hover:bg-gray-200" : "bg-white"
                         const rowStyle = {}
                         const fontStyling = isTotalRow ? "font-bold" : "font-medium"
 
@@ -1347,9 +1342,7 @@ export function TeamDetailsTab({
                             >
                               {formatStat(log.blocks_favour, 0)}
                             </td>
-                            <td
-                              className={`text-center py-0.5 px-0.5 ${fontStyling} text-[9px] md:text-[11px]`}
-                            >
+                            <td className={`text-center py-0.5 px-0.5 ${fontStyling} text-[9px] md:text-[11px]`}>
                               {formatStat(log.valuation, 0)}
                             </td>
                           </tr>
@@ -1567,234 +1560,463 @@ export function TeamDetailsTab({
 
   return (
     <>
-    <div className="max-w-7xl mx-auto w-full">
-      {isAnyDataLoading ? (
-        <div className="flex items-center justify-center h-full mt-6">
-          {selectedTeam && teamStats.length > 0 ? (
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
+      <div className="max-w-7xl mx-auto w-full">
+        {isAnyDataLoading ? (
+          <div className="flex items-center justify-center h-full mt-6">
+            {selectedTeam && teamStats.length > 0 ? (
               <motion.div
-                className="mb-6"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
               >
-                {(() => {
-                  // First check if we have a direct logo URL from the database
-                  const teamData = teamStats.find((team) => team.name === selectedTeam)
+                <motion.div
+                  className="mb-6"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  {(() => {
+                    // First check if we have a direct logo URL from the database
+                    const teamData = teamStats.find((team) => team.name === selectedTeam)
 
-                  // Only render logo if we actually found the team data
-                  if (!teamData) return null
+                    // Only render logo if we actually found the team data
+                    if (!teamData) return null
 
-                  if (teamData?.teamlogo) {
+                    if (teamData?.teamlogo) {
+                      return (
+                        <img
+                          src={teamData.teamlogo || "/placeholder.svg"}
+                          alt={`${selectedTeam} logo`}
+                          className="w-16 h-16 mx-auto mb-3"
+                        />
+                      )
+                    }
+
+                    // Fallback to the mapping using teamcode
+                    const teamCode = teamData?.teamcode
+                    const currentTeamLogoMapping = team_logo_mapping
+                    if (teamCode && currentTeamLogoMapping[teamCode]) {
+                      return (
+                        <img
+                          src={currentTeamLogoMapping[teamCode] || "/placeholder.svg"}
+                          alt={`${selectedTeam} logo`}
+                          className="w-16 h-16 mx-auto mb-3"
+                        />
+                      )
+                    }
+
+                    // Final fallback to colored circle with initials
+                    const initials = selectedTeam
+                      .split(" ")
+                      .map((word) => word[0])
+                      .join("")
+
+                    const euroleague_team_colors = {
+                      BAR: "#1e3a8a",
+                      EFE: "#ba000d",
+                      FNB: "#004699",
+                      MUN: "#ba000d",
+                      OLY: "#bb0000",
+                      Pan: "#00a1cb",
+                      VIR: "#ed1c24",
+                      ZAL: "#1e3a8a",
+                      ASV: "#002d5e",
+                      BOL: "#002d5e",
+                      MTA: "#005eb8",
+                      Mon: "#d90007",
+                      PAR: "#002d5e",
+                      VAL: "#ff6600",
+                      ALB: "#002d5e",
+                      EA7: "#e60026",
+                      VIL: "#005eb8",
+                    }
+
+                    const bgColor =
+                      teamCode && euroleague_team_colors[teamCode] ? euroleague_team_colors[teamCode] : "#4b5563"
+
                     return (
-                      <img
-                        src={teamData.teamlogo || "/placeholder.svg"}
-                        alt={`${selectedTeam} logo`}
-                        className="w-16 h-16 mx-auto mb-3"
-                      />
-                    )
-                  }
-
-                  // Fallback to the mapping using teamcode
-                  const teamCode = teamData?.teamcode
-                  const currentTeamLogoMapping = team_logo_mapping
-                  if (teamCode && currentTeamLogoMapping[teamCode]) {
-                    return (
-                      <img
-                        src={currentTeamLogoMapping[teamCode] || "/placeholder.svg"}
-                        alt={`${selectedTeam} logo`}
-                        className="w-16 h-16 mx-auto mb-3"
-                      />
-                    )
-                  }
-
-                  // Final fallback to colored circle with initials
-                  const initials = selectedTeam
-                    .split(" ")
-                    .map((word) => word[0])
-                    .join("")
-
-                  const euroleague_team_colors = {
-                    BAR: "#1e3a8a",
-                    EFE: "#ba000d",
-                    FNB: "#004699",
-                    MUN: "#ba000d",
-                    OLY: "#bb0000",
-                    Pan: "#00a1cb",
-                    VIR: "#ed1c24",
-                    ZAL: "#1e3a8a",
-                    ASV: "#002d5e",
-                    BOL: "#002d5e",
-                    MTA: "#005eb8",
-                    Mon: "#d90007",
-                    PAR: "#002d5e",
-                    VAL: "#ff6600",
-                    ALB: "#002d5e",
-                    EA7: "#e60026",
-                    VIL: "#005eb8",
-                  }
-
-                  const bgColor =
-                    teamCode && euroleague_team_colors[teamCode] ? euroleague_team_colors[teamCode] : "#4b5563"
-
-                  return (
-                    <div
-                      className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                      style={{ backgroundColor: bgColor }}
-                    >
-                      {initials}
-                    </div>
-                  )
-                })()}
-                <h2 className="text-md font-semibold text-gray-800 mb-1">{selectedTeam}</h2>
-                <p className="text-sm text-gray-600 mb-2">
-                  {seasons.find((s) => s.id === selectedSeason)?.display ||
-                    `${selectedSeason}-${(selectedSeason + 1).toString().slice(-2)}`}
-                </p>
-              </motion.div>
-              <motion.div
-                className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.6 }}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            ></motion.div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-6 ">
-          {/* Team header row - containing both team info and logos grid */}
-          <div className="flex flex-col gap-4 w-full -mt-5 md:mt-0 ">
-            {/* Desktop: Team logos container */}
-            <div className="hidden sm:flex flex-col w-full gap-0.5 ">
-              {/* Position numbers row */}
-              <div className="flex w-full gap-3.5">
-                {/* Empty space for season display */}
-
-                {availableTeams.map((teamName, index) => {
-                  const teamData = teamStats.find((team) => team.name === teamName)
-                  const position = teamData?.position || index + 1
-
-                  return (
-                    <div key={`pos-${teamName}`} className="flex-1 flex justify-center items-center">
-                      <span className="text-xs font-medium text-black-400 w-5 h-5 flex items-center justify-center">
-                        {position}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Team logos row */}
-              <div className="flex w-full gap-3 overflow-x-auto">
-                {availableTeams.map((teamName) => {
-                  const teamCode = teamNameToCode[teamName]
-                  const teamData = teamStats.find((team) => team.name === teamName)
-                  const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
-                  const isSelected = teamName === selectedTeam
-                  const actualTeamCode = teamData?.teamcode || teamCode
-                  const teamColor = getTeamColorStyles(teamName, actualTeamCode).backgroundColor
-
-                  return (
-                    <button
-                      key={teamName}
-                      onClick={() => setSelectedTeam(teamName)}
-                      className="flex-1"
-                      title={teamName}
-                    >
                       <div
-                        className={`w-full aspect-square flex items-center justify-center rounded-lg
+                        className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                        style={{ backgroundColor: bgColor }}
+                      >
+                        {initials}
+                      </div>
+                    )
+                  })()}
+                  <h2 className="text-md font-semibold text-gray-800 mb-1">{selectedTeam}</h2>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {seasons.find((s) => s.id === selectedSeason)?.display ||
+                      `${selectedSeason}-${(selectedSeason + 1).toString().slice(-2)}`}
+                  </p>
+                </motion.div>
+                <motion.div
+                  className="w-8 h-8 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto mb-4"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.6 }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              ></motion.div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6 ">
+            {/* Team header row - containing both team info and logos grid */}
+            <div className="flex flex-col gap-4 w-full -mt-5 md:mt-0 ">
+              {/* Desktop: Team logos container */}
+              <div className="hidden sm:flex flex-col w-full gap-0.5 ">
+                {/* Position numbers row */}
+                <div className="flex w-full gap-3.5">
+                  {/* Empty space for season display */}
+
+                  {availableTeams.map((teamName, index) => {
+                    const teamData = teamStats.find((team) => team.name === teamName)
+                    const position = teamData?.position || index + 1
+
+                    return (
+                      <div key={`pos-${teamName}`} className="flex-1 flex justify-center items-center">
+                        <span className="text-xs font-medium text-black-400 w-5 h-5 flex items-center justify-center">
+                          {position}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Team logos row */}
+                <div className="flex w-full gap-3 overflow-x-auto">
+                  {availableTeams.map((teamName) => {
+                    const teamCode = teamNameToCode[teamName]
+                    const teamData = teamStats.find((team) => team.name === teamName)
+                    const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
+                    const isSelected = teamName === selectedTeam
+                    const actualTeamCode = teamData?.teamcode || teamCode
+                    const teamColor = getTeamColorStyles(teamName, actualTeamCode).backgroundColor
+
+                    return (
+                      <button
+                        key={teamName}
+                        onClick={() => setSelectedTeam(teamName)}
+                        className="flex-1"
+                        title={teamName}
+                      >
+                        <div
+                          className={`w-full aspect-square flex items-center justify-center rounded-lg
                     ${isSelected ? "shadow-md" : "hover:shadow-sm"}
                     transition-all p-1`}
-                        style={{
-                          backgroundColor: isSelected ? teamColor : "light-beige",
-                          border: isSelected ? `1px solid black` : "1px solid #4b5563",
-                        }}
-                      >
-                        {logoUrl ? (
-                          <img
-                            src={logoUrl || "/placeholder.svg"}
-                            alt={`${teamName} logo`}
-                            className={`max-w-full max-h-full object-contain transition-all duration-200 ${isSelected ? "" : "opacity-50"}`}
-                          />
-                        ) : (
-                          <div
-                            className={`w-full h-full rounded-sm flex items-center justify-center text-white font-bold text-xs ${isSelected ? "bg-gray-600" : "bg-gray-400 opacity-40"}`}
+                          style={{
+                            backgroundColor: isSelected ? teamColor : "light-beige",
+                            border: isSelected ? `1px solid black` : "1px solid #4b5563",
+                          }}
+                        >
+                          {logoUrl ? (
+                            <img
+                              src={logoUrl || "/placeholder.svg"}
+                              alt={`${teamName} logo`}
+                              className={`max-w-full max-h-full object-contain transition-all duration-200 ${isSelected ? "" : "opacity-50"}`}
+                            />
+                          ) : (
+                            <div
+                              className={`w-full h-full rounded-sm flex items-center justify-center text-white font-bold text-xs ${isSelected ? "bg-gray-600" : "bg-gray-400 opacity-40"}`}
+                            >
+                              {teamName
+                                .split(" ")
+                                .map((word) => word[0])
+                                .join("")}
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Compact team header container with border around entire box - now clickable on mobile - MAKE THIS STICKY */}
+
+              <div className="bg-black shadow-md rounded-xl relative mt-2 -mb-3">
+                <button className="w-full text-left" onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}>
+                  <div
+                    className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
+                    style={{
+                      border: `1px solid black`,
+                      backgroundColor: selectedTeamColor, // Applied selectedTeamColor as background
+                    }}
+                  >
+                    {/* Reduced vertical padding */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center p-1.5 gap-1.5 sm:gap-0">
+                      {/* Team Logo and Name section */}
+                      <div className="flex items-center w-full sm:w-[45%] flex-shrink-0 sm:border-r border-gray-200 sm:pr-2 mx-1">
+                        {/* Team Logo - smaller size with team color border */}
+                        <div className="flex-shrink-0 mr-2">
+                          {(() => {
+                            const teamCode = teamNameToCode[selectedTeam]
+                            const teamData = teamStats.find((team) => team.name === selectedTeam)
+                            const selectedLogoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
+                            const teamColor = getTeamColorStyles(selectedTeam).backgroundColor
+
+                            return selectedLogoUrl ? (
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg shadow-sm">
+                                <div
+                                  className="w-8 h-8 sm:w-10 sm:h-10 bg-light-beige rounded-lg flex items-center justify-center p-0.5" /* Smaller padding */
+                                  style={{
+                                    border: "1px solid black", // Black border
+                                    backgroundColor: "white", // White background
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                  }}
+                                >
+                                  <img
+                                    src={selectedLogoUrl || "/placeholder.svg"}
+                                    alt={`${selectedTeam} logo`}
+                                    className="w-5 h-5 sm:w-7 sm:h-7 object-contain" /* Smaller image */
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-bold text-xs shadow-sm" /* Smaller size and font */
+                                style={{
+                                  backgroundColor: "white", // White background for fallback
+                                  color: teamColor, // Use team color for text for contrast
+                                  border: `1px solid black`, // Black border for fallback
+                                }}
+                              >
+                                {selectedTeam
+                                  .split(" ")
+                                  .map((word) => word[0])
+                                  .join("")}
+                              </div>
+                            )
+                          })()}
+                        </div>
+
+                        {/* Team Name - in larger container */}
+                        <div className="overflow-hidden flex-grow">
+                          <h2
+                            className="text-base sm:text-lg font-bold whitespace-nowrap overflow-hidden text-ellipsis text-white"
+                            style={{
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border effect for text
+                            }}
                           >
-                            {teamName
-                              .split(" ")
-                              .map((word) => word[0])
-                              .join("")}
-                          </div>
-                        )}
+                            {selectedTeam}
+                          </h2>
+                        </div>
+
+                        {/* Dropdown arrow */}
+                        <div className="ml-1 mr-3">
+                          <ChevronDown
+                            className={`h-5 w-5 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`} /* Smaller icon, color set to white */
+                          />
+                        </div>
                       </div>
-                    </button>
-                  )
-                })}
+
+                      {/* Stats in a responsive grid - Hide on mobile */}
+                      <div className="hidden sm:flex sm:items-center w-full sm:w-[55%] text-xs sm:pl-2 gap-1.5 sm:gap-1.5 sm:justify-start">
+                        {/* Position - Always show */}
+                        <div className="flex items-center whitespace-nowrap">
+                          <span
+                            className="font-medium mr-1"
+                            style={{
+                              color: "white", // Ensure label text is white
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
+                            }}
+                          >
+                            Pos:
+                          </span>
+                          <span
+                            className="px-1.5 py-0.5 rounded-lg font-bold border" /* Smaller padding */
+                            style={{
+                              backgroundColor: "white", // White background
+                              color: "black", // Changed to black
+                              borderColor: "black", // Black border for the circle/rectangle
+                            }}
+                          >
+                            {teamStats.find((team) => team.name === selectedTeam)?.position || "-"}
+                          </span>
+                        </div>
+
+                        {/* Record - Always show */}
+                        <div className="flex items-center whitespace-nowrap ml-1.5">
+                          <span
+                            className="font-medium mr-1"
+                            style={{
+                              color: "white", // Ensure label text is white
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
+                            }}
+                          >
+                            Rec:
+                          </span>
+                          <span
+                            className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
+                            style={{
+                              backgroundColor: "white", // White background
+                              color: "black", // Changed to black
+                              borderColor: "black", // Black border for the rectangle
+                            }}
+                          >
+                            {teamStats.find((team) => team.name === selectedTeam)?.w || 0}-
+                            {teamStats.find((team) => team.name === selectedTeam)?.l || 0}
+                          </span>
+                        </div>
+
+                        {/* Home Record - Hide on medium, show on large */}
+                        <div className="hidden lg:flex items-center whitespace-nowrap ml-1.5">
+                          <span
+                            className="font-medium mr-1"
+                            style={{
+                              color: "white", // Ensure label text is white
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
+                            }}
+                          >
+                            H:
+                          </span>
+                          <span
+                            className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
+                            style={{
+                              backgroundColor: "white", // White background
+                              color: "black", // Changed to black
+                              borderColor: "black", // Black border for the rectangle
+                            }}
+                          >
+                            {teamStats.find((team) => team.name === selectedTeam)?.home || "-"}
+                          </span>
+                        </div>
+
+                        {/* Away Record - Hide on medium, show on xl */}
+                        <div className="hidden xl:flex items-center whitespace-nowrap ml-1.5">
+                          <span
+                            className="font-medium mr-1"
+                            style={{
+                              color: "white", // Ensure label text is white
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
+                            }}
+                          >
+                            A:
+                          </span>
+                          <span
+                            className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
+                            style={{
+                              backgroundColor: "white", // White background
+                              color: "black", // Changed to black
+                              borderColor: "black", // Black border for the rectangle
+                            }}
+                          >
+                            {teamStats.find((team) => team.name === selectedTeam)?.away || "-"}
+                          </span>
+                        </div>
+
+                        {/* Streak - Hide on medium, show on xl */}
+                        <div className="hidden xl:flex items-center whitespace-nowrap ml-1.5">
+                          <span
+                            className="font-medium mr-1"
+                            style={{
+                              color: "white", // Ensure label text is white
+                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
+                            }}
+                          >
+                            Streak:
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 rounded-lg font-bold border ${
+                              (teamStats.find((team) => team.name === selectedTeam)?.streak || "").startsWith("W")
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-red-100 text-red-800 border-red-200"
+                            }`} /* Smaller padding */
+                            style={{
+                              borderColor: "black",
+                            }}
+                          >
+                            {teamStats.find((team) => team.name === selectedTeam)?.streak || "-"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div /> {/* Re-added this div */}
+                  </div>
+                </button>
+
+                {/* Team dropdown menu */}
+                {isTeamDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                    {availableTeams.map((teamName) => {
+                      const teamCode = teamNameToCode[teamName]
+                      const teamData = teamStats.find((team) => team.name === teamName)
+                      const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
+                      const isSelected = teamName === selectedTeam
+
+                      return (
+                        <button
+                          key={teamName}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            console.log("Team details: Changing team from", selectedTeam, "to", teamName)
+                            setSelectedTeam(teamName)
+                            setIsTeamDropdownOpen(false)
+                          }}
+                          className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
+                            isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
+                          }`} /* Reduced padding */
+                        >
+                          {logoUrl ? (
+                            <img
+                              src={logoUrl || "/placeholder.svg"}
+                              alt={`${teamName} logo`}
+                              className="w-5 h-5 mr-2 object-contain" /* Smaller image and margin */
+                            />
+                          ) : (
+                            <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs mr-2">
+                              {teamName
+                                .split(" ")
+                                .map((word) => word[0])
+                                .join("")}
+                            </div>
+                          )}
+                          <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
+                            {teamName}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Compact team header container with border around entire box - now clickable on mobile - MAKE THIS STICKY */}
-
-            <div className="bg-black shadow-md rounded-xl relative mt-2 -mb-3">
-              <button className="w-full text-left" onClick={() => setIsTeamDropdownOpen(!isTeamDropdownOpen)}>
-                <div
-                  className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                  style={{
-                    border: `1px solid black`,
-                    backgroundColor: selectedTeamColor, // Applied selectedTeamColor as background
-                  }}
-                >
-                  {/* Reduced vertical padding */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center p-1.5 gap-1.5 sm:gap-0">
-                    {/* Team Logo and Name section */}
-                    <div className="flex items-center w-full sm:w-[45%] flex-shrink-0 sm:border-r border-gray-200 sm:pr-2 mx-1">
-                      {/* Team Logo - smaller size with team color border */}
-                      <div className="flex-shrink-0 mr-2">
+            {/* Team Stats and Schedule */}
+            <div className="flex flex-col lg:flex-row gap-4 md:gap-6 min-h-0  ">
+              {/* Left side - Team Stats */}
+              <div className="lg:w-4/12 flex flex-col">
+                <div className=" pb-1 bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col h-[550] md:h-[828px]">
+                  {/* Team color header strip */}
+                  <div
+                    className="w-full h-2 border border-black rounded-t-lg -mb-1 "
+                    style={{
+                      backgroundColor: selectedTeamColor,
+                    }}
+                  />
+                  <div className="px-2 py-1 pb-1 flex-1 flex flex-col">
+                    <div className="flex justify-between items-center border-b-2 border-gray-800 pb-2 sticky top-0 z-10 bg-light-beige">
+                      <div className="flex items-center gap-2 mx-0 mt-2">
                         {(() => {
-                          const teamCode = teamNameToCode[selectedTeam]
+                          const teamCode = getSelectedTeamCode()
                           const teamData = teamStats.find((team) => team.name === selectedTeam)
-                          const selectedLogoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
-                          const teamColor = getTeamColorStyles(selectedTeam).backgroundColor
+                          const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
 
-                          return selectedLogoUrl ? (
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg shadow-sm">
-                              <div
-                                className="w-8 h-8 sm:w-10 sm:h-10 bg-light-beige rounded-lg flex items-center justify-center p-0.5" /* Smaller padding */
-                                style={{
-                                  border: "1px solid black", // Black border
-                                  backgroundColor: "white", // White background
-                                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                }}
-                              >
-                                <img
-                                  src={selectedLogoUrl || "/placeholder.svg"}
-                                  alt={`${selectedTeam} logo`}
-                                  className="w-5 h-5 sm:w-7 sm:h-7 object-contain" /* Smaller image */
-                                />
-                              </div>
-                            </div>
+                          return logoUrl ? (
+                            <img
+                              src={logoUrl || "/placeholder.svg"}
+                              alt={`${selectedTeam} logo`}
+                              className="w-8 h-8 object-contain"
+                            />
                           ) : (
-                            <div
-                              className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-bold text-xs shadow-sm" /* Smaller size and font */
-                              style={{
-                                backgroundColor: "white", // White background for fallback
-                                color: teamColor, // Use team color for text for contrast
-                                border: `1px solid black`, // Black border for fallback
-                              }}
-                            >
+                            <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px]">
                               {selectedTeam
                                 .split(" ")
                                 .map((word) => word[0])
@@ -1802,205 +2024,671 @@ export function TeamDetailsTab({
                             </div>
                           )
                         })()}
+                        <h3 className="text-md font-semibold flex items-center">Team Report</h3>
                       </div>
-
-                      {/* Team Name - in larger container */}
-                      <div className="overflow-hidden flex-grow">
-                        <h2
-                          className="text-base sm:text-lg font-bold whitespace-nowrap overflow-hidden text-ellipsis text-white"
-                          style={{
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border effect for text
-                          }}
-                        >
-                          {selectedTeam}
-                        </h2>
-                      </div>
-
-                      {/* Dropdown arrow */}
-                      <div className="ml-1 mr-3">
-                        <ChevronDown
-                          className={`h-5 w-5 text-white transition-transform ${isTeamDropdownOpen ? "rotate-180" : ""}`} /* Smaller icon, color set to white */
+                      <div className="flex items-center">
+                        <CustomDropdown
+                          value={selectedTeamReportPhase}
+                          onChange={setSelectedTeamReportPhase}
+                          options={[
+                            { value: "RS", label: "Regular Season" },
+                            ...(hasTeamReportPlayoffData() ? [{ value: "Playoffs", label: "Playoffs" }] : []),
+                          ]}
+                          className="min-w-0"
                         />
                       </div>
                     </div>
 
-                    {/* Stats in a responsive grid - Hide on mobile */}
-                    <div className="hidden sm:flex sm:items-center w-full sm:w-[55%] text-xs sm:pl-2 gap-1.5 sm:gap-1.5 sm:justify-start">
-                      {/* Position - Always show */}
-                      <div className="flex items-center whitespace-nowrap">
-                        <span
-                          className="font-medium mr-1"
-                          style={{
-                            color: "white", // Ensure label text is white
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
-                          }}
-                        >
-                          Pos:
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 rounded-lg font-bold border" /* Smaller padding */
-                          style={{
-                            backgroundColor: "white", // White background
-                            color: "black", // Changed to black
-                            borderColor: "black", // Black border for the circle/rectangle
-                          }}
-                        >
-                          {teamStats.find((team) => team.name === selectedTeam)?.position || "-"}
-                        </span>
+                    <div className="flex-1 flex flex-col h-full">
+                      {/* Main Stats Section - Takes up 1/5 of available space */}
+                      <div className="flex-.85 flex flex-col">
+                        <div className="flex-1 overflow-y-auto rounded-">
+                          <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
+                            <colgroup>
+                              <col className="w-[30%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                            </colgroup>
+                            <thead className="sticky top-0 z-10 bg-light-beige">
+                              <tr className="border-b-2 border-gray-700  h-8">
+                                <th className="text-center py-1.5 px-2 font-medium">Category</th>
+                                <th className="text-center py-1.5 px-2 font-medium text-blue-700 border-l border-gray-300">
+                                  Offense
+                                </th>
+                                <th className="text-center py-1.5 px-2 font-medium text-red-700 border-l border-gray-300">
+                                  Defense
+                                </th>
+                                <th className="text-center py-1.5 px-2 font-medium border-l border-gray-300">
+                                  Lg. Avg
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {/* Net Rating (new row) */}
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
+                                  NET RATING
+                                </td>
+                                <td colSpan={2} className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_net_rating, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">{formatStatValue(getNetRating())}</span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_net_rating}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.net_rating, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">EFFICIENCY</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efficiency_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatStatValue(teamAdvancedStats?.efficiency_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_efficiency_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efficiency_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatStatValue(teamAdvancedStats?.efficiency_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_efficiency_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.efficiency_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">PACE</td>
+                                <td colSpan={2} className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pace, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">{formatStatValue(getAveragePace())}</span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_pace}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.pace, 1)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
-                      {/* Record - Always show */}
-                      <div className="flex items-center whitespace-nowrap ml-1.5">
-                        <span
-                          className="font-medium mr-1"
-                          style={{
-                            color: "white", // Ensure label text is white
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
-                          }}
-                        >
-                          Rec:
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
-                          style={{
-                            backgroundColor: "white", // White background
-                            color: "black", // Changed to black
-                            borderColor: "black", // Black border for the rectangle
-                          }}
-                        >
-                          {teamStats.find((team) => team.name === selectedTeam)?.w || 0}-
-                          {teamStats.find((team) => team.name === selectedTeam)?.l || 0}
-                        </span>
+                      {/* Four Factors Section - Takes up 1/5 of available space */}
+                      <div className="flex-1 flex flex-col">
+                        <div className="py-2">
+                          <div className="text-black font-medium uppercase text-center text-sm">FOUR FACTORS</div>
+                          <div className="h-px w-full bg-slate-700 mt-1"></div>
+                        </div>
+                        <div className="flex-1">
+                          <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
+                            <colgroup>
+                              <col className="w-[30%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                            </colgroup>
+                            <tbody>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">eFG%</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efgperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.efgperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_efgperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efgperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.efgperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_efgperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.efgperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">Turnover %</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_toratio_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.toratio_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_toratio_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_toratio_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.toratio_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_toratio_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.toratio_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">OFF. REB %</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_orebperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.orebperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_orebperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_orebperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.orebperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_orebperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.orebperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">FTA/FGA</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftrate_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.ftrate_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_ftrate_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftrate_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.ftrate_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_ftrate_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.ftrate_o, 1)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
-                      {/* Home Record - Hide on medium, show on large */}
-                      <div className="hidden lg:flex items-center whitespace-nowrap ml-1.5">
-                        <span
-                          className="font-medium mr-1"
-                          style={{
-                            color: "white", // Ensure label text is white
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
-                          }}
-                        >
-                          H:
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
-                          style={{
-                            backgroundColor: "white", // White background
-                            color: "black", // Changed to black
-                            borderColor: "black", // Black border for the rectangle
-                          }}
-                        >
-                          {teamStats.find((team) => team.name === selectedTeam)?.home || "-"}
-                        </span>
+                      {/* Shooting Section - Takes up 1/5 of available space */}
+                      <div className="flex-1 flex flex-col">
+                        <div className="py-2">
+                          <div className="text-black font-medium uppercase text-center text-sm">SHOOTING</div>
+                          <div className="h-px w-full bg-slate-700 mt-1"></div>
+                        </div>
+                        <div className="flex-1">
+                          <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-sm md:rounded-none">
+                            <colgroup>
+                              <col className="w-[30%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                            </colgroup>
+                            <tbody>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">3PT%</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.threeperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_threeperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.threeperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_threeperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.threeperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">2PT%</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_twoperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.twoperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_twoperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_twoperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.twoperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_twoperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.twoperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">FT%</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.ftperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_ftperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.ftperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_ftperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.ftperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">3PA RATE</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeattmprate_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.threeattmprate_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_threeattmprate_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeattmprate_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.threeattmprate_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_threeattmprate_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.threeattmprate_o, 1)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
-                      {/* Away Record - Hide on medium, show on xl */}
-                      <div className="hidden xl:flex items-center whitespace-nowrap ml-1.5">
-                        <span
-                          className="font-medium mr-1"
-                          style={{
-                            color: "white", // Ensure label text is white
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
-                          }}
-                        >
-                          A:
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 rounded-lg font-bold font-mono border" /* Smaller padding */
-                          style={{
-                            backgroundColor: "white", // White background
-                            color: "black", // Changed to black
-                            borderColor: "black", // Black border for the rectangle
-                          }}
-                        >
-                          {teamStats.find((team) => team.name === selectedTeam)?.away || "-"}
-                        </span>
+                      {/* Point Distribution Section - Takes up 1/5 of available space */}
+                      <div className="flex-.75 flex flex-col sm:block hidden">
+                        <div className="py-2">
+                          <div className="text-black font-medium uppercase text-center text-sm">POINT DISTRIBUTION</div>
+                          <div className="h-px w-full bg-slate-700 mt-1"></div>
+                        </div>
+                        <div className="flex-1">
+                          <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
+                            <colgroup>
+                              <col className="w-[30%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                            </colgroup>
+                            <tbody>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
+                                  2PT PTS
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points2perc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.points2perc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_points2perc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points2perc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.points2perc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_points2perc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.points2perc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
+                                  3PT PTS
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points3perc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.points3perc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_points3perc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points3perc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.points3perc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_points3perc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.points3perc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
+                                  FT PTS
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pointsftperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.pointsftperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_pointsftperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pointsftperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.pointsftperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_pointsftperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.pointsftperc_o, 1)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
 
-                      {/* Streak - Hide on medium, show on xl */}
-                      <div className="hidden xl:flex items-center whitespace-nowrap ml-1.5">
-                        <span
-                          className="font-medium mr-1"
-                          style={{
-                            color: "white", // Ensure label text is white
-                            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000", // Black border for text
-                          }}
-                        >
-                          Streak:
-                        </span>
-                        <span
-                          className={`px-1.5 py-0.5 rounded-lg font-bold border ${
-                            (teamStats.find((team) => team.name === selectedTeam)?.streak || "").startsWith("W")
-                              ? "bg-green-100 text-green-800 border-green-200"
-                              : "bg-red-100 text-red-800 border-red-200"
-                          }`} /* Smaller padding */
-                          style={{
-                            borderColor: "black",
-                          }}
-                        >
-                          {teamStats.find((team) => team.name === selectedTeam)?.streak || "-"}
-                        </span>
+                      {/* Miscellaneous Section - Takes up 1/5 of available space */}
+                      <div className="flex-.75 flex flex-col sm:block hidden">
+                        <div className="py-2">
+                          <div className="text-black font-medium uppercase text-center text-sm">MISCELLANEOUS</div>
+                          <div className="h-px w-full bg-slate-700 mt-1"></div>
+                        </div>
+                        <div className="flex-1">
+                          <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-sm">
+                            <colgroup>
+                              <col className="w-[30%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                              <col className="w-[23.3333%]" />
+                            </colgroup>
+                            <tbody>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">ASSIST %</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_assistperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.assistperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_assistperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_assistperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.assistperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_assistperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.assistperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
+                                <td className="text-center px-2 text-black font-medium uppercase">STEAL %</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_stealperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.stealperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_stealperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_stealperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.stealperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_stealperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.stealperc_o, 1)}
+                                </td>
+                              </tr>
+                              <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px] ">
+                                <td className="text-center px-2 text-black font-medium uppercase">BLOCK %</td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_blockperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.blockperc_o)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_blockperc_o}</span>
+                                  </div>
+                                </td>
+                                <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
+                                  <div
+                                    className={`${getBackgroundColorClass(teamAdvancedStats?.rank_blockperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
+                                  >
+                                    <span className="font-semibold">
+                                      {formatRateValue(teamAdvancedStats?.blockperc_d)}
+                                    </span>{" "}
+                                    <span className="opacity-75">{teamAdvancedStats?.rank_blockperc_d}</span>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
+                                  {formatStatValue(leagueAverages?.blockperc_o, 1)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div /> {/* Re-added this div */}
                 </div>
-              </button>
+              </div>
 
-              {/* Team dropdown menu */}
-              {isTeamDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 bg-light-beige border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-                  {availableTeams.map((teamName) => {
-                    const teamCode = teamNameToCode[teamName]
-                    const teamData = teamStats.find((team) => team.name === teamName)
-                    const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
-                    const isSelected = teamName === selectedTeam
+              {/* Right side - Schedule */}
+              <div className="lg:w-8/12 flex flex-col">
+                <div className="bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col lg:h-[828px]">
+                  {/* Team color header strip */}
+                  <div
+                    className="w-full h-2 border border-black rounded-t-lg -mb-1"
+                    style={{
+                      backgroundColor: selectedTeamColor,
+                    }}
+                  />
+                  <div className="py-1 px-2 flex flex-col flex-1 min-h-0">
+                    <div className="flex justify-between items-center border-b-2 border-gray-800 pb-2 sticky top-0 z-10 bg-light-beige px-0">
+                      <div className="flex items-center gap-2 mx-0 mt-2">
+                        {(() => {
+                          const teamCode = getSelectedTeamCode()
+                          const teamData = teamStats.find((team) => team.name === selectedTeam)
+                          const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
 
-                    return (
-                      <button
-                        key={teamName}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          console.log("Team details: Changing team from", selectedTeam, "to", teamName)
-                          setSelectedTeam(teamName)
-                          setIsTeamDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-3 py-2 text-left hover:bg-gray-200 transition-colors ${
-                          isSelected ? "bg-gray-50 border-l-4 border-gray-500" : ""
-                        }`} /* Reduced padding */
-                      >
-                        {logoUrl ? (
-                          <img
-                            src={logoUrl || "/placeholder.svg"}
-                            alt={`${teamName} logo`}
-                            className="w-5 h-5 mr-2 object-contain" /* Smaller image and margin */
-                          />
-                        ) : (
-                          <div className="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-xs mr-2">
-                            {teamName
-                              .split(" ")
-                              .map((word) => word[0])
-                              .join("")}
-                          </div>
-                        )}
-                        <span className={`font-medium text-sm ${isSelected ? "text-gray-900" : "text-black-900"}`}>
-                          {teamName}
-                        </span>
-                      </button>
-                    )
-                  })}
+                          return logoUrl ? (
+                            <img
+                              src={logoUrl || "/placeholder.svg"}
+                              alt={`${selectedTeam} logo`}
+                              className="w-8 h-8 object-contain"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px]">
+                              {selectedTeam
+                                .split(" ")
+                                .map((word) => word[0])
+                                .join("")}
+                            </div>
+                          )
+                        })()}
+                        <h3 className="text-md md:text-md font-semibold flex items-center">Schedule & Results</h3>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <CustomDropdown
+                          value={selectedScheduleFilter}
+                          onChange={setSelectedScheduleFilter}
+                          options={[
+                            { value: "regular", label: "Regular Season" },
+                            ...(hasSchedulePlayoffData() ? [{ value: "playoffs", label: "Playoffs" }] : []),
+                          ]}
+                          className="min-w-0"
+                        />
+                        <div className="hidden sm:block text-sm text-gray-600 font-medium mt-2">
+                          {(() => {
+                            const filteredGames = getFilteredScheduleData()
+                            return filteredGames.length > 0 ? `${filteredGames.length} games` : "No games"
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col min-h-0">
+                      {isScheduleLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                          <div className="text-black-500">Loading schedule...</div>
+                        </div>
+                      ) : (
+                        <div className="flex-1 min-h-0 overflow-y-auto">
+                          <table className="w-full text-xs border-collapse table-fixed rounded-sm">
+                            <colgroup>
+                              {/* Mobile-first responsive column widths */}
+                              <col className="w-[12%] md:w-[8%]" />
+                              <col className="w-[20%] md:w-[12%]" />
+                              <col className="w-[18%] md:w-[40%]" />
+                              <col className="w-[18%] md:w-[13%]" />
+                              <col className="w-[17%] md:w-[13%]" />
+                              <col className="w-[15%] md:w-[14%]" />
+                              <col className="w-8" />
+                            </colgroup>
+                            <thead className="sticky top-0 z-10 bg-light-beige">
+                              <tr className="border-b-2 border-gray-700 h-8">
+                                <th className="text-center py-1 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                  Round
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                                  Date
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                  Opponent
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                                  Result
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
+                                  Location
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
+                                  Record
+                                </th>
+                                <th className="text-center py-0.5 px-0.5 font-medium text-[10px] md:text-xs w-8"></th>
+                              </tr>
+                            </thead>
+                            <tbody>{renderFilteredScheduleWithPhaseHeaders()}</tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
 
-          {/* Team Stats and Schedule */}
-          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 min-h-0  ">
-            {/* Left side - Team Stats */}
-            <div className="lg:w-4/12 flex flex-col">
-              <div className=" pb-1 bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col h-[550] md:h-[828px]">
+            {/* Player Stats Section */}
+            <div className="-mt-1">
+              <div className="bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg">
                 {/* Team color header strip */}
                 <div
                   className="w-full h-2 border border-black rounded-t-lg -mb-1 "
@@ -2008,575 +2696,7 @@ export function TeamDetailsTab({
                     backgroundColor: selectedTeamColor,
                   }}
                 />
-                <div className="px-2 py-1 pb-1 flex-1 flex flex-col">
-                  <div className="flex justify-between items-center border-b-2 border-gray-800 pb-2 sticky top-0 z-10 bg-light-beige">
-                    <div className="flex items-center gap-2 mx-0 mt-2">
-                      {(() => {
-                        const teamCode = getSelectedTeamCode()
-                        const teamData = teamStats.find((team) => team.name === selectedTeam)
-                        const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
-
-                        return logoUrl ? (
-                          <img
-                            src={logoUrl || "/placeholder.svg"}
-                            alt={`${selectedTeam} logo`}
-                            className="w-8 h-8 object-contain"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px]">
-                            {selectedTeam
-                              .split(" ")
-                              .map((word) => word[0])
-                              .join("")}
-                          </div>
-                        )
-                      })()}
-                      <h3 className="text-md font-semibold flex items-center">Team Report</h3>
-                    </div>
-                    <div className="flex items-center">
-                      <CustomDropdown
-                        value={selectedTeamReportPhase}
-                        onChange={setSelectedTeamReportPhase}
-                        options={[
-                          { value: "RS", label: "Regular Season" },
-                          ...(hasTeamReportPlayoffData() ? [{ value: "Playoffs", label: "Playoffs" }] : [])
-                        ]}
-                        className="min-w-0"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex-1 flex flex-col h-full">
-                    {/* Main Stats Section - Takes up 1/5 of available space */}
-                    <div className="flex-.85 flex flex-col">
-                      <div className="flex-1 overflow-y-auto rounded-">
-                        <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
-                          <colgroup>
-                            <col className="w-[30%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                          </colgroup>
-                          <thead className="sticky top-0 z-10 bg-light-beige">
-                            <tr className="border-b-2 border-gray-700  h-8">
-                              <th className="text-center py-1.5 px-2 font-medium">Category</th>
-                              <th className="text-center py-1.5 px-2 font-medium text-blue-700 border-l border-gray-300">
-                                Offense
-                              </th>
-                              <th className="text-center py-1.5 px-2 font-medium text-red-700 border-l border-gray-300">
-                                Defense
-                              </th>
-                              <th className="text-center py-1.5 px-2 font-medium border-l border-gray-300">Lg. Avg</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {/* Net Rating (new row) */}
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
-                                NET RATING
-                              </td>
-                              <td colSpan={2} className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_net_rating, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatStatValue(getNetRating())}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_net_rating}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.net_rating, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">EFFICIENCY</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efficiency_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatStatValue(teamAdvancedStats?.efficiency_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_efficiency_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efficiency_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatStatValue(teamAdvancedStats?.efficiency_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_efficiency_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.efficiency_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">PACE</td>
-                              <td colSpan={2} className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pace, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatStatValue(getAveragePace())}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_pace}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.pace, 1)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Four Factors Section - Takes up 1/5 of available space */}
-                    <div className="flex-1 flex flex-col">
-                      <div className="py-2">
-                        <div className="text-black font-medium uppercase text-center text-sm">FOUR FACTORS</div>
-                        <div className="h-px w-full bg-slate-700 mt-1"></div>
-                      </div>
-                      <div className="flex-1">
-                        <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
-                          <colgroup>
-                            <col className="w-[30%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                          </colgroup>
-                          <tbody>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">eFG%</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efgperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.efgperc_o)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_efgperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_efgperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.efgperc_d)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_efgperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.efgperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">Turnover %</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_toratio_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.toratio_o)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_toratio_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_toratio_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.toratio_d)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_toratio_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.toratio_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">OFF. REB %</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_orebperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.orebperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_orebperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_orebperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.orebperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_orebperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.orebperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">FTA/FGA</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftrate_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.ftrate_o)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_ftrate_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftrate_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.ftrate_d)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_ftrate_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.ftrate_o, 1)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Shooting Section - Takes up 1/5 of available space */}
-                    <div className="flex-1 flex flex-col">
-                      <div className="py-2">
-                        <div className="text-black font-medium uppercase text-center text-sm">SHOOTING</div>
-                        <div className="h-px w-full bg-slate-700 mt-1"></div>
-                      </div>
-                      <div className="flex-1">
-                        <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-sm md:rounded-none">
-                          <colgroup>
-                            <col className="w-[30%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                          </colgroup>
-                          <tbody>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">3PT%</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.threeperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_threeperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.threeperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_threeperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.threeperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">2PT%</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_twoperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.twoperc_o)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_twoperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_twoperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.twoperc_d)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_twoperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.twoperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">FT%</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.ftperc_o)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_ftperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_ftperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">{formatRateValue(teamAdvancedStats?.ftperc_d)}</span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_ftperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.ftperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">3PA RATE</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeattmprate_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.threeattmprate_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_threeattmprate_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_threeattmprate_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.threeattmprate_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_threeattmprate_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.threeattmprate_o, 1)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Point Distribution Section - Takes up 1/5 of available space */}
-                    <div className="flex-.75 flex flex-col sm:block hidden">
-                      <div className="py-2">
-                        <div className="text-black font-medium uppercase text-center text-sm">POINT DISTRIBUTION</div>
-                        <div className="h-px w-full bg-slate-700 mt-1"></div>
-                      </div>
-                      <div className="flex-1">
-                        <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-none">
-                          <colgroup>
-                            <col className="w-[30%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                          </colgroup>
-                          <tbody>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
-                                2PT PTS
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points2perc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.points2perc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_points2perc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points2perc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.points2perc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_points2perc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.points2perc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
-                                3PT PTS
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points3perc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.points3perc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_points3perc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_points3perc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.points3perc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_points3perc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.points3perc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase whitespace-nowrap">
-                                FT PTS
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pointsftperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.pointsftperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_pointsftperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_pointsftperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.pointsftperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_pointsftperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.pointsftperc_o, 1)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Miscellaneous Section - Takes up 1/5 of available space */}
-                    <div className="flex-.75 flex flex-col sm:block hidden">
-                      <div className="py-2">
-                        <div className="text-black font-medium uppercase text-center text-sm">MISCELLANEOUS</div>
-                        <div className="h-px w-full bg-slate-700 mt-1"></div>
-                      </div>
-                      <div className="flex-1">
-                        <table className="w-full text-xs border-collapse mb-1 table-fixed rounded-sm">
-                          <colgroup>
-                            <col className="w-[30%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                            <col className="w-[23.3333%]" />
-                          </colgroup>
-                          <tbody>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">ASSIST %</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_assistperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.assistperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_assistperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_assistperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.assistperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_assistperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.assistperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px]">
-                              <td className="text-center px-2 text-black font-medium uppercase">STEAL %</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_stealperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.stealperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_stealperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_stealperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.stealperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_stealperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.stealperc_o, 1)}
-                              </td>
-                            </tr>
-                            <tr className="border-b-2 border-gray-300 text-[10px] md:text-[11px] ">
-                              <td className="text-center px-2 text-black font-medium uppercase">BLOCK %</td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_blockperc_o, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.blockperc_o)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_blockperc_o}</span>
-                                </div>
-                              </td>
-                              <td className="px-2 py-1 text-center border-l border-gray-300 font-mono">
-                                <div
-                                  className={`${getBackgroundColorClass(teamAdvancedStats?.rank_blockperc_d, selectedTeamReportPhase, teamStats.length)} border border-gray-400 px-2 whitespace-nowrap`}
-                                >
-                                  <span className="font-semibold">
-                                    {formatRateValue(teamAdvancedStats?.blockperc_d)}
-                                  </span>{" "}
-                                  <span className="opacity-75">{teamAdvancedStats?.rank_blockperc_d}</span>
-                                </div>
-                              </td>
-                              <td className="py-1 px-2 text-center border-l border-gray-300 font-mono">
-                                {formatStatValue(leagueAverages?.blockperc_o, 1)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right side - Schedule */}
-            <div className="lg:w-8/12 flex flex-col">
-              <div className="bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg flex flex-col lg:h-[828px]">
-                {/* Team color header strip */}
-                <div
-                  className="w-full h-2 border border-black rounded-t-lg -mb-1"
-                  style={{
-                    backgroundColor: selectedTeamColor,
-                  }}
-                />
-                <div className="py-1 px-2 flex flex-col flex-1 min-h-0">
+                <div className="py-1 px-2">
                   <div className="flex justify-between items-center border-b-2 border-gray-800 pb-2 sticky top-0 z-10 bg-light-beige px-0">
                     <div className="flex items-center gap-2 mx-0 mt-2">
                       {(() => {
@@ -2599,961 +2719,853 @@ export function TeamDetailsTab({
                           </div>
                         )
                       })()}
-                      <h3 className="text-md md:text-md font-semibold flex items-center">Schedule & Results</h3>
+                      <h3 className="text-md font-semibold ">
+                        <span className="hidden md:inline">Player Statistics</span>
+                        <span className="inline md:hidden">Roster</span>
+                      </h3>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-2">
+                      {/* Phase selector for game logs */}
                       <CustomDropdown
-                        value={selectedScheduleFilter}
-                        onChange={setSelectedScheduleFilter}
+                        value={selectedGameLogPhase}
+                        onChange={setSelectedGameLogPhase}
                         options={[
-                          { value: "regular", label: "Regular Season" },
-                          ...(hasSchedulePlayoffData() ? [{ value: "playoffs", label: "Playoffs" }] : [])
+                          { value: "Regular", label: "Regular Season" },
+                          ...(!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData()
+                            ? [{ value: "Playoffs", label: "Playoffs" }]
+                            : []),
                         ]}
-                        className="min-w-0"
+                        className="flex-1"
                       />
-                      <div className="hidden sm:block text-sm text-gray-600 font-medium mt-2">
-                        {(() => {
-                          const filteredGames = getFilteredScheduleData()
-                          return filteredGames.length > 0 ? `${filteredGames.length} games` : "No games"
-                        })()}
-                      </div>
+
+                      {/* Stats mode selector */}
+                      <CustomDropdown
+                        value={playerStatsMode}
+                        onChange={setPlayerStatsMode}
+                        options={[
+                          { value: "per_game", label: "Per Game" },
+                          { value: "per_40", label: "Per 40" },
+                        ]}
+                        className="w-[100px] sm:w-[110px] md:w-[120px]"
+                      />
                     </div>
                   </div>
 
-                  <div className="flex-1 flex flex-col min-h-0">
-                    {isScheduleLoading ? (
-                      <div className="flex justify-center items-center h-full">
-                        <div className="text-black-500">Loading schedule...</div>
-                      </div>
-                    ) : (
-                      <div className="flex-1 min-h-0">
-                        <table className="w-full text-xs border-collapse table-fixed rounded-sm">
-                          <colgroup>
-                            {/* Mobile-first responsive column widths */}
-                            <col className="w-[12%] md:w-[8%]" />
-                            <col className="w-[20%] md:w-[12%]" />
-                            <col className="w-[18%] md:w-[40%]" />
-                            <col className="w-[18%] md:w-[13%]" />
-                            <col className="w-[17%] md:w-[13%]" />
-                            <col className="w-[15%] md:w-[14%]" />
-                            <col className="w-8" />
-                          </colgroup>
-                          <thead className="sticky top-0 z-10 bg-light-beige">
-                            <tr className="border-b-2 border-gray-700 h-8">
-                              <th className="text-center py-1 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
-                                Round
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                Date
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
-                                Opponent
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                Result
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[8px] sm:text-[10px] md:text-xs">
-                                Location
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium border-r border-gray-200 text-[10px] md:text-xs">
-                                Record
-                              </th>
-                              <th className="text-center py-0.5 px-0.5 font-medium text-[10px] md:text-xs w-8">
-                                
+                  {/* Player stats table */}
+                  <div className="relative rounded-b-lg">
+                    <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr]">
+                      {/* Fixed Player Column */}
+                      <div className="bg-white border-r-2 border-gray-800 relative z-10">
+                        <table
+                          className="w-full text-[9px] md:text-[11px] border-collapse rounded-none"
+                          style={{ borderSpacing: 0 }}
+                        >
+                          <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
+                            <tr className="bg-gray-50 h-10 md:h-10">
+                              <th
+                                className="bg-gray-50 text-left py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                                onClick={() => handlePlayerColumnSort("player_name")}
+                              >
+                                <div className="flex items-center text-[11px] md:text-xs">Player</div>
                               </th>
                             </tr>
                           </thead>
-                          <tbody>{renderFilteredScheduleWithPhaseHeaders()}</tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                          <tbody>
+                            {(() => {
+                              // Skip rendering during reset state
+                              if (selectedGameLogPhase === "_RESETTING_") {
+                                return (
+                                  <tr>
+                                    <td colSpan={24} className="text-center py-12">
+                                      <div className="flex items-center justify-center space-x-2">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                        <span>Loading player statistics...</span>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              }
 
-          {/* Player Stats Section */}
-          <div className="-mt-1">
-            <div className="bg-light-beige rounded-lg border-r border-l border-b border-gray-500 shadow-lg">
-              {/* Team color header strip */}
-              <div
-                className="w-full h-2 border border-black rounded-t-lg -mb-1 "
-                style={{
-                  backgroundColor: selectedTeamColor,
-                }}
-              />
-              <div className="py-1 px-2">
-                <div className="flex justify-between items-center border-b-2 border-gray-800 pb-2 sticky top-0 z-10 bg-light-beige px-0">
-                  <div className="flex items-center gap-2 mx-0 mt-2">
-                    {(() => {
-                      const teamCode = getSelectedTeamCode()
-                      const teamData = teamStats.find((team) => team.name === selectedTeam)
-                      const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
+                              // Filter by phase and exclude totals
+                              const phaseToFilter =
+                                selectedGameLogPhase === "Regular"
+                                  ? "Regular Season"
+                                  : selectedGameLogPhase === "Playoffs"
+                                    ? "Playoffs"
+                                    : "Regular Season"
 
-                      return logoUrl ? (
-                        <img
-                          src={logoUrl || "/placeholder.svg"}
-                          alt={`${selectedTeam} logo`}
-                          className="w-8 h-8 object-contain"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px]">
-                          {selectedTeam
-                            .split(" ")
-                            .map((word) => word[0])
-                            .join("")}
-                        </div>
-                      )
-                    })()}
-                    <h3 className="text-md font-semibold ">
-                      <span className="hidden md:inline">Player Statistics</span>
-                      <span className="inline md:hidden">Roster</span>
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-2 px-2">
-                    {/* Phase selector for game logs */}
-                    <CustomDropdown
-                      value={selectedGameLogPhase}
-                      onChange={setSelectedGameLogPhase}
-                      options={[
-                        { value: "Regular", label: "Regular Season" },
-                        ...(!isTeamPlayerStatsLoading && hasPlayerStatsPlayoffData() ? [{ value: "Playoffs", label: "Playoffs" }] : [])
-                      ]}
-                      className="flex-1"
-                    />
-
-                    {/* Stats mode selector */}
-                    <CustomDropdown
-                      value={playerStatsMode}
-                      onChange={setPlayerStatsMode}
-                      options={[
-                        { value: "per_game", label: "Per Game" },
-                        { value: "per_40", label: "Per 40" }
-                      ]}
-                      className="w-[100px] sm:w-[110px] md:w-[120px]"
-                    />
-                  </div>
-                </div>
-
-                {/* Player stats table */}
-                <div className="relative rounded-b-lg">
-                  <div className="grid grid-cols-[160px_1fr] md:grid-cols-[200px_1fr]">
-                    {/* Fixed Player Column */}
-                    <div className="bg-white border-r-2 border-gray-800 relative z-10">
-                      <table
-                        className="w-full text-[9px] md:text-[11px] border-collapse rounded-none"
-                        style={{ borderSpacing: 0 }}
-                      >
-                        <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
-                          <tr className="bg-gray-50 h-10 md:h-10">
-                            <th
-                              className="bg-gray-50 text-left py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
-                              onClick={() => handlePlayerColumnSort("player_name")}
-                            >
-                              <div className="flex items-center text-[11px] md:text-xs">Player</div>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(() => {
-                            // Skip rendering during reset state
-                            if (selectedGameLogPhase === "_RESETTING_") {
-                              return (
-                                <tr>
-                                  <td colSpan={24} className="text-center py-12">
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                                      <span>Loading player statistics...</span>
-                                    </div>
-                                  </td>
-                                </tr>
+                              console.log(
+                                "Filtering by phase:",
+                                phaseToFilter,
+                                "selectedGameLogPhase:",
+                                selectedGameLogPhase,
                               )
-                            }
 
-                            // Filter by phase and exclude totals
-                            const phaseToFilter =
-                              selectedGameLogPhase === "Regular"
-                                ? "Regular Season"
-                                : selectedGameLogPhase === "Playoffs"
-                                  ? "Playoffs"
-                                  : "Regular Season"
-
-                            console.log(
-                              "Filtering by phase:",
-                              phaseToFilter,
-                              "selectedGameLogPhase:",
-                              selectedGameLogPhase,
-                            )
-
-                            const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
-                              const matchesPhase = player.phase === phaseToFilter
-                              const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
-                              return matchesPhase && isNotTotal
-                            })
-
-                            console.log("After filtering by phase and totals:", teamPlayerStatsFiltered.length)
-
-                            return teamPlayerStatsFiltered
-                              .sort((a, b) => {
-                                const column = getColumnName(playerSortColumnLocal)
-                                const direction = playerSortDirectionLocal
-
-                                if (direction === "asc") {
-                                  return (a[column] || 0) - (b[column] || 0)
-                                } else {
-                                  return (b[column] || 0) - (a[column] || 0)
-                                }
+                              const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
+                                const matchesPhase = player.phase === phaseToFilter
+                                const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
+                                return matchesPhase && isNotTotal
                               })
-                              .map((player, index) => (
-                                <tr
-                                  key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
-                                  className="h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
-                                >
-                                  <td className="text-left py-0.5 px-0.5 font-medium bg-light-beige group-hover:bg-blue-50 transition-colors duration-150">
-                                    <div className="flex items-center">
-                                      <span className="text-[9px] md:text-[11px]">{player.player_name}</span>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))
-                          })()}
-                        </tbody>
-                      </table>
-                    </div>
 
-                    {/* Scrollable Stats Section */}
-                    <div className="overflow-x-auto">
-                      <table
-                        className="w-full text-[9px] md:text-[11px] border-collapse rounded-none md:min-w-[1200px]"
-                        style={{ borderSpacing: 0 }}
-                      >
-                        <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
-                          <tr className="bg-gray-50 h-10 md:h-10">
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("games_played")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                GP {renderSortIndicator("games_played")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("games_started")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                GS {renderSortIndicator("games_started")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("minutes_played")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                MIN {renderSortIndicator("minutes_played")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("points_scored")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                PTS {renderSortIndicator("points_scored")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("two_pointers_made")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                2PM {renderSortIndicator("two_pointers_made")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                2PA {renderSortIndicator("two_pointers_attempted")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                2P% {renderSortIndicator("two_pointers_percentage")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("three_pointers_made")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                3PM {renderSortIndicator("three_pointers_made")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                3PA {renderSortIndicator("three_pointers_attempted")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                3P% {renderSortIndicator("three_pointers_percentage")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("free_throws_made")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                FTM {renderSortIndicator("free_throws_made")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("free_throws_attempted")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                FTA {renderSortIndicator("free_throws_attempted")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("free_throws_percentage")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                FT% {renderSortIndicator("free_throws_percentage")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("offensive_rebounds")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                OR {renderSortIndicator("offensive_rebounds")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("defensive_rebounds")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                DR {renderSortIndicator("defensive_rebounds")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("total_rebounds")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                TR {renderSortIndicator("total_rebounds")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("assists")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                AST {renderSortIndicator("assists")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("steals")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                STL {renderSortIndicator("steals")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("turnovers")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                TO {renderSortIndicator("turnovers")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("blocks")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                BLK {renderSortIndicator("blocks")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("blocks_against")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                BLKA {renderSortIndicator("blocks_against")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("fouls_commited")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                FC {renderSortIndicator("fouls_commited")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
-                              onClick={() => handlePlayerColumnSort("fouls_drawn")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                FD {renderSortIndicator("fouls_drawn")}
-                              </div>
-                            </th>
-                            <th
-                              className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
-                              onClick={() => handlePlayerColumnSort("pir")}
-                            >
-                              <div className="flex items-center justify-center text-[11px] md:text-xs">
-                                PIR {renderSortIndicator("pir")}
-                              </div>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {/* Individual player rows */}
-                          {(() => {
-                            // Skip rendering during reset state
-                            if (selectedGameLogPhase === "_RESETTING_") {
-                              return (
-                                <tr>
-                                  <td colSpan={24} className="text-center py-12">
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                                      <span>Loading player statistics...</span>
-                                    </div>
-                                  </td>
-                                </tr>
-                              )
-                            }
+                              console.log("After filtering by phase and totals:", teamPlayerStatsFiltered.length)
 
-                            // Filter by phase and exclude totals
-                            const phaseToFilter =
-                              selectedGameLogPhase === "Regular"
-                                ? "Regular Season"
-                                : selectedGameLogPhase === "Playoffs"
-                                  ? "Playoffs"
-                                  : "Regular Season"
-
-                            const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
-                              const matchesPhase = player.phase === phaseToFilter
-                              const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
-                              return matchesPhase && isNotTotal
-                            })
-
-                            // New approach: collect actual displayed values for each column
-                            const getColumnValues = (columnIndex: number) => {
                               return teamPlayerStatsFiltered
-                                .map((player, rowIndex) => {
-                                  // Get the actual value that will be displayed in this column for this player
-                                  switch (columnIndex) {
-                                    case 0:
-                                      return Number(player[getColumnName("games_played")]) || 0
-                                    case 1:
-                                      return Number(player[getColumnName("games_started")]) || 0
-                                    case 2:
-                                      return Number(player[getColumnName("minutes_played")]) || 0
-                                    case 3:
-                                      return Number(player[getColumnName("points_scored")]) || 0
-                                    case 4:
-                                      return Number(player[getColumnName("two_pointers_made")]) || 0
-                                    case 5:
-                                      return Number(player[getColumnName("two_pointers_attempted")]) || 0
-                                    case 6:
-                                      return Number(player[getColumnName("two_pointers_percentage")]) || 0
-                                    case 7:
-                                      return Number(player[getColumnName("three_pointers_made")]) || 0
-                                    case 8:
-                                      return Number(player[getColumnName("three_pointers_attempted")]) || 0
-                                    case 9:
-                                      return Number(player[getColumnName("three_pointers_percentage")]) || 0
-                                    case 10:
-                                      return Number(player[getColumnName("free_throws_made")]) || 0
-                                    case 11:
-                                      return Number(player[getColumnName("free_throws_attempted")]) || 0
-                                    case 12:
-                                      return Number(player[getColumnName("free_throws_percentage")]) || 0
-                                    case 13:
-                                      return Number(player[getColumnName("offensive_rebounds")]) || 0
-                                    case 14:
-                                      return Number(player[getColumnName("defensive_rebounds")]) || 0
-                                    case 15:
-                                      return Number(player[getColumnName("total_rebounds")]) || 0
-                                    case 16:
-                                      return Number(player[getColumnName("assists")]) || 0
-                                    case 17:
-                                      return Number(player[getColumnName("steals")]) || 0
-                                    case 18:
-                                      return Number(player[getColumnName("turnovers")]) || 0
-                                    case 19:
-                                      return Number(player[getColumnName("blocks")]) || 0
-                                    case 20:
-                                      return Number(player[getColumnName("blocks_against")]) || 0
-                                    case 21:
-                                      return Number(player[getColumnName("fouls_commited")]) || 0
-                                    case 22:
-                                      return Number(player[getColumnName("fouls_drawn")]) || 0
-                                    case 23:
-                                      return Number(player[getColumnName("pir")]) || 0
-                                    default:
-                                      return 0
+                                .sort((a, b) => {
+                                  const column = getColumnName(playerSortColumnLocal)
+                                  const direction = playerSortDirectionLocal
+
+                                  if (direction === "asc") {
+                                    return (a[column] || 0) - (b[column] || 0)
+                                  } else {
+                                    return (b[column] || 0) - (a[column] || 0)
                                   }
                                 })
-                                .filter((val) => !isNaN(val))
-                            }
-
-                            // Show loading spinner if still loading player stats
-                            if (
-                              isTeamPlayerStatsLoading &&
-                              selectedGameLogPhase !== "_RESETTING_"
-                            ) {
-                              return (
-                                <tr>
-                                  <td colSpan={24} className="text-center py-12">
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                                      <span className="text-gray-500">Loading player statistics...</span>
-                                    </div>
-                                  </td>
-                                </tr>
-                              )
-                            }
-
-                            if (teamPlayerStatsFiltered.length === 0) {
-                              return (
-                                <tr>
-                                  <td colSpan={24} className="text-center py-8 text-gray-500">
-                                    No player stats available for {selectedTeam} in {selectedSeason}{" "}
-                                    {selectedGameLogPhase === "Regular" ? "Regular Season" : "Playoffs"}
-                                  </td>
-                                </tr>
-                              )
-                            }
-
-                            return teamPlayerStatsFiltered
-                              .sort((a, b) => {
-                                const column = getColumnName(playerSortColumnLocal)
-                                const direction = playerSortDirectionLocal
-
-                                if (direction === "asc") {
-                                  return (a[column] || 0) - (b[column] || 0)
-                                } else {
-                                  return (b[column] || 0) - (a[column] || 0)
-                                }
-                              })
-                              .map((player, index) => {
-                                // Helper function to safely format numeric values
-                                const formatStat = (value: any, decimals = 1) => {
-                                  const numValue =
-                                    typeof value === "string"
-                                      ? Number.parseFloat(value)
-                                      : typeof value === "number"
-                                        ? value
-                                        : 0
-                                  if (isNaN(numValue)) return "0.0"
-
-                                  // For totals mode, show whole numbers for most stats except percentages
-                                  if (playerStatsMode === "totals" && decimals === 1) {
-                                    return Math.round(numValue).toString()
-                                  }
-
-                                  return numValue.toFixed(decimals)
-                                }
-
-                                return (
+                                .map((player, index) => (
                                   <tr
                                     key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
                                     className="h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
                                   >
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        Number(player[getColumnName("games_played")]) || 0,
-                                        getColumnValues(0),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("games_played")], 0)}
+                                    <td className="text-left py-0.5 px-0.5 font-medium bg-light-beige group-hover:bg-blue-50 transition-colors duration-150">
+                                      <div className="flex items-center">
+                                        <span className="text-[9px] md:text-[11px]">{player.player_name}</span>
+                                      </div>
                                     </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        Number(player[getColumnName("games_started")]) || 0,
-                                        getColumnValues(1),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("games_started")], 0)}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        Number(player[getColumnName("minutes_played")]) || 0,
-                                        getColumnValues(2),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("minutes_played")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        Number(player[getColumnName("points_scored")]) || 0,
-                                        getColumnValues(3),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("points_scored")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("two_pointers_made")] || 0,
-                                        getColumnValues(4),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("two_pointers_made")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("two_pointers_attempted")] || 0,
-                                        getColumnValues(5),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("two_pointers_attempted")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("two_pointers_percentage")] || 0,
-                                        getColumnValues(6),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("two_pointers_percentage")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("three_pointers_made")] || 0,
-                                        getColumnValues(7),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("three_pointers_made")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("three_pointers_attempted")] || 0,
-                                        getColumnValues(8),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("three_pointers_attempted")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("three_pointers_percentage")] || 0,
-                                        getColumnValues(9),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("three_pointers_percentage")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("free_throws_made")] || 0,
-                                        getColumnValues(10),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("free_throws_made")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("free_throws_attempted")] || 0,
-                                        getColumnValues(11),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("free_throws_attempted")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("free_throws_percentage")] || 0,
-                                        getColumnValues(12),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("free_throws_percentage")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("offensive_rebounds")] || 0,
-                                        getColumnValues(13),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("offensive_rebounds")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("defensive_rebounds")] || 0,
-                                        getColumnValues(14),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("defensive_rebounds")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("total_rebounds")] || 0,
-                                        getColumnValues(15),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("total_rebounds")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("assists")] || 0,
-                                        getColumnValues(16),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("assists")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("steals")] || 0,
-                                        getColumnValues(17),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("steals")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("turnovers")] || 0,
-                                        getColumnValues(18),
-                                        false,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("turnovers")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("blocks")] || 0,
-                                        getColumnValues(19),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("blocks")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("blocks_against")] || 0,
-                                        getColumnValues(20),
-                                        false,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("blocks_against")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("fouls_commited")] || 0,
-                                        getColumnValues(21),
-                                        false,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("fouls_commited")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
-                                      style={getSubtleConditionalStyle(
-                                        player[getColumnName("fouls_drawn")] || 0,
-                                        getColumnValues(22),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("fouls_drawn")])}
-                                    </td>
-                                    <td
-                                      className="text-center py-1 px-0.5 font-medium"
-                                      style={getSubtleConditionalStyle(
-                                        Number(player[getColumnName("pir")]) || 0,
-                                        getColumnValues(23),
-                                        true,
-                                      )}
-                                    >
-                                      {formatStat(player[getColumnName("pir")])}
+                                  </tr>
+                                ))
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Scrollable Stats Section */}
+                      <div className="overflow-x-auto">
+                        <table
+                          className="w-full text-[9px] md:text-[11px] border-collapse rounded-none md:min-w-[1200px]"
+                          style={{ borderSpacing: 0 }}
+                        >
+                          <thead className="sticky top-0 z-50 bg-gray-50 shadow-md border-b-2 border-gray-700">
+                            <tr className="bg-gray-50 h-10 md:h-10">
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("games_played")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  GP {renderSortIndicator("games_played")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("games_started")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  GS {renderSortIndicator("games_started")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("minutes_played")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  MIN {renderSortIndicator("minutes_played")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("points_scored")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  PTS {renderSortIndicator("points_scored")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("two_pointers_made")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  2PM {renderSortIndicator("two_pointers_made")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("two_pointers_attempted")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  2PA {renderSortIndicator("two_pointers_attempted")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("two_pointers_percentage")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  2P% {renderSortIndicator("two_pointers_percentage")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("three_pointers_made")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  3PM {renderSortIndicator("three_pointers_made")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("three_pointers_attempted")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  3PA {renderSortIndicator("three_pointers_attempted")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("three_pointers_percentage")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  3P% {renderSortIndicator("three_pointers_percentage")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("free_throws_made")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  FTM {renderSortIndicator("free_throws_made")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("free_throws_attempted")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  FTA {renderSortIndicator("free_throws_attempted")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("free_throws_percentage")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  FT% {renderSortIndicator("free_throws_percentage")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("offensive_rebounds")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  OR {renderSortIndicator("offensive_rebounds")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("defensive_rebounds")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  DR {renderSortIndicator("defensive_rebounds")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("total_rebounds")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  TR {renderSortIndicator("total_rebounds")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("assists")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  AST {renderSortIndicator("assists")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("steals")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  STL {renderSortIndicator("steals")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("turnovers")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  TO {renderSortIndicator("turnovers")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("blocks")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  BLK {renderSortIndicator("blocks")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("blocks_against")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  BLKA {renderSortIndicator("blocks_against")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("fouls_commited")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  FC {renderSortIndicator("fouls_commited")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors border-r border-gray-300"
+                                onClick={() => handlePlayerColumnSort("fouls_drawn")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  FD {renderSortIndicator("fouls_drawn")}
+                                </div>
+                              </th>
+                              <th
+                                className="text-center py-1 px-0.5 font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                                onClick={() => handlePlayerColumnSort("pir")}
+                              >
+                                <div className="flex items-center justify-center text-[11px] md:text-xs">
+                                  PIR {renderSortIndicator("pir")}
+                                </div>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Individual player rows */}
+                            {(() => {
+                              // Skip rendering during reset state
+                              if (selectedGameLogPhase === "_RESETTING_") {
+                                return (
+                                  <tr>
+                                    <td colSpan={24} className="text-center py-12">
+                                      <div className="flex items-center justify-center space-x-2">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                        <span className="text-gray-500">Loading player statistics...</span>
+                                      </div>
                                     </td>
                                   </tr>
                                 )
+                              }
+
+                              // Filter by phase and exclude totals
+                              const phaseToFilter =
+                                selectedGameLogPhase === "Regular"
+                                  ? "Regular Season"
+                                  : selectedGameLogPhase === "Playoffs"
+                                    ? "Playoffs"
+                                    : "Regular Season"
+
+                              const teamPlayerStatsFiltered = teamPlayerStats.filter((player) => {
+                                const matchesPhase = player.phase === phaseToFilter
+                                const isNotTotal = player.player_name !== "Total" && player.player_name !== "TOTAL"
+                                return matchesPhase && isNotTotal
                               })
-                          })()}
 
-                          {/* Team Total row with thick separator - use existing Total player */}
-                          {(() => {
-                            // Find the existing "Total" player in the data
-                            const totalPlayer = teamPlayerStats.find(
-                              (player) => player.player_name === "Total" || player.player_name === "TOTAL",
-                            )
+                              // New approach: collect actual displayed values for each column
+                              const getColumnValues = (columnIndex: number) => {
+                                return teamPlayerStatsFiltered
+                                  .map((player, rowIndex) => {
+                                    // Get the actual value that will be displayed in this column for this player
+                                    switch (columnIndex) {
+                                      case 0:
+                                        return Number(player[getColumnName("games_played")]) || 0
+                                      case 1:
+                                        return Number(player[getColumnName("games_started")]) || 0
+                                      case 2:
+                                        return Number(player[getColumnName("minutes_played")]) || 0
+                                      case 3:
+                                        return Number(player[getColumnName("points_scored")]) || 0
+                                      case 4:
+                                        return Number(player[getColumnName("two_pointers_made")]) || 0
+                                      case 5:
+                                        return Number(player[getColumnName("two_pointers_attempted")]) || 0
+                                      case 6:
+                                        return Number(player[getColumnName("two_pointers_percentage")]) || 0
+                                      case 7:
+                                        return Number(player[getColumnName("three_pointers_made")]) || 0
+                                      case 8:
+                                        return Number(player[getColumnName("three_pointers_attempted")]) || 0
+                                      case 9:
+                                        return Number(player[getColumnName("three_pointers_percentage")]) || 0
+                                      case 10:
+                                        return Number(player[getColumnName("free_throws_made")]) || 0
+                                      case 11:
+                                        return Number(player[getColumnName("free_throws_attempted")]) || 0
+                                      case 12:
+                                        return Number(player[getColumnName("free_throws_percentage")]) || 0
+                                      case 13:
+                                        return Number(player[getColumnName("offensive_rebounds")]) || 0
+                                      case 14:
+                                        return Number(player[getColumnName("defensive_rebounds")]) || 0
+                                      case 15:
+                                        return Number(player[getColumnName("total_rebounds")]) || 0
+                                      case 16:
+                                        return Number(player[getColumnName("assists")]) || 0
+                                      case 17:
+                                        return Number(player[getColumnName("steals")]) || 0
+                                      case 18:
+                                        return Number(player[getColumnName("turnovers")]) || 0
+                                      case 19:
+                                        return Number(player[getColumnName("blocks")]) || 0
+                                      case 20:
+                                        return Number(player[getColumnName("blocks_against")]) || 0
+                                      case 21:
+                                        return Number(player[getColumnName("fouls_commited")]) || 0
+                                      case 22:
+                                        return Number(player[getColumnName("fouls_drawn")]) || 0
+                                      case 23:
+                                        return Number(player[getColumnName("pir")]) || 0
+                                      default:
+                                        return 0
+                                    }
+                                  })
+                                  .filter((val) => !isNaN(val))
+                              }
 
-                            if (!totalPlayer) return null
-
-                            // Helper function to safely format numeric values
-                            const formatStat = (value: any, decimals = 1) => {
-                              const numValue =
-                                typeof value === "string"
-                                  ? Number.parseFloat(value)
-                                  : typeof value === "number"
-                                    ? value
-                                    : 0
-                              if (isNaN(numValue)) return "0.0"
-                              return numValue.toFixed()
-                            }
-
-                            // Get team logo
-                            const teamCode = getSelectedTeamCode()
-                            const teamData = teamStats.find((team) => team.name === selectedTeam)
-                            const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
-
-                            return (
-                              <tr className="h-5 border-t-4 border-gray-800 bg-gray-50 font-bold hover:bg-gray-100 transition-all duration-150">
-                                <td className="text-left py-0.5 px-0.5 font-bold border-r border-gray-300 min-w-[160px] sticky left-0 bg-gray-50 z-10 hover:bg-gray-100 transition-colors duration-150 shadow-sm">
-                                  <div className="flex items-center">
-                                    {logoUrl ? (
-                                      <img
-                                        src={logoUrl || "/placeholder.svg"}
-                                        alt={`${selectedTeam} logo`}
-                                        className="w-3 h-3 mr-1 object-contain"
-                                      />
-                                    ) : (
-                                      <div className="w-3 h-3 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px] mr-1">
-                                        {selectedTeam
-                                          .split(" ")
-                                          .map((word) => word[0])
-                                          .join("")}
+                              // Show loading spinner if still loading player stats
+                              if (isTeamPlayerStatsLoading && selectedGameLogPhase !== "_RESETTING_") {
+                                return (
+                                  <tr>
+                                    <td colSpan={24} className="text-center py-12">
+                                      <div className="flex items-center justify-center space-x-2">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                        <span className="text-gray-500">Loading player statistics...</span>
                                       </div>
-                                    )}
-                                    <span className="text-[8px] md:text-[10px]">TOTAL</span>
-                                  </div>
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.games_played, 0)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.games_started, 0)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.minutes_played)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.points_scored)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.two_pointers_made)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.two_pointers_attempted)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.two_pointers_percentage)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.three_pointers_made)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.three_pointers_attempted)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.three_pointers_percentage)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.free_throws_made)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.free_throws_attempted)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.free_throws_percentage)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.offensive_rebounds)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.defensive_rebounds)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.total_rebounds)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.assists)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.steals)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.turnovers)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.blocks)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.blocks_against)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.fouls_commited)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
-                                  {formatStat(totalPlayer.fouls_drawn)}
-                                </td>
-                                <td className="text-center py-0.5 px-0.5 font-bold">{formatStat(totalPlayer.pir)}</td>
-                              </tr>
-                            )
-                          })()}
-                        </tbody>
-                      </table>
+                                    </td>
+                                  </tr>
+                                )
+                              }
+
+                              if (teamPlayerStatsFiltered.length === 0) {
+                                return (
+                                  <tr>
+                                    <td colSpan={24} className="text-center py-8 text-gray-500">
+                                      No player stats available for {selectedTeam} in {selectedSeason}{" "}
+                                      {selectedGameLogPhase === "Regular" ? "Regular Season" : "Playoffs"}
+                                    </td>
+                                  </tr>
+                                )
+                              }
+
+                              return teamPlayerStatsFiltered
+                                .sort((a, b) => {
+                                  const column = getColumnName(playerSortColumnLocal)
+                                  const direction = playerSortDirectionLocal
+
+                                  if (direction === "asc") {
+                                    return (a[column] || 0) - (b[column] || 0)
+                                  } else {
+                                    return (b[column] || 0) - (a[column] || 0)
+                                  }
+                                })
+                                .map((player, index) => {
+                                  // Helper function to safely format numeric values
+                                  const formatStat = (value: any, decimals = 1) => {
+                                    const numValue =
+                                      typeof value === "string"
+                                        ? Number.parseFloat(value)
+                                        : typeof value === "number"
+                                          ? value
+                                          : 0
+                                    if (isNaN(numValue)) return "0.0"
+
+                                    // For totals mode, show whole numbers for most stats except percentages
+                                    if (playerStatsMode === "totals" && decimals === 1) {
+                                      return Math.round(numValue).toString()
+                                    }
+
+                                    return numValue.toFixed(decimals)
+                                  }
+
+                                  return (
+                                    <tr
+                                      key={`${player.player_id || player.player_name}-${player.player_team_code}-${index}`}
+                                      className="h-6 md:h-9 border-b border-gray-200 hover:bg-blue-50 hover:shadow-sm transition-all duration-150 group"
+                                    >
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          Number(player[getColumnName("games_played")]) || 0,
+                                          getColumnValues(0),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("games_played")], 0)}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          Number(player[getColumnName("games_started")]) || 0,
+                                          getColumnValues(1),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("games_started")], 0)}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          Number(player[getColumnName("minutes_played")]) || 0,
+                                          getColumnValues(2),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("minutes_played")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          Number(player[getColumnName("points_scored")]) || 0,
+                                          getColumnValues(3),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("points_scored")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("two_pointers_made")] || 0,
+                                          getColumnValues(4),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("two_pointers_made")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("two_pointers_attempted")] || 0,
+                                          getColumnValues(5),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("two_pointers_attempted")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("two_pointers_percentage")] || 0,
+                                          getColumnValues(6),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("two_pointers_percentage")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("three_pointers_made")] || 0,
+                                          getColumnValues(7),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("three_pointers_made")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("three_pointers_attempted")] || 0,
+                                          getColumnValues(8),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("three_pointers_attempted")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("three_pointers_percentage")] || 0,
+                                          getColumnValues(9),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("three_pointers_percentage")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("free_throws_made")] || 0,
+                                          getColumnValues(10),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("free_throws_made")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("free_throws_attempted")] || 0,
+                                          getColumnValues(11),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("free_throws_attempted")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("free_throws_percentage")] || 0,
+                                          getColumnValues(12),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("free_throws_percentage")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("offensive_rebounds")] || 0,
+                                          getColumnValues(13),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("offensive_rebounds")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("defensive_rebounds")] || 0,
+                                          getColumnValues(14),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("defensive_rebounds")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("total_rebounds")] || 0,
+                                          getColumnValues(15),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("total_rebounds")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("assists")] || 0,
+                                          getColumnValues(16),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("assists")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("steals")] || 0,
+                                          getColumnValues(17),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("steals")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("turnovers")] || 0,
+                                          getColumnValues(18),
+                                          false,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("turnovers")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("blocks")] || 0,
+                                          getColumnValues(19),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("blocks")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("blocks_against")] || 0,
+                                          getColumnValues(20),
+                                          false,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("blocks_against")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("fouls_commited")] || 0,
+                                          getColumnValues(21),
+                                          false,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("fouls_commited")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-0.5 px-0.5 font-medium border-r border-gray-300"
+                                        style={getSubtleConditionalStyle(
+                                          player[getColumnName("fouls_drawn")] || 0,
+                                          getColumnValues(22),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("fouls_drawn")])}
+                                      </td>
+                                      <td
+                                        className="text-center py-1 px-0.5 font-medium"
+                                        style={getSubtleConditionalStyle(
+                                          Number(player[getColumnName("pir")]) || 0,
+                                          getColumnValues(23),
+                                          true,
+                                        )}
+                                      >
+                                        {formatStat(player[getColumnName("pir")])}
+                                      </td>
+                                    </tr>
+                                  )
+                                })
+                            })()}
+
+                            {/* Team Total row with thick separator - use existing Total player */}
+                            {(() => {
+                              // Find the existing "Total" player in the data
+                              const totalPlayer = teamPlayerStats.find(
+                                (player) => player.player_name === "Total" || player.player_name === "TOTAL",
+                              )
+
+                              if (!totalPlayer) return null
+
+                              // Helper function to safely format numeric values
+                              const formatStat = (value: any, decimals = 1) => {
+                                const numValue =
+                                  typeof value === "string"
+                                    ? Number.parseFloat(value)
+                                    : typeof value === "number"
+                                      ? value
+                                      : 0
+                                if (isNaN(numValue)) return "0.0"
+                                return numValue.toFixed()
+                              }
+
+                              // Get team logo
+                              const teamCode = getSelectedTeamCode()
+                              const teamData = teamStats.find((team) => team.name === selectedTeam)
+                              const logoUrl = teamData?.teamlogo || team_logo_mapping[teamCode] || ""
+
+                              return (
+                                <tr className="h-5 border-t-4 border-gray-800 bg-gray-50 font-bold hover:bg-gray-100 transition-all duration-150">
+                                  <td className="text-left py-0.5 px-0.5 font-bold border-r border-gray-300 min-w-[160px] sticky left-0 bg-gray-50 z-10 hover:bg-gray-100 transition-colors duration-150 shadow-sm">
+                                    <div className="flex items-center">
+                                      {logoUrl ? (
+                                        <img
+                                          src={logoUrl || "/placeholder.svg"}
+                                          alt={`${selectedTeam} logo`}
+                                          className="w-3 h-3 mr-1 object-contain"
+                                        />
+                                      ) : (
+                                        <div className="w-3 h-3 rounded bg-gray-600 flex items-center justify-center text-white font-bold text-[8px] mr-1">
+                                          {selectedTeam
+                                            .split(" ")
+                                            .map((word) => word[0])
+                                            .join("")}
+                                        </div>
+                                      )}
+                                      <span className="text-[8px] md:text-[10px]">TOTAL</span>
+                                    </div>
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.games_played, 0)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.games_started, 0)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.minutes_played)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.points_scored)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.two_pointers_made)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.two_pointers_attempted)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.two_pointers_percentage)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.three_pointers_made)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.three_pointers_attempted)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.three_pointers_percentage)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.free_throws_made)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.free_throws_attempted)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.free_throws_percentage)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.offensive_rebounds)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.defensive_rebounds)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.total_rebounds)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.assists)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.steals)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.turnovers)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.blocks)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.blocks_against)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.fouls_commited)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold border-r border-gray-300">
+                                    {formatStat(totalPlayer.fouls_drawn)}
+                                  </td>
+                                  <td className="text-center py-0.5 px-0.5 font-bold">{formatStat(totalPlayer.pir)}</td>
+                                </tr>
+                              )
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </>
   )

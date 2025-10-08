@@ -710,7 +710,7 @@ export function LeagueStandingsTab({
   return (
     <div className="max-w-7xl mx-auto w-full">
       <>
-        <div className="bg-black shadow-md rounded-xl relative mb-4">
+        <div className="bg-black shadow-md rounded-xl relative -mt-3 md:mt-0 mb-4">
           <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
             <div className="flex items-center h-full">
               {/* Toggle Buttons */}
