@@ -854,7 +854,7 @@ export function LeagueStandingsTab({
                           <div className="text-[0.45rem] md:text-[0.6rem]"></div>
                         </th>
                         <th
-                          className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 min-w-[120px] w-[120px] md:min-w-[160px] md:w-[160px]"
+                          className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 w-[50px] md:min-w-[160px] md:w-[160px]"
                           onClick={() => handleColumnSort("team")}
                         >
                           <div className="flex items-center justify-center text-[0.45rem] md:text-[0.65rem]">
@@ -901,7 +901,7 @@ export function LeagueStandingsTab({
                             </td>
 
                             {/* Team Column */}
-                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[120px] w-[120px] md:min-w-[160px] md:w-[160px]">
+                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm w-[50px] md:min-w-[160px] md:w-[160px]">
                               <button
                                 onClick={() => {
                                   setActiveTab("teams")
@@ -913,9 +913,7 @@ export function LeagueStandingsTab({
                                 <div className="w-5 h-5 md:w-7 md:h-7 rounded-sm flex items-center justify-center mr-1.5 md:mr-2 bg-white flex-shrink-0">
                                   {getTeamLogo(team.name, teamCode)}
                                 </div>
-                                <span className="truncate text-[0.5rem] md:text-xs text-gray-900">
-                                  {team.name}
-                                </span>
+                                <span className="hidden md:inline truncate text-xs text-gray-900">{team.name}</span>
                               </button>
                             </td>
 
@@ -952,7 +950,7 @@ export function LeagueStandingsTab({
                                       {isWinLossColumn ? (
                                         // Win/Loss columns: enhanced styling for prominence
                                         <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1  rounded-sm">
-                                          <span className="text-black font-bold text-[12px] md:text-sm">
+                                          <span className="text-black font-bold text-[11px] md:text-sm">
                                             {formatStatValue(statValue, 1, column.key)}
                                           </span>
                                         </div>
@@ -961,7 +959,7 @@ export function LeagueStandingsTab({
                                         <div
                                           className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 rounded-sm border border-gray-300 bg-gray-50 ${cellBgClass}`}
                                         >
-                                          <span className="text-black font-bold text-xs md:text-sm">
+                                          <span className="text-black text-[11px] md:text-sm">
                                             {formatStatValue(statValue, 1, column.key)}
                                           </span>
                                         </div>
