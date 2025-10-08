@@ -888,7 +888,7 @@ export function LeagueStandingsTab({
                     </td>
                     
                     {/* Team Column */}
-                    <td className="sticky left-[25px] bg-blue-50 py-1 px-1 font-medium border-r-2 border-blue-400 shadow-sm min-w-[60px] w-[60px]">
+                    <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[60px] w-[60px]">
                       <button
                         onClick={() => {
                           setActiveTab("teams")
@@ -1143,7 +1143,7 @@ export function LeagueStandingsTab({
                     </td>
                     
                     {/* Team Column */}
-                    <td className="sticky left-[25px] bg-blue-50 py-1 px-1 font-medium border-r-2 border-blue-400 shadow-sm min-w-[60px] w-[60px]">
+                    <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[60px] w-[60px]">
                       <button
                         onClick={() => {
                           setActiveTab("teams")
