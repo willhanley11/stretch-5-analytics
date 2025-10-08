@@ -3,9 +3,12 @@
 import React from "react"
 import type { ReactNode } from "react"
 import { useState, useEffect, useMemo } from "react"
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react"
-import Image from "next/image"
-import { fetchAllTeamAdvancedStatsCalculated, fetchLeagueAveragesPrecalculated, fetchStandingsFromGameLogs } from "@/app/actions/standings"
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import {
+  fetchAllTeamAdvancedStatsCalculated,
+  fetchLeagueAveragesPrecalculated,
+  fetchStandingsFromGameLogs,
+} from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 import StatisticsTab from "./statistics-tab"
 import { LeagueLoadingOverlay } from "@/components/ui/league-spinner"
@@ -29,17 +32,26 @@ interface LeagueStandingsTabProps {
   initialTableMode?: "league" | "player" // Add prop for initial table mode from landing page
 }
 
-type ViewMode = "team" | "off-4factors" | "off-shooting" | "off-ptdist" | "off-misc" | "def-4factors" | "def-shooting" | "def-ptdist" | "def-misc"
+type ViewMode =
+  | "team"
+  | "off-4factors"
+  | "off-shooting"
+  | "off-ptdist"
+  | "off-misc"
+  | "def-4factors"
+  | "def-shooting"
+  | "def-ptdist"
+  | "def-misc"
 type DisplayMode = "rank" | "value"
 
 const formatStatValue = (value: number | undefined | null, decimals = 1, statKey?: string) => {
   if (value === null || value === undefined || isNaN(value)) return "-"
-  
+
   // Integer stats don't need decimal places
   if (["w", "l", "diff"].includes(statKey || "")) {
     return Math.round(Number(value)).toString()
   }
-  
+
   return Number(value).toFixed(decimals)
 }
 
@@ -68,11 +80,11 @@ export function LeagueStandingsTab({
   const [displayMode, setDisplayMode] = useState<DisplayMode>("rank")
   const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">(initialTableMode || "league")
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false)
-  
+
   // Debug logging
-  
+
   const [playerSearch, setPlayerSearch] = useState("")
-  const [activeDesktopTable, setActiveDesktopTable] = useState<"standings" | "statistics">("standings")
+  // const [activeDesktopTable, setActiveDesktopTable] = useState<"standings" | "statistics">("standings")
 
   const getTeamColorStyles = (teamName: string, teamCode?: string) => {
     const code = teamCode || ""
@@ -469,7 +481,7 @@ export function LeagueStandingsTab({
     const percentile = 1 - (rank - 1) / Math.max(1, total - 1)
 
     let bgColor = ""
-    let textColor = "text-black"
+    const textColor = "text-black"
 
     // Very faint colors for point differential (higher is better)
     if (rank === 1) {
@@ -544,7 +556,6 @@ export function LeagueStandingsTab({
   }
 
   const sortedTeams = useMemo(() => {
-
     if (!allTeamsAdvancedStats.length) return []
 
     const filteredTeams = allTeamsAdvancedStats.filter((team) => {
@@ -557,11 +568,10 @@ export function LeagueStandingsTab({
       )
     })
 
-
     const combinedData = filteredTeams.map((team) => {
       // Find matching standings data for this team
       const standingsTeam = standingsData.find((s) => s.teamcode === team.teamcode) || {}
-      
+
       return {
         id: team.id,
         season: team.season,
@@ -618,37 +628,37 @@ export function LeagueStandingsTab({
       if (sortColumn === "w") {
         const winsA = Number(a.w) || 0
         const winsB = Number(b.w) || 0
-        
+
         // If wins are equal, check losses first
         if (winsA === winsB) {
           const lossesA = Number(a.l) || 0
           const lossesB = Number(b.l) || 0
-          
+
           // If losses are also equal, use point differential as tiebreaker
           if (lossesA === lossesB) {
             const diffA = Number(a.diff) || 0
             const diffB = Number(b.diff) || 0
             return diffB - diffA // Higher differential wins (e.g., -9 > -10)
           }
-          
+
           return lossesA - lossesB // Fewer losses wins
         }
-        
+
         return sortDirection === "desc" ? winsB - winsA : winsA - winsB
       }
-      
+
       if (sortColumn === "l") {
         const lossesA = Number(a.l) || 0
         const lossesB = Number(b.l) || 0
         return sortDirection === "desc" ? lossesB - lossesA : lossesA - lossesB
       }
-      
+
       if (sortColumn === "diff") {
         const diffA = Number(a.diff) || 0
         const diffB = Number(b.diff) || 0
         return sortDirection === "desc" ? diffB - diffA : diffA - diffB
       }
-      
+
       // For other columns, use normal sorting
       let aValue, bValue
 
@@ -695,573 +705,327 @@ export function LeagueStandingsTab({
   const columnGroups = getColumnGroups()
   const allColumns = columnGroups.flatMap((group) => group.columns)
   const totalColumns = allColumns.length
-  // Calculate a fixed width for the stat columns to ensure they are uniform
-  const statColumnWidth = "w-[45px] md:w-[60px]"
+  const statColumnWidth = "w-[40px] md:w-[50px]"
 
   return (
     <div className="max-w-7xl mx-auto w-full">
-    <>
-      {/* Mobile Table Mode Toggle - Outside container, above it */}
-      <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-3 mb-3">
-        <div 
-          className="rounded-xl overflow-hidden shadow-xl w-full"
-          style={{ border: '1px solid black' }}
-        >
-          <div className="flex items-center h-full">
-            {/* Toggle Buttons */}
-            <div className="flex flex-1 h-full">
-              <div
-                className={`flex-1 transition-opacity duration-200 ${
-                  selectedTableMode === "league" ? "opacity-100" : "opacity-40"
-                }`}
-                style={{ backgroundColor: league === 'eurocup' ? '#3979D1' : '#D37000' }}
-              >
-                <button
-                  onClick={() => setSelectedTableMode("league")}
-                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
+      <>
+        <div className="bg-black shadow-md rounded-xl relative mb-4">
+          <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
+            <div className="flex items-center h-full">
+              {/* Toggle Buttons */}
+              <div className="flex flex-1 h-full">
+                <div
+                  className={`flex-1 transition-opacity duration-200 ${
+                    selectedTableMode === "league" ? "opacity-100" : "opacity-40"
+                  }`}
+                  style={{ backgroundColor: league === "eurocup" ? "#3979D1" : "#D37000" }}
                 >
-                  <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                    League
-                  </h2>
-                </button>
-              </div>
-              
-              <div
-                className={`flex-1 transition-opacity duration-200 ${
-                  selectedTableMode === "player" ? "opacity-100" : "opacity-40"
-                }`}
-                style={{ backgroundColor: league === 'eurocup' ? '#3979D1' : '#D37000' }}
-              >
-                <button
-                  onClick={() => setSelectedTableMode("player")}
-                  className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
-                >
-                  <h2 className="text-md font-bold text-white" style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}>
-                    Players
-                  </h2>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Desktop: Side by side layout */}
-      <div className="hidden md:flex gap-4 max-w-full -mt-5">
-        {/* Team Standings Section */}
-        <div 
-          className={`w-[45%] bg-light-beige rounded-md border border-black shadow-sm overflow-hidden cursor-pointer transition-opacity duration-200 ${
-            activeDesktopTable === "standings" ? "opacity-100" : "opacity-40 grayscale"
-          }`}
-          onClick={() => setActiveDesktopTable("standings")}
-        >
-          {/* Team color header strip */}
-          <div
-            className="w-full h-2 border-b border-black rounded-t-md -mb-1"
-            style={{
-              backgroundColor: "#9ca3af", // gray-400
-            }}
-          />
-          <div className="p-5">
-            <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-xl font-semibold">Standings</h3>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            {/* View Mode Dropdown */}
-            <div className="flex items-center gap-1">
-              <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
-                View:
-              </label>
-              <select
-                id="view-mode-filter"
-                value={viewMode}
-                onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className={`text-sm border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 w-48`}
-                style={{
-                  '--tw-ring-color': league === 'eurocup' ? '#3979D1' : '#D37000'
-                } as any}
-              >
-                <option value="team">Team</option>
-                <option value="off-4factors">Off - 4 Factors</option>
-                <option value="off-shooting">Off - Shooting</option>
-                <option value="off-ptdist">Off - Pt Dist</option>
-                <option value="off-misc">Off - Misc</option>
-                <option value="def-4factors">Def - 4 Factors</option>
-                <option value="def-shooting">Def - Shooting</option>
-                <option value="def-ptdist">Def - Pt Dist</option>
-                <option value="def-misc">Def - Misc</option>
-              </select>
-            </div>
-
-            {/* Display Mode Toggle */}
-            <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
-              <button
-                onClick={() => setDisplayMode("value")}
-                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                  displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
-                }`}
-              >
-                Value
-              </button>
-              <button
-                onClick={() => setDisplayMode("rank")}
-                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                  displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
-                }`}
-              >
-                Rank
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto -ml-2 -mr-2">
-          <div className="min-w-full ">
-            <table className="w-full text-[0.5rem] md:text-[0.6rem] border-collapse relative table-fixed rounded-none bg-light-beige">
-            <thead>
-              <tr className="border-b-2 bg-light-beige border-t-2 border-black ">
-                <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
-                  <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700"></div>
-                </th>
-                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 min-w-[60px] w-[60px]">
-                  <div className="text-xs font-semibold text-gray-700">TEAM</div>
-                </th>
-                {columnGroups.map((group, groupIndex) => (
-                  <th
-                    key={group.title}
-                    className={`text-center py-1 px-1 font-semibold bg-gray-100 border-b-2 border-gray-800 ${
-                      groupIndex < columnGroups.length - 1 ? "border-r-2 border-gray-800" : ""
-                    }`}
-                    colSpan={group.columns.length}
+                  <button
+                    onClick={() => setSelectedTableMode("league")}
+                    className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
                   >
-                    <div className="text-xs font-semibold text-gray-700">{group.title}</div>
-                  </th>
-                ))}
-              </tr>
+                    <h2
+                      className="text-sm font-bold text-white"
+                      style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}
+                    >
+                      League
+                    </h2>
+                  </button>
+                </div>
 
-              <tr className="border-b-2 border-gray-800 bg-gray-50 h-5 md:h-6">
-                <th className="bg-gray-50 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
-                  <div className="text-[0.5rem] md:text-[0.7rem]"></div>
-                </th>
-                <th
-                  className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 min-w-[60px] w-[60px]"
-                  onClick={() => handleColumnSort("team")}
+                <div
+                  className={`flex-1 transition-opacity duration-200 ${
+                    selectedTableMode === "player" ? "opacity-100" : "opacity-40"
+                  }`}
+                  style={{ backgroundColor: league === "eurocup" ? "#3979D1" : "#D37000" }}
                 >
-                  <div className="flex items-center justify-center text-xs">
-                    <span>Team</span>
-                    {renderSortIndicator("team")}
-                  </div>
-                </th>
-                {columnGroups.map((group, groupIndex) => (
-                  <React.Fragment key={group.title}>
-                    {group.columns.map((column, colIndex) => (
-                      <th
-                        key={column.key}
-                        className={`text-center py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors ${statColumnWidth} ${
-                          colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
-                            ? "border-r-2 border-gray-800"
-                            : ""
-                        }`}
-                        onClick={() => handleColumnSort(column.key)}
-                        title={column.tooltip}
-                      >
-                        <div className="flex items-center justify-center text-xs">
-                          {column.label} {renderSortIndicator(column.key)}
-                        </div>
-                      </th>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTeams.map((team, rowIndex) => {
-                const teamCode = team.teamcode
-                return (
-                  <tr
-                    key={team.id || rowIndex}
-                    className={`border-b-2 border-gray-300 hover:bg-gray-100 transition-colors ${rowIndex % 2 === 0 ? "bg-light-beige" : "bg-gray-50"}`}
+                  <button
+                    onClick={() => setSelectedTableMode("player")}
+                    className="w-full h-full py-2 px-3 text-center flex items-center justify-center"
                   >
-                    {/* Rank Column */}
-                    <td className="bg-light-beige text-center py-1 px-0.5 font-medium border-r border-gray-400 w-[25px] min-w-[25px]">
-                      <span className="text-xs font-bold text-gray-700">{rowIndex + 1}</span>
-                    </td>
-                    
-                    {/* Team Column */}
-                    <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[60px] w-[60px]">
-                      <button
-                        onClick={() => {
-                          setActiveTab("teams")
-                          setSelectedTeam(team.name)
-                          setShouldScrollTop(true)
-                        }}
-                        className="hover:underline focus:outline-none focus:ring-1 focus:ring-blue-300 px-1 flex items-center justify-center w-full group relative"
-                      >
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-sm flex items-center justify-center bg-white">
-                          {getTeamLogo(team.name, teamCode)}
-                        </div>
-                        
-                        {/* Hover tooltip - positioned to the right */}
-                        <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap pointer-events-none">
-                          {team.name}
-                        </div>
-                      </button>
-                    </td>
-
-                    {columnGroups.map((group, groupIndex) => (
-                      <React.Fragment key={group.title}>
-                        {group.columns.map((column, colIndex) => {
-                          const statValue = getStatValue(teamCode, column.key)
-                          const rank = getRank(teamCode, column.key)
-                          
-                          // Handle conditional formatting for different column types
-                          let cellBgClass = ""
-                          if (["w", "l"].includes(column.key)) {
-                            cellBgClass = "" // No background for W/L
-                          } else if (column.key === "diff") {
-                            cellBgClass = getDiffBackgroundColorClass(rank, validTeamsCount)
-                          } else if (column.key === "pace") {
-                            cellBgClass = getPaceBackgroundColorClass(rank, validTeamsCount)
-                          } else {
-                            cellBgClass = getRankBackgroundColorClass(rank, validTeamsCount)
-                          }
-                          
-                          const isWinLossColumn = ["w", "l"].includes(column.key)
-                          const isDiffColumn = column.key === "diff"
-
-                          return (
-                            <td
-                              key={column.key}
-                              className={`py-1 px-2 text-center font-mono text-xs ${statColumnWidth} ${
-                                colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
-                                  ? "border-r-2 border-gray-800"
-                                  : ""
-                              }`}
-                            >
-                              {isWinLossColumn ? (
-                                // Win/Loss columns: enhanced styling for prominence
-                                <div className="flex items-center justify-center w-full h-full p-1 bg-blue-50 border border-blue-200 rounded-sm">
-                                  <span className="text-black font-bold text-sm">{formatStatValue(statValue, 1, column.key)}</span>
-                                </div>
-                              ) : isDiffColumn ? (
-                                // Diff column: enhanced styling with border and bold text
-                                <div className={`flex items-center justify-center w-full h-full p-1 rounded-sm border border-gray-300 bg-gray-50 ${cellBgClass}`}>
-                                  <span className="text-black font-bold text-sm">{formatStatValue(statValue, 1, column.key)}</span>
-                                </div>
-                              ) : (
-                                // Regular columns: with border and rank/value toggle
-                                <div
-                                  className={`flex items-center justify-center ${
-                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
-                                  } h-full p-0.5 md:p-1 rounded-sm ${cellBgClass}`}
-                                >
-                                  {displayMode === "value" ? (
-                                    <span className="text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
-                                  ) : (
-                                    <span className="font-bold">{rank}</span>
-                                  )}
-                                </div>
-                              )}
-                            </td>
-                          )
-                        })}
-                      </React.Fragment>
-                    ))}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-
-          {sortedTeams.length === 0 && (
-            <div className="text-center py-4 text-gray-500 text-sm">
-              <p>No teams found for Regular Season {selectedSeason}</p>
-              <p className="text-xs mt-1">Advanced Stats: {allTeamsAdvancedStats.length}</p>
+                    <h2
+                      className="text-sm font-bold text-white"
+                      style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}
+                    >
+                      Players
+                    </h2>
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
           </div>
         </div>
-          </div>
-        </div>
-        
-        {/* Player Statistics Section */}
-        <div 
-          className={`w-[55%] overflow-hidden cursor-pointer transition-opacity duration-200 ${
-            activeDesktopTable === "statistics" ? "opacity-100" : "opacity-40 grayscale"
-          }`}
-          onClick={() => setActiveDesktopTable("statistics")}
-        >
-          <StatisticsTab
-            playerSearch={playerSearch}
-            onPlayerSearchChange={setPlayerSearch}
-            season={selectedSeason}
-            phase={selectedPhase}
-            teamStats={allTeamsAdvancedStats}
-            league={league}
-          />
-        </div>
-      </div>
 
-      {/* Mobile: Conditional rendering based on selected table mode */}
-      <div className="md:hidden">
         {selectedTableMode === "league" ? (
-      
-      
-        <div className="bg-light-beige rounded-md border border-black shadow-sm ">
-          {/* Team color header strip */}
-          <div
-            className="w-full h-2 border-b border-black rounded-t-md"
-            style={{
-              backgroundColor: "#9ca3af", // gray-400
-            }}
-          />
-          <div className="p-3">
-            <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2 ml-1">
-            <h3 className="text-xl font-semibold">Standings</h3>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4 mt-1">
-            {/* View Mode Dropdown */}
-            <div className="flex items-center gap-1">
-              <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
-                View:
-              </label>
-              <select
-                id="view-mode-filter"
-                value={viewMode}
-                onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className={`text-[0.6rem] md:text-xs border border-gray-300 rounded px-1 py-0.5 bg-white focus:outline-none focus:ring-1 w-24 md:w-auto`}
-                style={{
-                  '--tw-ring-color': league === 'eurocup' ? '#3979D1' : '#D37000'
-                } as any}
-              >
-                <option value="team">Team</option>
-                <option value="off-4factors">Off - 4 Factors</option>
-                <option value="off-shooting">Off - Shooting</option>
-                <option value="off-ptdist">Off - Pt Dist</option>
-                <option value="off-misc">Off - Misc</option>
-                <option value="def-4factors">Def - 4 Factors</option>
-                <option value="def-shooting">Def - Shooting</option>
-                <option value="def-ptdist">Def - Pt Dist</option>
-                <option value="def-misc">Def - Misc</option>
-              </select>
-            </div>
-
-            {/* Display Mode Toggle */}
-            <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
-              <button
-                onClick={() => setDisplayMode("value")}
-                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                  displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
-                }`}
-              >
-                Value
-              </button>
-              <button
-                onClick={() => setDisplayMode("rank")}
-                className={`rounded-full px-2 md:px-3 py-1 text-[0.6rem] md:text-xs font-medium ${
-                  displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
-                }`}
-              >
-                Rank
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto -ml-2 -mr-2">
-          <div className="min-w-full ">
-            <table className="w-full text-[0.5rem] md:text-[0.6rem] border-collapse relative table-fixed rounded-none bg-light-beige">
-            <thead>
-              <tr className="border-b-2 bg-light-beige border-t-2 border-black ">
-                <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
-                  <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700"></div>
-                </th>
-                <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 min-w-[60px] w-[60px]">
-                  <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700">TEAM</div>
-                </th>
-                {columnGroups.map((group, groupIndex) => (
-                  <th
-                    key={group.title}
-                    className={`text-center py-1 px-1 font-semibold bg-gray-100 border-b-2 border-gray-800 ${
-                      groupIndex < columnGroups.length - 1 ? "border-r-2 border-gray-800" : ""
-                    }`}
-                    colSpan={group.columns.length}
-                  >
-                    <div className="text-[0.6rem] md:text-xs font-semibold text-gray-700">{group.title}</div>
-                  </th>
-                ))}
-              </tr>
-
-              <tr className="border-b-2 border-gray-800 bg-gray-50 h-5 md:h-6">
-                <th className="bg-gray-50 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
-                  <div className="text-[0.5rem] md:text-[0.7rem]"></div>
-                </th>
-                <th
-                  className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 min-w-[60px] w-[60px]"
-                  onClick={() => handleColumnSort("team")}
-                >
-                  <div className="flex items-center justify-center text-[0.5rem] md:text-[0.7rem]">
-                    <span className="hidden md:inline">Name</span>
-                    <span className="md:hidden">Team</span>
-                    {renderSortIndicator("team")}
+          /* Team Standings Section - Full Width */
+          <div className="w-full bg-light-beige rounded-md border border-black shadow-sm overflow-hidden">
+            {/* Team color header strip */}
+            <div
+              className="w-full h-2 border-b border-black rounded-t-md -mb-1"
+              style={{
+                backgroundColor: "#9ca3af", // gray-400
+              }}
+            />
+            <div className="p-3 md:p-5">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2 ml-1">
+                  <h3 className="text-lg font-semibold">Standings</h3>
+                </div>
+                <div className="flex items-center gap-2 md:gap-4 mt-1">
+                  {/* View Mode Dropdown */}
+                  <div className="flex items-center gap-1">
+                    <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
+                      View:
+                    </label>
+                    <select
+                      id="view-mode-filter"
+                      value={viewMode}
+                      onChange={(e) => setViewMode(e.target.value as ViewMode)}
+                      className={`text-[0.55rem] md:text-xs border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 w-24 md:w-48`}
+                      style={
+                        {
+                          "--tw-ring-color": league === "eurocup" ? "#3979D1" : "#D37000",
+                        } as any
+                      }
+                    >
+                      <option value="team">Team</option>
+                      <option value="off-4factors">Off - 4 Factors</option>
+                      <option value="off-shooting">Off - Shooting</option>
+                      <option value="off-ptdist">Off - Pt Dist</option>
+                      <option value="off-misc">Off - Misc</option>
+                      <option value="def-4factors">Def - 4 Factors</option>
+                      <option value="def-shooting">Def - Shooting</option>
+                      <option value="def-ptdist">Def - Pt Dist</option>
+                      <option value="def-misc">Def - Misc</option>
+                    </select>
                   </div>
-                </th>
-                {columnGroups.map((group, groupIndex) => (
-                  <React.Fragment key={group.title}>
-                    {group.columns.map((column, colIndex) => (
-                      <th
-                        key={column.key}
-                        className={`text-center py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors ${statColumnWidth} ${
-                          colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
-                            ? "border-r-2 border-gray-800"
-                            : ""
-                        }`}
-                        onClick={() => handleColumnSort(column.key)}
-                        title={column.tooltip}
-                      >
-                        <div className="flex items-center justify-center text-[0.5rem] md:text-[0.6rem]">
-                          {column.label} {renderSortIndicator(column.key)}
-                        </div>
-                      </th>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTeams.map((team, rowIndex) => {
-                const teamCode = team.teamcode
-                return (
-                  <tr
-                    key={team.id || rowIndex}
-                    className={`border-b-2 border-gray-300 hover:bg-gray-100 transition-colors ${rowIndex % 2 === 0 ? "bg-light-beige" : "bg-gray-50"}`}
-                  >
-                    {/* Rank Column */}
-                    <td className="bg-light-beige text-center py-1 px-0.5 font-medium border-r border-gray-400 w-[25px] min-w-[25px]">
-                      <span className="text-[0.6rem] md:text-[0.7rem] font-bold text-gray-700">{rowIndex + 1}</span>
-                    </td>
-                    
-                    {/* Team Column */}
-                    <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[60px] w-[60px]">
-                      <button
-                        onClick={() => {
-                          setActiveTab("teams")
-                          setSelectedTeam(team.name)
-                          setShouldScrollTop(true)
-                        }}
-                        className="hover:underline focus:outline-none focus:ring-1 focus:ring-blue-300 px-1 flex items-center justify-center md:justify-start w-full group relative"
-                      >
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-sm flex items-center justify-center md:mr-2 bg-white">
-                          {getTeamLogo(team.name, teamCode)}
-                        </div>
-                        <span className="hidden md:block truncate text-[0.75rem] font-bold uppercase text-gray-900">{team.name}</span>
-                        
-                        {/* Hover tooltip - positioned to the right */}
-                        <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap md:hidden pointer-events-none">
-                          {team.name}
-                        </div>
-                      </button>
-                    </td>
 
-                    {columnGroups.map((group, groupIndex) => (
-                      <React.Fragment key={group.title}>
-                        {group.columns.map((column, colIndex) => {
-                          const statValue = getStatValue(teamCode, column.key)
-                          const rank = getRank(teamCode, column.key)
-                          
-                          // Handle conditional formatting for different column types
-                          let cellBgClass = ""
-                          if (["w", "l"].includes(column.key)) {
-                            cellBgClass = "" // No background for W/L
-                          } else if (column.key === "diff") {
-                            cellBgClass = getDiffBackgroundColorClass(rank, validTeamsCount)
-                          } else if (column.key === "pace") {
-                            cellBgClass = getPaceBackgroundColorClass(rank, validTeamsCount)
-                          } else {
-                            cellBgClass = getRankBackgroundColorClass(rank, validTeamsCount)
-                          }
-                          
-                          const isWinLossColumn = ["w", "l"].includes(column.key)
-                          const isDiffColumn = column.key === "diff"
+                  {/* Display Mode Toggle */}
+                  <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
+                    <button
+                      onClick={() => setDisplayMode("value")}
+                      className={`rounded-full px-2 md:px-3 py-1 text-[0.55rem] md:text-[0.65rem] font-medium ${
+                        displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
+                      }`}
+                    >
+                      Value
+                    </button>
+                    <button
+                      onClick={() => setDisplayMode("rank")}
+                      className={`rounded-full px-2 md:px-3 py-1 text-[0.55rem] md:text-[0.65rem] font-medium ${
+                        displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
+                      }`}
+                    >
+                      Rank
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                          return (
-                            <td
-                              key={column.key}
-                              className={`py-0.5 md:py-1 px-1 md:px-2 text-center font-mono text-[0.55rem] md:text-[0.7rem] ${statColumnWidth} ${
-                                colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
-                                  ? "border-r-2 border-gray-800"
-                                  : ""
-                              }`}
-                            >
-                              {isWinLossColumn ? (
-                                // Win/Loss columns: no border, no background, always show values, no rank/value toggle
-                                <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1">
-                                  <span className="text-black font-bold">{formatStatValue(statValue, 1, column.key)}</span>
+              <div className="overflow-x-auto -ml-2 -mr-2">
+                <div className="min-w-full ">
+                  <table className="w-full text-[0.45rem] md:text-[0.55rem] border-collapse relative table-fixed rounded-none bg-light-beige">
+                    <thead>
+                      <tr className="border-b-2 bg-light-beige border-t-2 border-black ">
+                        <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
+                          <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700"></div>
+                        </th>
+                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 md:min-w-[250px] md:w-[250px]">
+                          <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700">TEAM</div>
+                        </th>
+                        {columnGroups.map((group, groupIndex) => (
+                          <th
+                            key={group.title}
+                            className={`text-center py-1 px-1 font-semibold bg-gray-100 border-b-2 border-gray-800 ${
+                              groupIndex < columnGroups.length - 1 ? "border-r-2 border-gray-800" : ""
+                            }`}
+                            colSpan={group.columns.length}
+                          >
+                            <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700">
+                              {group.title}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+
+                      <tr className="border-b-2 border-gray-800 bg-gray-50 h-4 md:h-5">
+                        <th className="bg-gray-50 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
+                          <div className="text-[0.45rem] md:text-[0.6rem]"></div>
+                        </th>
+                        <th
+                          className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 min-w-[120px] w-[120px] md:min-w-[160px] md:w-[160px]"
+                          onClick={() => handleColumnSort("team")}
+                        >
+                          <div className="flex items-center justify-center text-[0.45rem] md:text-[0.65rem]">
+                            <span className="hidden md:inline">Name</span>
+                            <span className="md:hidden">Team</span>
+                            {renderSortIndicator("team")}
+                          </div>
+                        </th>
+                        {columnGroups.map((group, groupIndex) => (
+                          <React.Fragment key={group.title}>
+                            {group.columns.map((column, colIndex) => (
+                              <th
+                                key={column.key}
+                                className={`text-center py-1 px-1 font-medium cursor-pointer hover:bg-gray-100 transition-colors ${statColumnWidth} ${
+                                  colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
+                                    ? "border-r-2 border-gray-800"
+                                    : ""
+                                }`}
+                                onClick={() => handleColumnSort(column.key)}
+                                title={column.tooltip}
+                              >
+                                <div className="flex items-center justify-center text-[0.45rem] md:text-[0.65rem]">
+                                  {column.label} {renderSortIndicator(column.key)}
                                 </div>
-                              ) : isDiffColumn ? (
-                                // Diff column: with faint conditional formatting, always show values, no rank/value toggle
-                                <div className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 border rounded-sm ${cellBgClass}`}>
-                                  <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
-                                </div>
-                              ) : (
-                                // Regular columns: with border and rank/value toggle
-                                <div
-                                  className={`flex items-center justify-center ${
-                                    displayMode === "value" ? "w-[calc(100%-4px)] mx-0.5" : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1 border"
-                                  } h-full p-0.5 md:p-1 rounded-sm ${cellBgClass}`}
-                                >
-                                  {displayMode === "value" ? (
-                                    <span className="text-[0.45rem] md:text-[0.6rem]">{formatStatValue(statValue, 1, column.key)}</span>
-                                  ) : (
-                                    <span className="font-bold">{rank}</span>
-                                  )}
-                                </div>
-                              )}
+                              </th>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedTeams.map((team, rowIndex) => {
+                        const teamCode = team.teamcode
+                        return (
+                          <tr
+                            key={team.id || rowIndex}
+                            className={`border-b-2 border-gray-300 hover:bg-gray-100 transition-colors ${rowIndex % 2 === 0 ? "bg-light-beige" : "bg-gray-50"}`}
+                          >
+                            {/* Rank Column */}
+                            <td className="bg-light-beige text-center py-1 px-0.5 font-medium border-r border-gray-400 w-[25px] min-w-[25px]">
+                              <span className="text-[0.55rem] md:text-[0.65rem] font-bold text-gray-700">
+                                {rowIndex + 1}
+                              </span>
                             </td>
-                          )
-                        })}
-                      </React.Fragment>
-                    ))}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
 
-          {sortedTeams.length === 0 && (
-            <div className="text-center py-4 text-gray-500 text-sm">
-              <p>No teams found for Regular Season {selectedSeason}</p>
-              <p className="text-xs mt-1">Advanced Stats: {allTeamsAdvancedStats.length}</p>
+                            {/* Team Column */}
+                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm min-w-[120px] w-[120px] md:min-w-[160px] md:w-[160px]">
+                              <button
+                                onClick={() => {
+                                  setActiveTab("teams")
+                                  setSelectedTeam(team.name)
+                                  setShouldScrollTop(true)
+                                }}
+                                className="hover:underline focus:outline-none focus:ring-1 focus:ring-blue-300 px-1 flex items-center justify-start w-full group relative"
+                              >
+                                <div className="w-5 h-5 md:w-7 md:h-7 rounded-sm flex items-center justify-center mr-1.5 md:mr-2 bg-white flex-shrink-0">
+                                  {getTeamLogo(team.name, teamCode)}
+                                </div>
+                                <span className="truncate text-[0.5rem] md:text-xs text-gray-900">
+                                  {team.name}
+                                </span>
+                              </button>
+                            </td>
+
+                            {columnGroups.map((group, groupIndex) => (
+                              <React.Fragment key={group.title}>
+                                {group.columns.map((column, colIndex) => {
+                                  const statValue = getStatValue(teamCode, column.key)
+                                  const rank = getRank(teamCode, column.key)
+
+                                  // Handle conditional formatting for different column types
+                                  let cellBgClass = ""
+                                  if (["w", "l"].includes(column.key)) {
+                                    cellBgClass = "" // No background for W/L
+                                  } else if (column.key === "diff") {
+                                    cellBgClass = getDiffBackgroundColorClass(rank, validTeamsCount)
+                                  } else if (column.key === "pace") {
+                                    cellBgClass = getPaceBackgroundColorClass(rank, validTeamsCount)
+                                  } else {
+                                    cellBgClass = getRankBackgroundColorClass(rank, validTeamsCount)
+                                  }
+
+                                  const isWinLossColumn = ["w", "l"].includes(column.key)
+                                  const isDiffColumn = column.key === "diff"
+
+                                  return (
+                                    <td
+                                      key={column.key}
+                                      className={`py-0.5 md:py-1 px-1 md:px-2 text-center font-mono text-[0.5rem] md:text-[0.65rem] ${statColumnWidth} ${
+                                        colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
+                                          ? "border-r-2 border-gray-800"
+                                          : ""
+                                      }`}
+                                    >
+                                      {isWinLossColumn ? (
+                                        // Win/Loss columns: enhanced styling for prominence
+                                        <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1 bg-blue-50 border border-blue-200 rounded-sm">
+                                          <span className="text-black font-bold text-xs md:text-sm">
+                                            {formatStatValue(statValue, 1, column.key)}
+                                          </span>
+                                        </div>
+                                      ) : isDiffColumn ? (
+                                        // Diff column: enhanced styling with border and bold text
+                                        <div
+                                          className={`flex items-center justify-center w-full h-full p-0.5 md:p-1 rounded-sm border border-gray-300 bg-gray-50 ${cellBgClass}`}
+                                        >
+                                          <span className="text-black font-bold text-xs md:text-sm">
+                                            {formatStatValue(statValue, 1, column.key)}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        // Regular columns: with border and rank/value toggle
+                                        <div
+                                          className={`flex items-center justify-center ${
+                                            displayMode === "value"
+                                              ? "w-[calc(100%-4px)] mx-0.5"
+                                              : "w-[calc(100%-7px)] md:w-[calc(100%-12px)] mx-1"
+                                          } h-full p-0.5 md:p-1 rounded-sm ${cellBgClass}`}
+                                        >
+                                          {displayMode === "value" ? (
+                                            <span className="text-[0.4rem] md:text-[0.55rem]">
+                                              {formatStatValue(statValue, 1, column.key)}
+                                            </span>
+                                          ) : (
+                                            <span className="font-bold">{rank}</span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </td>
+                                  )
+                                })}
+                              </React.Fragment>
+                            ))}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+
+                  {sortedTeams.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-xs">
+                      <p>No teams found for Regular Season {selectedSeason}</p>
+                      <p className="text-[0.65rem] mt-1">Advanced Stats: {allTeamsAdvancedStats.length}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
           </div>
-        </div>
+        ) : (
+          /* Player Statistics Section - Full Width */
+          <div className="w-full overflow-hidden">
+            <StatisticsTab
+              playerSearch={playerSearch}
+              onPlayerSearchChange={setPlayerSearch}
+              season={selectedSeason}
+              phase={selectedPhase}
+              teamStats={allTeamsAdvancedStats}
+              league={league}
+            />
           </div>
-        </div>
-      ) : (
-        /* Player Table - Statistics Tab Content */
-        <StatisticsTab
-          playerSearch={playerSearch}
-          onPlayerSearchChange={setPlayerSearch}
-          season={selectedSeason}
-          phase={selectedPhase}
-          teamStats={allTeamsAdvancedStats}
-          league={league}
-        />
-      )}
-      </div>
+        )}
 
-      {/* Loading overlay - only show on mobile when league tab is selected, or always on desktop */}
-      {showLoadingOverlay && (
-        <LeagueLoadingOverlay
-          league={league === "eurocup" ? "eurocup" : "euroleague"} 
-          message="Loading league data..."
-          className={`${selectedTableMode === "player" ? "md:block hidden" : "block"}`}
-        />
-      )}
-    </>
+        {/* Loading overlay */}
+        {showLoadingOverlay && (
+          <LeagueLoadingOverlay
+            league={league === "eurocup" ? "eurocup" : "euroleague"}
+            message="Loading league data..."
+          />
+        )}
+      </>
     </div>
   )
 }
