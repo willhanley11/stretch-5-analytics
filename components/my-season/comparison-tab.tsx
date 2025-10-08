@@ -987,7 +987,7 @@ const PlayerSelectorRight = ({ playerIndex }: { playerIndex: number }) => {
   }
 
   return (
-    <div ref={containerRef} className="space-y-3">
+    <div ref={containerRef} className="max-w-7xl mx-auto w-full space-y-3">
       {/* Mobile Player Selectors - Only visible on mobile, only shows first 2 players */}
       <div className="md:hidden flex gap-0">
         <div className="flex-1 w-[35px]">

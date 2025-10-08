@@ -699,6 +699,7 @@ export function LeagueStandingsTab({
   const statColumnWidth = "w-[45px] md:w-[60px]"
 
   return (
+    <div className="max-w-7xl mx-auto w-full">
     <>
       {/* Mobile Table Mode Toggle - Outside container, above it */}
       <div className="md:hidden bg-black shadow-md rounded-xl relative -mt-3 mb-3">
@@ -1261,5 +1262,6 @@ export function LeagueStandingsTab({
         />
       )}
     </>
+    </div>
   )
 }

@@ -3256,7 +3256,7 @@ const PlayerTeamSelector = () => {
     }
 
     return (
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto w-full space-y-6">
   {/* Main Layout - New Structure */}
   <div className="flex flex-col gap-2 sm:-mt-3">
     {/* Player Search - Above dropdown on mobile */}
