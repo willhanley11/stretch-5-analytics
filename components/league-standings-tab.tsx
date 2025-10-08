@@ -1197,7 +1197,7 @@ export function LeagueStandingsTab({
                               {isWinLossColumn ? (
                                 // Win/Loss columns: no border, no background, always show values, no rank/value toggle
                                 <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1">
-                                  <span className="text-black">{formatStatValue(statValue, 1, column.key)}</span>
+                                  <span className="text-black font-bold">{formatStatValue(statValue, 1, column.key)}</span>
                                 </div>
                               ) : isDiffColumn ? (
                                 // Diff column: with faint conditional formatting, always show values, no rank/value toggle
