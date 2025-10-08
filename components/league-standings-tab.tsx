@@ -831,7 +831,7 @@ export function LeagueStandingsTab({
                         <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700"></div>
                         </th>
-                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 md:min-w-[250px] md:w-[250px]">
+                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 md:min-w-[450px] md:w-[450px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700">TEAM</div>
                         </th>
                         {columnGroups.map((group, groupIndex) => (
