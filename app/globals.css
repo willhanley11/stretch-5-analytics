@@ -84,6 +84,7 @@ body {
     --chart-3: 187 80% 50%;
     --chart-4: 43 96% 68%;
     --chart-5: 0 91% 71%;
+    --radius: 0.75rem;
     --sidebar-background: 0 0% 24%;
     --sidebar-foreground: 44 33% 97%;
     --sidebar-primary: 120 23% 55%;
@@ -140,14 +141,14 @@ body {
 }
 
 /* Prevent iOS zoom on input focus */
-input[type="text"], 
-input[type="search"], 
-input[type="email"], 
-input[type="number"], 
-input[type="tel"], 
-input[type="url"], 
-input[type="password"], 
-textarea, 
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
 select {
   font-size: 16px !important;
   /* Prevent zoom on iOS while maintaining usability */
@@ -167,7 +168,7 @@ select {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
   }
-  
+
   body {
     /* Normal mobile scrolling */
     position: relative;
@@ -180,21 +181,21 @@ select {
     /* Prevent iOS zoom */
     -webkit-text-size-adjust: 100%;
   }
-  
+
   /* Ensure all inputs have minimum 16px font size on mobile to prevent zoom */
-  input[type="text"], 
-  input[type="search"], 
-  input[type="email"], 
-  input[type="number"], 
-  input[type="tel"], 
-  input[type="url"], 
-  input[type="password"], 
-  textarea, 
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  textarea,
   select,
   .search-input-mobile {
     font-size: 16px !important;
   }
-  
+
   /* Specific styling for search inputs to prevent zoom and allow easy dismissal */
   .search-input-mobile {
     font-size: 16px !important;
@@ -207,7 +208,7 @@ select {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
-  
+
   /* Ensure landing page container has proper height */
   .min-h-screen.bg-gradient-to-br {
     min-height: 100vh !important;
@@ -215,7 +216,7 @@ select {
     height: auto !important;
     position: relative !important;
   }
-  
+
   /* Only apply fixed positioning to welcome screen (different selector) */
   body:has(.fixed.inset-0) {
     position: fixed !important;
@@ -223,7 +224,7 @@ select {
     height: 100dvh !important;
     overflow: hidden !important;
   }
-  
+
   body:has(.fixed.inset-0) html {
     position: fixed !important;
     height: 100% !important;
@@ -256,13 +257,11 @@ table {
 }
 
 thead th {
-  @apply bg-light-beige text-charcoal-800 font-medium;
+  @apply bg-stone-50 text-gray-800 font-medium;
 }
 
-
-
 tbody tr:hover {
-  @apply bg-sage-50/50;
+  @apply bg-gray-50/50;
 }
 
 /* Button styling improvements */

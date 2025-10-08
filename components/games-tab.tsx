@@ -366,475 +366,497 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
         <div className="text-center py-1 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
           <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
         </div>
-        <div
-          className="p-1.5 pb-1 border-b-2 border-gray-400"
-          style={{
-            background: `linear-gradient(to right, ${homeTeamColor}30, #f9fafb, ${awayTeamColor}30)`,
-          }}
-        >
+        <div className="p-1 md:p-1.5">
           {isPreviewLoading ? (
             <div className="text-center py-4">
               <div className="text-gray-500 text-sm">Loading team statistics...</div>
             </div>
           ) : homeTeamStats && awayTeamStats ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
-              <div className="space-y-0">
-                <div className="rounded-lg overflow-hidden shadow-md bg-white">
-                  <table className="w-full text-[10px] md:text-xs border-collapse">
-                    {/* Team Logos Header */}
-                    <thead>
-                      <tr
-                        style={{
-                          background: `linear-gradient(to right, ${homeTeamColor}35, #f9fafb, ${awayTeamColor}35)`,
-                        }}
-                      >
-                        <th className="text-center py-1 md:py-1.5 px-1 w-[35%] border-b border-gray-300">
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
-                              Home
-                            </span>
-                            <div
-                              className="p-1 rounded-lg shadow-sm border"
-                              style={{
-                                backgroundColor: `${homeTeamColor}20`,
-                                borderColor: `${homeTeamColor}60`,
-                              }}
-                            >
-                              <img
-                                src={game.home_teamlogo || "/placeholder.svg"}
-                                alt={`${game.home_team} logo`}
-                                className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                              />
-                            </div>
-                            <span className="text-[9px] md:text-[10px] font-semibold text-gray-700">
-                              {game.home_team}
-                            </span>
-                          </div>
-                        </th>
-                        <th className="text-center py-1 md:py-1.5 px-1 font-semibold text-gray-600 border-b border-gray-300 w-[30%]">
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-[9px] md:text-[10px] uppercase">vs.</span>
-                            {timeDisplay && (
-                              <>
-                                <span className="text-[11px] md:text-sm font-bold text-gray-900">{timeDisplay}</span>
-                                {timezoneDisplay && (
-                                  <span className="text-[7px] md:text-[8px] text-gray-500 font-medium">
-                                    {timezoneDisplay}
-                                  </span>
-                                )}
-                              </>
-                            )}
-                            <span className="text-[8px] md:text-[9px] text-gray-500">
-                              {new Date(game.game_date).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </th>
-                        <th className="text-center py-1 md:py-1.5 px-1 w-[35%] border-b border-gray-300">
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
-                              Away
-                            </span>
-                            <div
-                              className="p-1 rounded-lg shadow-sm border"
-                              style={{
-                                backgroundColor: `${awayTeamColor}20`,
-                                borderColor: `${awayTeamColor}60`,
-                              }}
-                            >
-                              <img
-                                src={game.away_teamlogo || "/placeholder.svg"}
-                                alt={`${game.away_team} logo`}
-                                className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                              />
-                            </div>
-                            <span className="text-[9px] md:text-[10px] font-semibold text-gray-700">
-                              {game.away_team}
-                            </span>
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td colSpan={3} className="py-1">
-                          <div className="flex items-center">
-                            <div className="flex-grow h-px bg-gray-300"></div>
-                            <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
-                              Offense
-                            </div>
-                            <div className="flex-grow h-px bg-gray-300"></div>
-                          </div>
-                        </td>
-                      </tr>
+            <div className="space-y-1.5">
+              {/* Container 1: Team Logos/Names/Date */}
+              <div
+                className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden"
+                style={{
+                  background: `linear-gradient(to right, ${homeTeamColor}30, #ffffff, ${awayTeamColor}30)`,
+                }}
+              >
+                <div className="flex items-center justify-between p-1.5 md:p-2">
+                  {/* Home Team */}
+                  <div className="flex flex-col items-center gap-0.5 flex-1">
+                    <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
+                      Home
+                    </span>
+                    <div
+                      className="p-1 rounded-lg shadow-sm border"
+                      style={{
+                        backgroundColor: `${homeTeamColor}20`,
+                        borderColor: `${homeTeamColor}60`,
+                      }}
+                    >
+                      <img
+                        src={game.home_teamlogo || "/placeholder.svg"}
+                        alt={`${game.home_team} logo`}
+                        className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                      />
+                    </div>
+                    <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      {game.home_team}
+                    </span>
+                  </div>
 
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.efgperc_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          eFG%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.efgperc_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
+                  {/* VS and Date/Time */}
+                  <div className="flex flex-col items-center gap-0.5 px-2">
+                    <span className="text-[9px] md:text-[10px] uppercase font-semibold text-gray-600">vs.</span>
+                    {timeDisplay && (
+                      <>
+                        <span className="text-[11px] md:text-sm font-bold text-gray-900">{timeDisplay}</span>
+                        {timezoneDisplay && (
+                          <span className="text-[7px] md:text-[8px] text-gray-500 font-medium">{timezoneDisplay}</span>
+                        )}
+                      </>
+                    )}
+                    <span className="text-[8px] md:text-[9px] text-gray-500">
+                      {new Date(game.game_date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
 
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.toratio_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          TOV%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.toratio_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.orebperc_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          ORB%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.orebperc_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className=" hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.ftrate_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          FTR
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.ftrate_o, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_o)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td colSpan={3} className="py-1">
-                          <div className="flex items-center">
-                            <div className="flex-grow h-px bg-gray-300"></div>
-                            <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide pt-2">
-                              Defense
-                            </div>
-                            <div className="flex-grow h-px bg-gray-300"></div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.efgperc_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Opp eFG%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.efgperc_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.toratio_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Opp TOV%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.toratio_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.orebperc_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          DRB%
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.orebperc_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-
-                      <tr className="hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-0.5 px-1 pb-2">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(homeTeamStats.ftrate_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Opp FTR
-                        </td>
-                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
-                          <div className="flex justify-center">
-                            <div
-                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
-                            >
-                              {formatStat(awayTeamStats.ftrate_d, 1)}{" "}
-                              <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_d)}</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  {/* Away Team */}
+                  <div className="flex flex-col items-center gap-0.5 flex-1">
+                    <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
+                      Away
+                    </span>
+                    <div
+                      className="p-1 rounded-lg shadow-sm border"
+                      style={{
+                        backgroundColor: `${awayTeamColor}20`,
+                        borderColor: `${awayTeamColor}60`,
+                      }}
+                    >
+                      <img
+                        src={game.away_teamlogo || "/placeholder.svg"}
+                        alt={`${game.away_team} logo`}
+                        className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                      />
+                    </div>
+                    <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      {game.away_team}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-0.5">
-                <div className="text-center text-[10px] md:text-xs font-semibold text-gray-700 mb-1 uppercase pt-1">
-                  Season Leaders
+              {/* Container 2: Offense Stats */}
+              <div className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden">
+                <div className="flex items-center py-1 bg-white border-b border-gray-300">
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                  <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
+                    Offense
+                  </div>
+                  <div className="flex-grow h-px bg-gray-300"></div>
                 </div>
-
-                {(() => {
-                  // Ensure we have player data
-                  if (!homeTeamPlayers?.length || !awayTeamPlayers?.length) {
-                    return <div className="text-[8px] text-gray-500 text-center">Loading player data...</div>
-                  }
-
-                  const allPlayers = [...homeTeamPlayers, ...awayTeamPlayers]
-
-                  // Helper function to safely parse numeric values
-                  const parseStatValue = (value: any): number => {
-                    if (value === null || value === undefined) return 0
-                    const parsed = typeof value === "string" ? Number.parseFloat(value) : Number(value)
-                    return isNaN(parsed) ? 0 : parsed
-                  }
-
-                  // Find actual leaders with proper number parsing
-                  const leadingScorer = allPlayers.reduce((max, player) => {
-                    const maxScore = parseStatValue(max?.points_scored)
-                    const playerScore = parseStatValue(player?.points_scored)
-                    return playerScore > maxScore ? player : max
-                  }, allPlayers[0])
-
-                  const leadingRebounder = allPlayers.reduce((max, player) => {
-                    const maxRebs = parseStatValue(max?.total_rebounds)
-                    const playerRebs = parseStatValue(player?.total_rebounds)
-                    return playerRebs > maxRebs ? player : max
-                  }, allPlayers[0])
-
-                  const leadingAssister = allPlayers.reduce((max, player) => {
-                    const maxAsts = parseStatValue(max?.assists)
-                    const playerAsts = parseStatValue(player?.assists)
-                    return playerAsts > maxAsts ? player : max
-                  }, allPlayers[0])
-
-                  const leading3pt = allPlayers.reduce((max, player) => {
-                    const max3pt = parseStatValue(max?.three_pointers_made)
-                    const player3pt = parseStatValue(player?.three_pointers_made)
-                    return player3pt > max3pt ? player : max
-                  }, allPlayers[0])
-
-                  const getTeamLogo = (teamCode: string) => {
-                    return teamCode === game.home_teamcode ? game.home_teamlogo : game.away_teamlogo
-                  }
-
-                  return (
-                    <div className="space-y-1">
-                      {/* Leading Scorer */}
-                      {leadingScorer?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <img
-                              src={getTeamLogo(leadingScorer.player_team_code) || "/placeholder.svg"}
-                              alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
-                            />
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
-                                {leadingScorer.player_name}
-                              </span>
-                              <span className="text-[8px] text-gray-500 uppercase">Points</span>
-                            </div>
-                          </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
-                            {formatStat(parseStatValue(leadingScorer.points_scored), 1)}
+                <table className="w-full text-[10px] md:text-xs border-collapse">
+                  <colgroup>
+                    <col style={{ width: "35%" }} />
+                    <col style={{ width: "30%" }} />
+                    <col style={{ width: "35%" }} />
+                  </colgroup>
+                  <tbody>
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.efgperc_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_o)}</span>
                           </div>
                         </div>
-                      )}
-
-                      {/* Leading Rebounder */}
-                      {leadingRebounder?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <img
-                              src={getTeamLogo(leadingRebounder.player_team_code) || "/placeholder.svg"}
-                              alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
-                            />
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
-                                {leadingRebounder.player_name}
-                              </span>
-                              <span className="text-[8px] text-gray-500 uppercase">Rebounds</span>
-                            </div>
-                          </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
-                            {formatStat(parseStatValue(leadingRebounder.total_rebounds), 1)}
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        eFG%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.efgperc_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_o)}</span>
                           </div>
                         </div>
-                      )}
+                      </td>
+                    </tr>
 
-                      {/* Leading Assister */}
-                      {leadingAssister?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <img
-                              src={getTeamLogo(leadingAssister.player_team_code) || "/placeholder.svg"}
-                              alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
-                            />
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
-                                {leadingAssister.player_name}
-                              </span>
-                              <span className="text-[8px] text-gray-500 uppercase">Assists</span>
-                            </div>
-                          </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
-                            {formatStat(parseStatValue(leadingAssister.assists), 1)}
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.toratio_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_o)}</span>
                           </div>
                         </div>
-                      )}
-
-                      {/* Leading 3PT Maker */}
-                      {leading3pt?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <img
-                              src={getTeamLogo(leading3pt.player_team_code) || "/placeholder.svg"}
-                              alt="team logo"
-                              className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
-                            />
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
-                                {leading3pt.player_name}
-                              </span>
-                              <span className="text-[8px] text-gray-500 uppercase">3-Pointers</span>
-                            </div>
-                          </div>
-                          <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
-                            {formatStat(parseStatValue(leading3pt.three_pointers_made), 1)}
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        TOV%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.toratio_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_o)}</span>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )
-                })()}
+                      </td>
+                    </tr>
+
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.orebperc_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_o)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        ORB%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.orebperc_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_o)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1 pb-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.ftrate_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_o)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        FTR
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.ftrate_o, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_o)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Container 3: Defense Stats */}
+              <div className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden">
+                <div className="flex items-center py-1 bg-white border-b border-gray-300">
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                  <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
+                    Defense
+                  </div>
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                </div>
+                <table className="w-full text-[10px] md:text-xs border-collapse">
+                  <colgroup>
+                    <col style={{ width: "35%" }} />
+                    <col style={{ width: "30%" }} />
+                    <col style={{ width: "35%" }} />
+                  </colgroup>
+                  <tbody>
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.efgperc_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        eFG%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.efgperc_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.toratio_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        TOV%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.toratio_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.orebperc_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        DRB%
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.orebperc_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="text-center py-0.5 px-1 pb-1">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(homeTeamStats.ftrate_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        FTR
+                      </td>
+                      <td className="text-center py-0.5 px-1 border-l border-gray-200">
+                        <div className="flex justify-center">
+                          <div
+                            className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                          >
+                            <span className="font-bold">{formatStat(awayTeamStats.ftrate_d, 1)}</span>
+                            <span className="inline-block w-2"></span>
+                            <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_d)}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Container 4: Season Leaders */}
+              <div className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden">
+                <div className="flex items-center py-1 bg-white border-b border-gray-300">
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                  <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
+                    Season Leaders
+                  </div>
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                </div>
+                <div className="p-1.5">
+                  {(() => {
+                    // Ensure we have player data
+                    if (!homeTeamPlayers?.length || !awayTeamPlayers?.length) {
+                      return <div className="text-[8px] text-gray-500 text-center">Loading player data...</div>
+                    }
+
+                    const allPlayers = [...homeTeamPlayers, ...awayTeamPlayers]
+
+                    // Helper function to safely parse numeric values
+                    const parseStatValue = (value: any): number => {
+                      if (value === null || value === undefined) return 0
+                      const parsed = typeof value === "string" ? Number.parseFloat(value) : Number(value)
+                      return isNaN(parsed) ? 0 : parsed
+                    }
+
+                    // Find actual leaders with proper number parsing
+                    const leadingScorer = allPlayers.reduce((max, player) => {
+                      const maxScore = parseStatValue(max?.points_scored)
+                      const playerScore = parseStatValue(player?.points_scored)
+                      return playerScore > maxScore ? player : max
+                    }, allPlayers[0])
+
+                    const leadingRebounder = allPlayers.reduce((max, player) => {
+                      const maxRebs = parseStatValue(max?.total_rebounds)
+                      const playerRebs = parseStatValue(player?.total_rebounds)
+                      return playerRebs > maxRebs ? player : max
+                    }, allPlayers[0])
+
+                    const leadingAssister = allPlayers.reduce((max, player) => {
+                      const maxAsts = parseStatValue(max?.assists)
+                      const playerAsts = parseStatValue(player?.assists)
+                      return playerAsts > maxAsts ? player : max
+                    }, allPlayers[0])
+
+                    const leading3pt = allPlayers.reduce((max, player) => {
+                      const max3pt = parseStatValue(max?.three_pointers_made)
+                      const player3pt = parseStatValue(player?.three_pointers_made)
+                      return player3pt > max3pt ? player : max
+                    }, allPlayers[0])
+
+                    const getTeamLogo = (teamCode: string) => {
+                      return teamCode === game.home_teamcode ? game.home_teamlogo : game.away_teamlogo
+                    }
+
+                    return (
+                      <div className="space-y-1">
+                        {/* Leading Scorer */}
+                        {leadingScorer?.player_name && (
+                          <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <img
+                                src={getTeamLogo(leadingScorer.player_team_code) || "/placeholder.svg"}
+                                alt="team logo"
+                                className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
+                                  {leadingScorer.player_name}
+                                </span>
+                                <span className="text-[8px] text-gray-500 uppercase">Points</span>
+                              </div>
+                            </div>
+                            <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
+                              {formatStat(parseStatValue(leadingScorer.points_scored), 1)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Leading Rebounder */}
+                        {leadingRebounder?.player_name && (
+                          <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <img
+                                src={getTeamLogo(leadingRebounder.player_team_code) || "/placeholder.svg"}
+                                alt="team logo"
+                                className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
+                                  {leadingRebounder.player_name}
+                                </span>
+                                <span className="text-[8px] text-gray-500 uppercase">Rebounds</span>
+                              </div>
+                            </div>
+                            <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
+                              {formatStat(parseStatValue(leadingRebounder.total_rebounds), 1)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Leading Assister */}
+                        {leadingAssister?.player_name && (
+                          <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <img
+                                src={getTeamLogo(leadingAssister.player_team_code) || "/placeholder.svg"}
+                                alt="team logo"
+                                className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
+                                  {leadingAssister.player_name}
+                                </span>
+                                <span className="text-[8px] text-gray-500 uppercase">Assists</span>
+                              </div>
+                            </div>
+                            <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
+                              {formatStat(parseStatValue(leadingAssister.assists), 1)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Leading 3PT Maker */}
+                        {leading3pt?.player_name && (
+                          <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <img
+                                src={getTeamLogo(leading3pt.player_team_code) || "/placeholder.svg"}
+                                alt="team logo"
+                                className="w-4 h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
+                              />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="font-semibold text-gray-800 truncate max-w-[140px] md:max-w-[200px]">
+                                  {leading3pt.player_name}
+                                </span>
+                                <span className="text-[8px] text-gray-500 uppercase">3-Pointers</span>
+                              </div>
+                            </div>
+                            <div className="font-bold text-gray-900 text-[10px] md:text-xs flex-shrink-0">
+                              {formatStat(parseStatValue(leading3pt.three_pointers_made), 1)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                </div>
               </div>
             </div>
           ) : (
