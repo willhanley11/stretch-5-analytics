@@ -831,7 +831,7 @@ export function LeagueStandingsTab({
                         <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700"></div>
                         </th>
-                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 md:min-w-[450px] md:w-[450px]">
+                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 w-[50px] md:min-w-[450px] md:w-[450px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700">TEAM</div>
                         </th>
                         {columnGroups.map((group, groupIndex) => (
@@ -951,8 +951,8 @@ export function LeagueStandingsTab({
                                     >
                                       {isWinLossColumn ? (
                                         // Win/Loss columns: enhanced styling for prominence
-                                        <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1 bg-blue-50 border border-blue-200 rounded-sm">
-                                          <span className="text-black font-bold text-xs md:text-sm">
+                                        <div className="flex items-center justify-center w-full h-full p-0.5 md:p-1  rounded-sm">
+                                          <span className="text-black font-bold text-[12px] md:text-sm">
                                             {formatStatValue(statValue, 1, column.key)}
                                           </span>
                                         </div>
