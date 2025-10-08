@@ -731,7 +731,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             </div>
 
             {/* Mobile Navigation Tabs */}
-            <div className="sm:hidden px-2">
+            <div className="sm:hidden px-2 pt-1">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
                 <nav className="flex items-center w-full">
