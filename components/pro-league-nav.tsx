@@ -731,7 +731,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             </div>
 
             {/* Mobile Navigation Tabs */}
-            <div className="sm:hidden px-2 py-1">
+            <div className="sm:hidden px-2">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
                 <nav className="flex items-center w-full">
@@ -743,7 +743,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                         className={cn(
                           "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1.5 flex-1 uppercase",
                           activeSection === section.id
-                            ? "text-gray-900 border-b-2 border-blue-700"
+                            ? "text-gray-900 border-b-4 border-blue-700"
                             : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
                         )}
                       >
