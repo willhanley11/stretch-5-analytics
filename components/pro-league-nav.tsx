@@ -740,7 +740,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             <div className="sm:hidden px-2 py-1">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
-                <nav className="flex items-center space-x-7 overflow-x-auto">
+                <nav className="flex items-center space-x-12 overflow-x-auto">
                   {leagueSections.map((section) => {
                     const IconComponent = section.icon
                     return (
