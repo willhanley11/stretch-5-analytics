@@ -274,7 +274,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
     const formatRank = (rank: number | null | undefined) => {
       if (rank === null || rank === undefined || isNaN(rank)) return "N/A"
-      return `#${rank}`
+      return `${rank}`
     }
 
     const getConditionalColorClass = (homeRank: number, awayRank: number, isHome: boolean, total = 18) => {
@@ -362,14 +362,14 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border border--500 rounded-lg shadow-md my-2 overflow-hidden">
-        <div className="text-center py-1.5 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
-          <span className="text-[11px] md:text-sm font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
+      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-lg my-2 overflow-hidden">
+        <div className="text-center py-1 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
+          <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
         </div>
         <div
-          className="p-2 pb-1 border-b-2 border-gray-400"
+          className="p-1.5 pb-1 border-b-2 border-gray-400"
           style={{
-            background: `linear-gradient(to right, ${homeTeamColor}15, #f9fafb, ${awayTeamColor}15)`,
+            background: `linear-gradient(to right, ${homeTeamColor}30, #f9fafb, ${awayTeamColor}30)`,
           }}
         >
           {isPreviewLoading ? (
@@ -377,33 +377,33 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               <div className="text-gray-500 text-sm">Loading team statistics...</div>
             </div>
           ) : homeTeamStats && awayTeamStats ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
               <div className="space-y-0">
-                <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm bg-white">
+                <div className="rounded-lg overflow-hidden shadow-md bg-white">
                   <table className="w-full text-[10px] md:text-xs border-collapse">
                     {/* Team Logos Header */}
                     <thead>
                       <tr
                         style={{
-                          background: `linear-gradient(to right, ${homeTeamColor}20, #f9fafb, ${awayTeamColor}20)`,
+                          background: `linear-gradient(to right, ${homeTeamColor}35, #f9fafb, ${awayTeamColor}35)`,
                         }}
                       >
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
-                          <div className="flex flex-col items-center gap-1">
+                        <th className="text-center py-1 md:py-1.5 px-1 w-[35%] border-b border-gray-300">
+                          <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Home
                             </span>
                             <div
-                              className="p-1.5 rounded-lg shadow-sm border"
+                              className="p-1 rounded-lg shadow-sm border"
                               style={{
-                                backgroundColor: `${homeTeamColor}10`,
-                                borderColor: `${homeTeamColor}40`,
+                                backgroundColor: `${homeTeamColor}20`,
+                                borderColor: `${homeTeamColor}60`,
                               }}
                             >
                               <img
                                 src={game.home_teamlogo || "/placeholder.svg"}
                                 alt={`${game.home_team} logo`}
-                                className="w-7 h-7 md:w-9 md:h-9 object-contain"
+                                className="w-6 h-6 md:w-8 md:h-8 object-contain"
                               />
                             </div>
                             <span className="text-[9px] md:text-[10px] font-semibold text-gray-700">
@@ -411,7 +411,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 font-semibold text-gray-600 border-b border-gray-300 w-[30%]">
+                        <th className="text-center py-1 md:py-1.5 px-1 font-semibold text-gray-600 border-b border-gray-300 w-[30%]">
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[9px] md:text-[10px] uppercase">vs.</span>
                             {timeDisplay && (
@@ -432,22 +432,22 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             </span>
                           </div>
                         </th>
-                        <th className="text-center py-1.5 md:py-2 px-1 w-[35%] border-b border-gray-300">
-                          <div className="flex flex-col items-center gap-1">
+                        <th className="text-center py-1 md:py-1.5 px-1 w-[35%] border-b border-gray-300">
+                          <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
                               Away
                             </span>
                             <div
-                              className="p-1.5 rounded-lg shadow-sm border"
+                              className="p-1 rounded-lg shadow-sm border"
                               style={{
-                                backgroundColor: `${awayTeamColor}10`,
-                                borderColor: `${awayTeamColor}40`,
+                                backgroundColor: `${awayTeamColor}20`,
+                                borderColor: `${awayTeamColor}60`,
                               }}
                             >
                               <img
                                 src={game.away_teamlogo || "/placeholder.svg"}
                                 alt={`${game.away_team} logo`}
-                                className="w-7 h-7 md:w-9 md:h-9 object-contain"
+                                className="w-6 h-6 md:w-8 md:h-8 object-contain"
                               />
                             </div>
                             <span className="text-[9px] md:text-[10px] font-semibold text-gray-700">
@@ -458,108 +458,116 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Offensive eFG% */}
+                      <tr>
+                        <td colSpan={3} className="py-1">
+                          <div className="flex items-center">
+                            <div className="flex-grow h-px bg-gray-300"></div>
+                            <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
+                              Offense
+                            </div>
+                            <div className="flex-grow h-px bg-gray-300"></div>
+                          </div>
+                        </td>
+                      </tr>
+
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.efgperc_o, 1)}%{" "}
+                              {formatStat(homeTeamStats.efgperc_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_o)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           eFG%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.efgperc_o, 1)}%{" "}
+                              {formatStat(awayTeamStats.efgperc_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_o)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Offensive TOV% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.toratio_o, 1)}%{" "}
+                              {formatStat(homeTeamStats.toratio_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_o)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           TOV%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.toratio_o, 1)}%{" "}
+                              {formatStat(awayTeamStats.toratio_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_o)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Offensive ORB% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.orebperc_o, 1)}%{" "}
+                              {formatStat(homeTeamStats.orebperc_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_o)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           ORB%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.orebperc_o, 1)}%{" "}
+                              {formatStat(awayTeamStats.orebperc_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_o)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Offensive FTR */}
-                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                      <tr className=" hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.ftrate_o, 1)}%{" "}
+                              {formatStat(homeTeamStats.ftrate_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_o)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           FTR
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.ftrate_o, 1)}%{" "}
+                              {formatStat(awayTeamStats.ftrate_o, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_o)}</span>
                             </div>
                           </div>
@@ -567,113 +575,115 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       </tr>
 
                       <tr>
-                        <td colSpan={3} className="py-0">
-                          <div className="border-t-2 border-gray-300"></div>
+                        <td colSpan={3} className="py-1">
+                          <div className="flex items-center">
+                            <div className="flex-grow h-px bg-gray-300"></div>
+                            <div className="px-2 text-[10px] md:text-[11px] font-semibold text-gray-600 uppercase tracking-wide pt-2">
+                              Defense
+                            </div>
+                            <div className="flex-grow h-px bg-gray-300"></div>
+                          </div>
                         </td>
                       </tr>
 
-                      {/* Defensive eFG% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.efgperc_d, 1)}%{" "}
+                              {formatStat(homeTeamStats.efgperc_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_d)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Opp eFG%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.efgperc_d, 1)}%{" "}
+                              {formatStat(awayTeamStats.efgperc_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_d)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Defensive TOV% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.toratio_d, 1)}%{" "}
+                              {formatStat(homeTeamStats.toratio_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_d)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Opp TOV%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.toratio_d, 1)}%{" "}
+                              {formatStat(awayTeamStats.toratio_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_d)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Defensive DRB% */}
                       <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.orebperc_d, 1)}%{" "}
+                              {formatStat(homeTeamStats.orebperc_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_d)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           DRB%
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.orebperc_d, 1)}%{" "}
+                              {formatStat(awayTeamStats.orebperc_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_d)}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
 
-                      {/* Defensive FTR */}
                       <tr className="hover:bg-gray-50 transition-colors">
-                        <td className="text-center py-1 px-1">
+                        <td className="text-center py-0.5 px-1 pb-2">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(homeTeamStats.ftrate_d, 1)}%{" "}
+                              {formatStat(homeTeamStats.ftrate_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_d)}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
                           Opp FTR
                         </td>
-                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                        <td className="text-center py-0.5 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
                               className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
-                              {formatStat(awayTeamStats.ftrate_d, 1)}%{" "}
+                              {formatStat(awayTeamStats.ftrate_d, 1)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_d)}</span>
                             </div>
                           </div>
@@ -685,7 +695,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               </div>
 
               <div className="space-y-0.5">
-                <div className="text-center text-[10px] md:text-xs font-semibold text-gray-700 mb-1.5 uppercase">
+                <div className="text-center text-[10px] md:text-xs font-semibold text-gray-700 mb-1 uppercase pt-1">
                   Season Leaders
                 </div>
 
@@ -737,7 +747,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     <div className="space-y-1">
                       {/* Leading Scorer */}
                       {leadingScorer?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingScorer.player_team_code) || "/placeholder.svg"}
@@ -759,7 +769,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading Rebounder */}
                       {leadingRebounder?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingRebounder.player_team_code) || "/placeholder.svg"}
@@ -781,7 +791,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading Assister */}
                       {leadingAssister?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leadingAssister.player_team_code) || "/placeholder.svg"}
@@ -803,7 +813,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                       {/* Leading 3PT Maker */}
                       {leading3pt?.player_name && (
-                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-gray-50 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] p-1.5 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <img
                               src={getTeamLogo(leading3pt.player_team_code) || "/placeholder.svg"}
@@ -1341,7 +1351,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                   {isNewDate && (
                     <div className="md:col-span-2 w-full flex items-center my-1">
                       <div className="flex-grow h-px bg-gray-200"></div>
-                      <div className="px-2 py-0.5 mx-2 text-[10px] font-medium text-gray-500 bg-gray-50 rounded">
+                      <div className="px-2 py-0.5 mx-2 text-[10px] font-medium text-black rounded">
                         {gameDate.toLocaleDateString("en-US", {
                           weekday: "short",
                           month: "short",
