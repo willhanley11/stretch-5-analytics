@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Trophy, Users, Scale, BarChart, Calendar } from "lucide-react"
+import { ChevronDown, Trophy, Users, BarChart, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import OffenseTab from "./my-season/offense-tab"
 import ComparisonTab from "./my-season/comparison-tab"
@@ -43,7 +43,7 @@ const leagueSections = [
   { id: "games", label: "Games", initial: "G", icon: Calendar },
   { id: "teams", label: "Teams", initial: "T", icon: BarChart },
   { id: "statistics", label: "Players", initial: "P", icon: Users },
-  { id: "standings", label: "Leaders", initial: "S", icon: Trophy }
+  { id: "standings", label: "Leaders", initial: "S", icon: Trophy },
 ]
 
 interface ProLeagueNavProps {
@@ -718,19 +718,13 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                     key={section.id}
                     onClick={() => handleTabClick(section.id)}
                     className={cn(
-                      "text-sm font-medium transition-all duration-200 relative whitespace-nowrap px-3 py-1.5 rounded-lg",
-                      activeSection === section.id ? "text-gray-900" : "text-gray-600 hover:text-gray-900",
+                      "text-sm font-medium transition-all duration-200 relative whitespace-nowrap px-3 py-1",
+                      activeSection === section.id
+                        ? "text-gray-900 border-b-2 border-blue-700"
+                        : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
                     )}
                   >
                     {section.label}
-                    {activeSection === section.id && (
-                      <motion.div
-                        layoutId="tabBackground"
-                        className="absolute inset-0 bg-gray-100 rounded-lg -z-10"
-                        initial={false}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      />
-                    )}
                   </button>
                 ))}
               </nav>
@@ -740,28 +734,20 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             <div className="sm:hidden px-2 py-1">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
-                <nav className="flex items-center space-x-12 overflow-x-auto">
+                <nav className="flex items-center space-x-8 overflow-x-auto">
                   {leagueSections.map((section) => {
-                    const IconComponent = section.icon
                     return (
                       <button
                         key={section.id}
                         onClick={() => handleTabClick(section.id)}
                         className={cn(
-                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-1 py-1.5 flex-shrink-0 flex flex-col items-center rounded-md",
-                          activeSection === section.id ? "text-gray-900" : "text-gray-600 hover:text-gray-900",
+                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-2 flex-shrink-0",
+                          activeSection === section.id
+                            ? "text-gray-900 border-b-2 border-blue-700"
+                            : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
                         )}
                       >
-                        <IconComponent className="h-3.5 w-3.5 mb-0.5" />
-                        <span className="text-[10px]">{section.label}</span>
-                        {activeSection === section.id && (
-                          <motion.div
-                            layoutId="mobileTabBackground"
-                            className="absolute inset-0 bg-gray-100 rounded-md -z-10"
-                            initial={false}
-                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                          />
-                        )}
+                        <span className="text-[11px]">{section.label}</span>
                       </button>
                     )
                   })}
