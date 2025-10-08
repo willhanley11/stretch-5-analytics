@@ -590,10 +590,8 @@ export async function getTeamAdvancedStatsPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated | null> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
-
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(`SELECT * FROM ${tableName} WHERE teamcode = $1 AND season = $2 AND phase = $3 LIMIT 1`, [
@@ -617,10 +615,8 @@ export async function getAllTeamAdvancedStatsPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
-
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -643,10 +639,8 @@ export async function getLeagueAveragesPrecalculated(
   league = "euroleague",
 ): Promise<TeamAdvancedStatsPrecalculated | null> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.teamAdvancedPrecalculated
-
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -669,10 +663,8 @@ export async function getPlayerStatsFromGameLogs(
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
-
 
     // Check if table exists first
     const tableExists = await executeWithRetry(async () => {
@@ -709,7 +701,6 @@ export async function getPlayerStatsFromGameLogs(
       )) as PlayerStatsFromGameLogs[]
     })
 
-
     return stats
   } catch (error) {
     console.error("=== ERROR IN DB FUNCTION ===")
@@ -731,10 +722,8 @@ export async function getTeamPlayerStatsFromGameLogs(
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
-
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -757,7 +746,6 @@ export async function getTeamAdvancedStatsCalculated(
   phase = "RS",
 ): Promise<TeamAdvancedStatsCalculated | null> {
   try {
-
     const stats = await executeWithRetry(async () => {
       return await sql<TeamAdvancedStatsCalculated[]>`
         SELECT * FROM public.team_advanced_stats_calculated 
@@ -779,7 +767,6 @@ export async function getAllTeamAdvancedStatsCalculated(
   phase = "RS",
 ): Promise<TeamAdvancedStatsCalculated[]> {
   try {
-
     const stats = await executeWithRetry(async () => {
       return await sql<TeamAdvancedStatsCalculated[]>`
         SELECT * FROM public.team_advanced_stats_calculated 
@@ -866,7 +853,6 @@ export async function getTeamSchedule(
     const tables = getTableNames(league)
     const tableName = tables.scheduleResults
 
-
     const results = await executeWithRetry(async () => {
       // For Eurocup, include all phases but order them properly (RS first, then TS, then playoffs)
       // For Euroleague, keep existing behavior (all phases)
@@ -884,8 +870,8 @@ export async function getTeamSchedule(
                WHEN phase = 'Final' THEN 6
                ELSE 7 
              END,
-             round ASC`, 
-          [teamcode, season]
+             round ASC`,
+          [teamcode, season],
         )) as ScheduleResult[]
       } else {
         return (await sql.query(`SELECT * FROM ${tableName} WHERE teamcode = $1 AND season = $2 ORDER BY round ASC`, [
@@ -903,14 +889,11 @@ export async function getTeamSchedule(
 }
 
 // Function to get all games by round and season for Games tab
-export async function getAllGamesByRoundAndSeason(
-  season: number,
-  league = "euroleague",
-): Promise<any[]> {
+export async function getAllGamesByRoundAndSeason(season: number, league = "euroleague"): Promise<any[]> {
   try {
     const tables = getTableNames(league)
     const scheduleTable = tables.scheduleResults
-    
+
     // Get played games from schedule_results table
     const playedGames = await executeWithRetry(async () => {
       return await sql.query(
@@ -930,16 +913,22 @@ export async function getAllGamesByRoundAndSeason(
          FROM ${scheduleTable}
          WHERE season = $1 AND location = 'Home'
          ORDER BY round ASC, game_date ASC`,
-        [season]
+        [season],
       )
     })
 
-    // Get upcoming games from vwschedule_hardcoded_euroleague (only for Euroleague 2025)
+    // Get upcoming games from hardcoded schedule views (for 2025 season)
     let upcomingGames: any[] = []
-    if (league === "euroleague" && season === 2025) {
-      // Get rounds that have already been played
-      const playedRounds = new Set(playedGames.map(game => game.round))
-      
+    if (season === 2025 && (league === "euroleague" || league === "eurocup")) {
+      const scheduleView = league === "euroleague" ? "vwschedule_hardcoded_euroleague" : "vwschedule_hardcoded_eurocup"
+
+      const playedGameKeys = new Set(
+        playedGames.map((game) => {
+          const teams = [game.home_teamcode, game.away_teamcode].sort().join("-")
+          return `${game.round}-${teams}`
+        }),
+      )
+
       const upcomingResults = await executeWithRetry(async () => {
         return await sql.query(
           `SELECT DISTINCT
@@ -952,28 +941,34 @@ export async function getAllGamesByRoundAndSeason(
              opponentcode as away_teamcode,
              opponentname as away_team,
              opponentlogo as away_teamlogo
-           FROM vwschedule_hardcoded_euroleague
+           FROM ${scheduleView}
            WHERE teamcode IS NOT NULL AND opponentcode IS NOT NULL
-           ORDER BY round ASC, date ASC`
+           ORDER BY round ASC, date ASC`,
         )
       })
 
-      // Filter out games that have already been played and remove duplicates
       const seenGames = new Set()
       upcomingGames = upcomingResults
-        .filter(game => !playedRounds.has(game.round))
-        .filter(game => {
-          // Create a unique key for each matchup (regardless of home/away order)
-          const teams = [game.home_teamcode, game.away_teamcode].sort().join('-')
+        .filter((game) => {
+          // Create a unique key for this matchup
+          const teams = [game.home_teamcode, game.away_teamcode].sort().join("-")
           const gameKey = `${game.round}-${teams}`
-          
+
+          // Only filter out if this specific game has been played
+          return !playedGameKeys.has(gameKey)
+        })
+        .filter((game) => {
+          // Remove duplicates
+          const teams = [game.home_teamcode, game.away_teamcode].sort().join("-")
+          const gameKey = `${game.round}-${teams}`
+
           if (seenGames.has(gameKey)) {
             return false
           }
           seenGames.add(gameKey)
           return true
         })
-        .map(game => ({
+        .map((game) => ({
           round: game.round,
           game_date: game.game_date,
           game_time: game.game_time,
@@ -985,7 +980,7 @@ export async function getAllGamesByRoundAndSeason(
           away_teamlogo: game.away_teamlogo,
           home_score: null,
           away_score: null,
-          is_played: false
+          is_played: false,
         }))
     }
 
@@ -999,7 +994,7 @@ export async function getAllGamesByRoundAndSeason(
   }
 }
 
-// Function to get team schedule including upcoming games from vwschedule_hardcoded_euroleague
+// Function to get team schedule including upcoming games from vwschedule_hardcoded views
 export async function getTeamScheduleWithUpcoming(
   teamcode: string,
   season: number,
@@ -1009,12 +1004,18 @@ export async function getTeamScheduleWithUpcoming(
     // Get played games from existing schedule_results table
     const playedGames = await getTeamSchedule(teamcode, season, league)
 
-    // Get upcoming games from vwschedule_hardcoded_euroleague table (only for Euroleague 2025)
+    // Get upcoming games from hardcoded schedule views (for 2025 season)
     let upcomingGames: ScheduleResult[] = []
-    if (league === "euroleague" && season === 2025) {
-      // Get the rounds that have already been played
-      const playedRounds = new Set(playedGames.map(game => game.round))
-      
+    if (season === 2025 && (league === "euroleague" || league === "eurocup")) {
+      const scheduleView = league === "euroleague" ? "vwschedule_hardcoded_euroleague" : "vwschedule_hardcoded_eurocup"
+
+      const playedGameKeys = new Set(
+        playedGames.map((game) => {
+          const teams = [game.teamcode, game.opponentcode].sort().join("-")
+          return `${game.round}-${teams}`
+        }),
+      )
+
       const upcomingResults = await executeWithRetry(async () => {
         return await sql.query(
           `SELECT 
@@ -1031,15 +1032,18 @@ export async function getTeamScheduleWithUpcoming(
                ELSE 'Away'
              END as location,
              'RS' as phase
-           FROM vwschedule_hardcoded_euroleague 
+           FROM ${scheduleView}
            WHERE (teamcode = $1 OR opponentcode = $1)
            ORDER BY date ASC, round ASC`,
-          [teamcode]
+          [teamcode],
         )
       })
 
-      // Filter out games that have already been played
-      const filteredUpcomingResults = upcomingResults.filter(game => !playedRounds.has(game.round))
+      const filteredUpcomingResults = upcomingResults.filter((game) => {
+        const teams = [game.teamcode, game.opponentcode].sort().join("-")
+        const gameKey = `${game.round}-${teams}`
+        return !playedGameKeys.has(gameKey)
+      })
 
       // Transform upcoming games to match ScheduleResult interface
       upcomingGames = filteredUpcomingResults.map((game: any) => ({
@@ -1062,7 +1066,7 @@ export async function getTeamScheduleWithUpcoming(
         phase: game.phase,
         gamecode: null, // No gamecode for upcoming games
         boxscore: null, // No boxscore for upcoming games
-        is_upcoming: true // Flag to identify upcoming games
+        is_upcoming: true, // Flag to identify upcoming games
       }))
     }
 
@@ -1084,7 +1088,6 @@ export async function getTeamPlayers(
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
   try {
-
     // Get the correct table name using the table mapping
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
@@ -1114,47 +1117,44 @@ export async function getTeamPlayers(
 
     // First, let's see what teams are available in the player stats table with retry
     const availableTeams = await executeWithRetry(async () => {
-      return await sql.query(
+      return (await sql.query(
         `SELECT DISTINCT player_team_name, player_team_code, season, phase 
          FROM ${tableName} 
          WHERE season = $1
          ORDER BY player_team_name`,
-        [season]
-      ) as { player_team_name: string; player_team_code: string; season: number; phase: string }[]
+        [season],
+      )) as { player_team_name: string; player_team_code: string; season: number; phase: string }[]
     })
-
 
     // Let's also check what data exists for any team to see if the stats are populated with retry
     const sampleData = await executeWithRetry(async () => {
-      return await sql.query(
+      return (await sql.query(
         `SELECT * FROM ${tableName} 
          WHERE season = $1 AND phase = $2
          LIMIT 3`,
-        [season, phase]
-      ) as EuroleaguePlayerStats[]
+        [season, phase],
+      )) as EuroleaguePlayerStats[]
     })
-
 
     // Primary approach: Use team code directly with retry
     const players = await executeWithRetry(async () => {
-      return await sql.query(
+      return (await sql.query(
         `SELECT * FROM ${tableName} 
          WHERE player_team_code = $1 AND season = $2 AND phase = $3
          ORDER BY points_scored DESC`,
-        [teamCode, season, phase]
-      ) as EuroleaguePlayerStats[]
+        [teamCode, season, phase],
+      )) as EuroleaguePlayerStats[]
     })
-
 
     // If no results with phase, try without phase filter with retry
     if (players.length === 0) {
       const playersNoPhase = await executeWithRetry(async () => {
-        return await sql.query(
+        return (await sql.query(
           `SELECT * FROM ${tableName} 
            WHERE player_team_code = $1 AND season = $2
            ORDER BY points_scored DESC`,
-          [teamCode, season]
-        ) as EuroleaguePlayerStats[]
+          [teamCode, season],
+        )) as EuroleaguePlayerStats[]
       })
 
       return playersNoPhase
@@ -1174,7 +1174,6 @@ export async function getAllPlayers(
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.playerStats
 
@@ -1184,7 +1183,6 @@ export async function getAllPlayers(
         [season, phase],
       )) as EuroleaguePlayerStats[]
     })
-
 
     return players
   } catch (error) {
@@ -1202,11 +1200,9 @@ export async function getPlayerGameLogs(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
-
 
     // Add a small delay to prevent overwhelming the database
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -1266,7 +1262,6 @@ export async function getPlayerGameLogs(
         [playerName, season],
       )) as EuroleagueGameLog[]
     })
-
 
     // Process the results to add computed fields
     const processedLogs = gameLogs.map((log) => {
@@ -1345,7 +1340,7 @@ export async function debugPlayerData(season: number, league = "euroleague"): Pr
   try {
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
-    
+
     const teams = await executeWithRetry(async () => {
       return await sql.query(
         `SELECT DISTINCT player_team_name, player_team_code, season, phase, COUNT(*) as player_count
@@ -1353,7 +1348,7 @@ export async function debugPlayerData(season: number, league = "euroleague"): Pr
          WHERE season = $1
          GROUP BY player_team_name, player_team_code, season, phase
          ORDER BY player_team_name`,
-        [season]
+        [season],
       )
     })
 
@@ -1376,7 +1371,7 @@ export async function debugPlayerData(season: number, league = "euroleague"): Pr
   }
 }
 
-// Add a new function to get game logs for all players on a team in batches
+// Add a new function to get all players on a team in batches
 // Update the getTeamGameLogs function to use the retry logic and league parameter
 export async function getTeamGameLogs(
   teamCode: string,
@@ -1384,7 +1379,6 @@ export async function getTeamGameLogs(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.gameLogs
 
@@ -1397,7 +1391,6 @@ export async function getTeamGameLogs(
         season,
       ])) as EuroleagueGameLog[]
     })
-
 
     // Process the results to add computed fields
     const processedLogs = gameLogs.map((log) => {
@@ -1431,11 +1424,9 @@ export async function getTeamGameLogsWithOpponent(
   league = "euroleague",
 ): Promise<any[]> {
   try {
-
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
-
 
     const gameLogsWithOpponent = await executeWithRetry(async () => {
       return await sql.query(
@@ -1479,7 +1470,6 @@ export async function getTeamGameLogsWithOpponent(
       )
     })
 
-
     return gameLogsWithOpponent
   } catch (error) {
     console.error("Error fetching team game logs with opponent:", error)
@@ -1490,11 +1480,9 @@ export async function getTeamGameLogsWithOpponent(
 // New function to get all teams' game logs with opponent data for league-wide ranking
 export async function getAllTeamGameLogsWithOpponent(season: number, league = "euroleague"): Promise<any[]> {
   try {
-
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
     const scheduleTable = tables.scheduleResults
-
 
     const gameLogsWithOpponent = await executeWithRetry(async () => {
       return await sql.query(
@@ -1537,7 +1525,6 @@ export async function getAllTeamGameLogsWithOpponent(season: number, league = "e
       )
     })
 
-
     return gameLogsWithOpponent
   } catch (error) {
     console.error("Error fetching all teams game logs with opponent:", error)
@@ -1556,7 +1543,6 @@ export async function calculateStandingsFromGameLogs(
   const scheduleTable = tables.scheduleResults
 
   try {
-
     // Get all team game logs with opponent data
     const allGameLogs = await executeWithRetry(async () => {
       return await sql.query(
@@ -1602,7 +1588,6 @@ export async function calculateStandingsFromGameLogs(
         [season, phase],
       )
     })
-
 
     // Group by team
     const teamGameLogs = allGameLogs.reduce((acc, game) => {
@@ -1652,12 +1637,10 @@ export async function calculateStandingsFromGameLogs(
           .filter((g) => g.result && g.result.trim() !== "") // Only games with results
           .sort((a, b) => a.round - b.round) // Sort by round ascending (chronological order)
 
-
         if (allGamesWithResults.length > 0) {
           // Start from the most recent game (last in chronological order)
           const mostRecentGame = allGamesWithResults[allGamesWithResults.length - 1]
           const lastResult = mostRecentGame.result.trim()
-
 
           let streakCount = 0
 
@@ -1681,7 +1664,6 @@ export async function calculateStandingsFromGameLogs(
 
           const streakType = lastResult === "W" || lastResult === "Win" || lastResult === "win" ? "W" : "L"
           currentStreak = `${streakType}${streakCount}`
-
         }
       }
 
@@ -1972,7 +1954,6 @@ export async function getTeamNamesAndLogos(
 // NEW FUNCTION: Get all unique team codes from game logs for a specific season and league
 export async function getUniqueTeamCodesFromGameLogs(season: number, league = "euroleague"): Promise<string[]> {
   try {
-
     const tables = getTableNames(league)
     const gameLogsTable = tables.gameLogs
 
@@ -2001,14 +1982,10 @@ export async function getUniqueTeamCodesFromGameLogs(season: number, league = "e
 }
 
 // FUNCTION: Get all players across all seasons for search functionality
-export async function getAllPlayersAcrossSeasons(
-  league = "euroleague",
-): Promise<PlayerStatsFromGameLogs[]> {
+export async function getAllPlayersAcrossSeasons(league = "euroleague"): Promise<PlayerStatsFromGameLogs[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.playerStatsFromGameLogs
-
 
     const stats = await executeWithRetry(async () => {
       return (await sql.query(
@@ -2034,10 +2011,8 @@ export async function getGameLogsByGamecode(
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
   try {
-
     const tables = getTableNames(league)
     const tableName = tables.gameLogs
-
 
     const logs = await executeWithRetry(async () => {
       return (await sql.query(
@@ -2047,7 +2022,6 @@ export async function getGameLogsByGamecode(
       )) as EuroleagueGameLog[]
     })
 
-    
     return logs
   } catch (error) {
     console.error("Error fetching game logs by gamecode:", error)

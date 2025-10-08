@@ -32,7 +32,6 @@ import type { EuroleaguePlayerStats, EuroleagueGameLog, PlayerStatsFromGameLogs 
 // Debug the database URL
 
 export async function fetchTeamStats(season: number, phase: string, league = "euroleague"): Promise<any> {
-
   try {
     const result = await getTeamStats(season, phase, league)
     return result
@@ -57,7 +56,6 @@ export async function fetchTeamAdvancedStatsByTeamCode(
   phase: string,
   league = "euroleague",
 ): Promise<any> {
-
   try {
     // Use the new pre-calculated function from the new tables
     const result = await getTeamAdvancedStatsPrecalculated(teamCode, season, phase, league)
@@ -74,7 +72,6 @@ export async function fetchAllTeamAdvancedStatsCalculated(
   phase: string,
   league = "euroleague",
 ): Promise<any[]> {
-
   try {
     const result = await getAllTeamAdvancedStatsPrecalculated(season, phase, league)
     return result
@@ -85,13 +82,16 @@ export async function fetchAllTeamAdvancedStatsCalculated(
 }
 
 export async function fetchTeamAdvancedStatsByTeam(teamName: string, season: number, phase: string): Promise<any> {
-
   // For now, return null to avoid errors
   return null
 }
 
-export async function fetchTeamPlayers(teamNameOrCode: string, season: number, phase: string): Promise<any[]> {
-
+export async function fetchTeamPlayers(
+  teamNameOrCode: string,
+  season: number,
+  phase: string,
+  league = "euroleague",
+): Promise<any[]> {
   try {
     let teamCode: string
 
@@ -104,8 +104,7 @@ export async function fetchTeamPlayers(teamNameOrCode: string, season: number, p
       return []
     }
 
-
-    const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
+    const players = await getTeamPlayers(teamCode, season, phase, league)
 
     if (players.length > 0) {
     }
@@ -127,7 +126,6 @@ export async function fetchTeamPlayers(teamNameOrCode: string, season: number, p
 }
 
 export async function fetchTeamPlayersDirectly(teamCode: string, season: number, phase: string): Promise<any[]> {
-
   try {
     const players = await getTeamPlayers(teamCode, season, phase, "euroleague")
     return players
@@ -141,7 +139,11 @@ export async function fetchTeamSchedule(teamCode: string, season: number, league
   return await getTeamSchedule(teamCode, season, league)
 }
 
-export async function fetchTeamScheduleWithUpcoming(teamCode: string, season: number, league = "euroleague"): Promise<any> {
+export async function fetchTeamScheduleWithUpcoming(
+  teamCode: string,
+  season: number,
+  league = "euroleague",
+): Promise<any> {
   return await getTeamScheduleWithUpcoming(teamCode, season, league)
 }
 
@@ -159,7 +161,6 @@ export async function fetchAllPlayers(
   phase = "RS",
   league = "euroleague",
 ): Promise<EuroleaguePlayerStats[]> {
-
   try {
     const sql = neon(process.env.DATABASE_URL!)
 
@@ -177,7 +178,6 @@ export async function fetchAllPlayers(
           `SELECT * FROM ${tableName} WHERE season = $1 AND phase = $2 ORDER BY points_scored DESC`,
           [season, phase],
         )
-
 
         // Log a sample of the first result if available
         if (result.length > 0) {
@@ -213,10 +213,8 @@ export async function fetchPlayerStatsFromGameLogs(
   phase = "RS",
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
-
   try {
     const result = await getPlayerStatsFromGameLogs(season, phase, league)
-
 
     if (Array.isArray(result) && result.length > 0) {
     } else {
@@ -242,7 +240,6 @@ export async function fetchTeamPlayerStatsFromGameLogs(
   phase = "RS",
   league = "euroleague",
 ): Promise<PlayerStatsFromGameLogs[]> {
-
   try {
     const result = await getTeamPlayerStatsFromGameLogs(teamCode, season, phase, league)
     return result
@@ -257,7 +254,6 @@ export async function fetchPlayerGameLogs(
   season = 2024,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-
   try {
     const logs = await getPlayerGameLogs(playerName, season, league)
 
@@ -286,7 +282,6 @@ export async function fetchTeamGameLogs(
   season: number,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-
   try {
     const logs = await getTeamGameLogs(teamCode, season, league)
 
@@ -305,7 +300,6 @@ export async function fetchTeamGameLogsWithOpponent(
   season: number,
   league = "euroleague",
 ): Promise<any[]> {
-
   try {
     const logs = await getTeamGameLogsWithOpponent(teamCode, season, league)
 
@@ -320,7 +314,6 @@ export async function fetchTeamGameLogsWithOpponent(
 }
 
 export async function fetchAllTeamGameLogsWithOpponent(season: number, league = "euroleague"): Promise<any[]> {
-
   try {
     const logs = await getAllTeamGameLogsWithOpponent(season, league)
 
@@ -337,7 +330,6 @@ export async function fetchTeamInfoByCode(teamCode: string, season: number): Pro
 
 // NEW: Fetch standings calculated from game logs
 export async function fetchStandingsFromGameLogs(season: number, phase: string, league = "euroleague"): Promise<any[]> {
-
   try {
     // Get standings calculated from game logs
     const standings = await calculateStandingsFromGameLogs(season, phase, league)
@@ -361,7 +353,6 @@ export async function fetchStandingsFromGameLogs(season: number, phase: string, 
 
 // NEW: Get all unique team codes from game logs for a specific season and league
 export async function getAllTeamCodesFromGameLogs(season: number, league = "euroleague"): Promise<string[]> {
-
   try {
     const teamCodes = await getUniqueTeamCodesFromGameLogs(season, league)
     return teamCodes
@@ -377,7 +368,6 @@ export async function fetchLeagueAveragesPrecalculated(
   phase: string,
   league = "euroleague",
 ): Promise<any> {
-
   try {
     const result = await getLeagueAveragesPrecalculated(season, phase, league)
     return result
@@ -393,7 +383,6 @@ export async function fetchGameLogsByGamecode(
   gamecode: string,
   league = "euroleague",
 ): Promise<EuroleagueGameLog[]> {
-
   try {
     const logs = await getGameLogsByGamecode(season, gamecode, league)
 
