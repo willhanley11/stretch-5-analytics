@@ -357,9 +357,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
+      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-md my-2 overflow-hidden">
         <div
-          className="p-4 pb-2 border-b-2 border-gray-300"
+          className="p-4 pb-2 border-b-2 border-gray-400"
           style={{
             background: `linear-gradient(to right, ${homeTeamColor}15, #f9fafb, ${awayTeamColor}15)`,
           }}
@@ -1298,15 +1298,20 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         </span>
                       </div>
 
-                      {/* Expansion indicator for played games */}
                       <div className="flex items-center ml-1">
-                        {game.is_played && game.gamecode && (
-                          <ChevronDown
-                            className={`h-3 w-3 md:h-4 md:w-4 text-gray-400 transition-transform ${
-                              expandedGameForLogs?.gamecode === game.gamecode ? "rotate-180" : ""
-                            }`}
-                          />
-                        )}
+                        <ChevronDown
+                          className={`h-3 w-3 md:h-4 md:w-4 text-gray-400 transition-transform ${
+                            (game.is_played && expandedGameForLogs?.gamecode === game.gamecode) ||
+                            (
+                              !game.is_played &&
+                                expandedGameForPreview?.home_teamcode === game.home_teamcode &&
+                                expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+                                expandedGameForPreview?.round === game.round
+                            )
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
                       </div>
                     </div>
                   </div>
