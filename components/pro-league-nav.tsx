@@ -129,52 +129,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
 
   const currentLeague = allLeagues.find((league) => league.id === activeLeague) || allLeagues[0]
 
-  // --- START: Refined Changes for smooth shrink effect ---
-
-  // Ref for the entire header container
-  const headerRef = useRef<HTMLDivElement>(null)
-  const topHeaderRowRef = useRef<HTMLDivElement>(null) // Ref for the top row
-  const bottomRowRef = useRef<HTMLDivElement>(null) // Ref for the bottom row
-
-  const [headerHeight, setHeaderHeight] = useState(0) // Total header height
-  const [topHeaderRowHeight, setTopHeaderRowHeight] = useState(0) // Height of the top row
-  const [bottomRowHeight, setBottomRowHeight] = useState(0) // Height of the bottom row
-  const [scrollY, setScrollY] = useState(0)
-  const [isBottomRowFixed, setIsBottomRowFixed] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (topHeaderRowRef.current) {
-        const topRowBottom = topHeaderRowRef.current.getBoundingClientRect().bottom
-        // When the top row scrolls out of view, fix the bottom row
-        setIsBottomRowFixed(topRowBottom <= 0)
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Get heights of header rows on mount and resize
-  useEffect(() => {
-    const updateHeaderHeights = () => {
-      if (headerRef.current) {
-        setHeaderHeight(headerRef.current.offsetHeight)
-      }
-      if (topHeaderRowRef.current) {
-        setTopHeaderRowHeight(topHeaderRowRef.current.offsetHeight)
-      }
-      if (bottomRowRef.current) {
-        setBottomRowHeight(bottomRowRef.current.offsetHeight)
-      }
-    }
-    updateHeaderHeights()
-    window.addEventListener("resize", updateHeaderHeights)
-    return () => window.removeEventListener("resize", updateHeaderHeights)
-  }, [])
-
-  // --- END: Refined Changes for smooth shrink effect ---
-
   useEffect(() => {
     const fetchSeasons = async () => {
       try {
@@ -301,7 +255,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         return (
           <motion.div
             className=" px-2 pb-4 pt-6 md:px-8 md:pt-2"
-            style={{ background: "background-color: #f3f4f6" }}
+            style={{ backgroundColor: "#f3f4f6" }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -323,7 +277,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6  md:px-8 md:pt-2"
             style={{
-              background: "background-color: #ffffff",
+              backgroundColor: "#ffffff",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -350,7 +304,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
-              background: "background-color: #ffffff",
+              backgroundColor: "#ffffff",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -374,7 +328,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
-              background: "background-color: #ffffff",
+              backgroundColor: "#ffffff",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -395,7 +349,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
-              background: "background-color: #f9fafb",
+              backgroundColor: "#f9fafb",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -411,7 +365,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
-              background: "background-color: #ffffff",
+              backgroundColor: "#ffffff",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -459,17 +413,16 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
 
   return (
     <motion.div
-      className="min-h-screen relative overflow-hidden"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="min-h-screen relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <header
-        ref={headerRef}
         className="relative top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
       >
         {/* Top row - Logo + League Buttons + Season + Actions */}
-        <div ref={topHeaderRowRef} className="w-full">
+        <div className="w-full">
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation */}
             <div className="hidden sm:block">
@@ -703,10 +656,8 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         </div>
 
         <div
-          ref={bottomRowRef}
           className={cn(
-            "w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50 transition-all duration-200",
-            isBottomRowFixed ? "fixed top-0 left-0 right-0 shadow-md" : "relative",
+            "w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50 sticky top-0 shadow-sm",
           )}
         >
           <div className="max-w-screen-2xl mx-auto">
@@ -757,8 +708,6 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           </div>
         </div>
       </header>
-
-      {isBottomRowFixed && <div style={{ height: `${bottomRowHeight}px` }} />}
 
       {/* Main Content Area */}
       <main className="relative z-10">{renderActiveContent()}</main>
