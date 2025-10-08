@@ -277,13 +277,18 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       return `#${rank}`
     }
 
-    const getBackgroundColorClass = (rank: number, total = 18) => {
-      if (!rank || rank <= 0) return "text-black"
+    const getConditionalColorClass = (homeRank: number, awayRank: number, isHome: boolean, total = 18) => {
+      const rank = isHome ? homeRank : awayRank
+      const otherRank = isHome ? awayRank : homeRank
 
-      // Calculate the percentile based on rank (1 is best, total is worst)
+      // Only apply color if this team is better (lower rank)
+      if (!rank || rank <= 0 || rank >= otherRank) {
+        return "text-black rounded px-0.5 md:px-1 py-0 md:py-0.5 inline-block border border-gray-400"
+      }
+
+      // This team is better, apply color based on rank
       const percentile = 1 - (rank - 1) / Math.max(1, total - 1)
 
-      // Green to gray to red color scale with mobile-responsive padding
       if (rank === 1)
         return "bg-green-600 text-white font-bold rounded px-0.5 md:px-1 py-0 md:py-0.5 inline-block border border-gray-400"
       if (rank === 2)
@@ -359,7 +364,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     return (
       <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
         <div className="text-center py-1.5 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
-          <span className="text-xs md:text-sm font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
+          <span className="text-[11px] md:text-sm font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
         </div>
         <div
           className="p-4 pb-2 border-b-2 border-gray-400"
@@ -458,7 +463,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(homeTeamStats.rank_pace)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_pace, awayTeamStats.rank_pace, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(homeTeamStats.pace)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_pace)}</span>
@@ -471,7 +476,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(awayTeamStats.rank_pace)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_pace, awayTeamStats.rank_pace, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(awayTeamStats.pace)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_pace)}</span>
@@ -485,7 +490,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(homeTeamStats.rank_efficiency_o)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_o, awayTeamStats.rank_efficiency_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(homeTeamStats.efficiency_o)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_efficiency_o)}</span>
@@ -493,12 +498,12 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                           </div>
                         </td>
                         <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Offense
+                          Off Eff
                         </td>
                         <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_o)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_o, awayTeamStats.rank_efficiency_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(awayTeamStats.efficiency_o)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_efficiency_o)}</span>
@@ -507,12 +512,120 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         </td>
                       </tr>
 
-                      {/* Defensive Efficiency */}
-                      <tr className="hover:bg-gray-50 transition-colors">
+                      {/* Offensive eFG% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                         <td className="text-center py-1 px-1">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(homeTeamStats.rank_efficiency_d)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.efgperc_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          eFG%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_o, awayTeamStats.rank_efgperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.efgperc_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Offensive TOV% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.toratio_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          TOV%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_o, awayTeamStats.rank_toratio_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.toratio_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Offensive ORB% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.orebperc_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          ORB%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_o, awayTeamStats.rank_orebperc_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.orebperc_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Offensive FTR */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.ftrate_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          FTR
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_o, awayTeamStats.rank_ftrate_o, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.ftrate_o, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_o)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Defensive Efficiency */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_d, awayTeamStats.rank_efficiency_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(homeTeamStats.efficiency_d)}{" "}
                               <span className="opacity-75">{formatRank(homeTeamStats.rank_efficiency_d)}</span>
@@ -520,15 +633,123 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                           </div>
                         </td>
                         <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
-                          Defense
+                          Def Eff
                         </td>
                         <td className="text-center py-1 px-1 border-l border-gray-200">
                           <div className="flex justify-center">
                             <div
-                              className={`${getBackgroundColorClass(awayTeamStats.rank_efficiency_d)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efficiency_d, awayTeamStats.rank_efficiency_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
                             >
                               {formatStat(awayTeamStats.efficiency_d)}{" "}
                               <span className="opacity-75">{formatRank(awayTeamStats.rank_efficiency_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Defensive eFG% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.efgperc_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_efgperc_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          Opp eFG%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_efgperc_d, awayTeamStats.rank_efgperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.efgperc_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_efgperc_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Defensive TOV% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.toratio_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_toratio_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          Opp TOV%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_toratio_d, awayTeamStats.rank_toratio_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.toratio_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_toratio_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Defensive DRB% */}
+                      <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.orebperc_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_orebperc_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          DRB%
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_orebperc_d, awayTeamStats.rank_orebperc_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.orebperc_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_orebperc_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {/* Defensive FTR */}
+                      <tr className="hover:bg-gray-50 transition-colors">
+                        <td className="text-center py-1 px-1">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, true)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(homeTeamStats.ftrate_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(homeTeamStats.rank_ftrate_d)}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="text-center py-1 px-1 font-medium text-gray-600 uppercase text-[9px] md:text-[10px] border-l border-gray-200">
+                          Opp FTR
+                        </td>
+                        <td className="text-center py-1 px-1 border-l border-gray-200">
+                          <div className="flex justify-center">
+                            <div
+                              className={`${getConditionalColorClass(homeTeamStats.rank_ftrate_d, awayTeamStats.rank_ftrate_d, false)} whitespace-nowrap text-[9px] md:text-[10px] w-[90%]`}
+                            >
+                              {formatStat(awayTeamStats.ftrate_d, 1)}%{" "}
+                              <span className="opacity-75">{formatRank(awayTeamStats.rank_ftrate_d)}</span>
                             </div>
                           </div>
                         </td>
@@ -546,7 +767,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                 {(() => {
                   // Ensure we have player data
                   if (!homeTeamPlayers?.length || !awayTeamPlayers?.length) {
-                    console.log("[v0] Missing player data:", { homeTeamPlayers, awayTeamPlayers })
                     return <div className="text-[8px] text-gray-500 text-center">Loading player data...</div>
                   }
 
@@ -750,7 +970,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
     // New constants for table styling based on your provided code
     const baseTableClasses = "w-full text-[9px] md:text-[11px] border-collapse rounded-none"
-    const headerRowClasses = "bg-gray-50 h-10 md:h-10 border-b-2 border-gray-700"
+    const headerRowClasses = "bg-gray-50 h-10 md:h-10 border-t-2 border-gray-700"
     const bodyRowClasses = "h-7 border-b border-gray-200 hover:shadow-sm transition-all duration-200 ease-in-out group"
 
     return (
@@ -1143,15 +1363,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                   // Create a UTC date string
                   const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
                   gameTime = new Date(utcDateStr)
-
-                  console.log("[v0] Time conversion:", {
-                    original: game.time,
-                    gameDateStr,
-                    cetTime: `${hours}:${minutes}`,
-                    utcTime: `${utcHours}:${cetMinutes}`,
-                    utcDateStr,
-                    localTime: gameTime.toLocaleTimeString(),
-                  })
                 } else if (game.game_time && game.game_time !== "00:00:00") {
                   const [hours, minutes] = game.game_time.split(":")
 
@@ -1162,15 +1373,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
                   const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
                   gameTime = new Date(utcDateStr)
-
-                  console.log("[v0] Time conversion (game_time):", {
-                    original: game.game_time,
-                    gameDateStr,
-                    cetTime: `${hours}:${minutes}`,
-                    utcTime: `${utcHours}:${cetMinutes}`,
-                    utcDateStr,
-                    localTime: gameTime.toLocaleTimeString(),
-                  })
                 } else {
                   // Try to extract time from the game_date if it includes time
                   const time = gameDate.toLocaleTimeString("en-US", {
@@ -1203,12 +1405,6 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       .split(", ")[1] || userTimezone.split("/").pop()
 
                   timezoneDisplay = tzShort
-
-                  console.log("[v0] Final display:", {
-                    timeDisplay,
-                    timezoneDisplay,
-                    userTimezone,
-                  })
                 }
               } catch (e) {
                 console.error("[v0] Error parsing game time:", e)
