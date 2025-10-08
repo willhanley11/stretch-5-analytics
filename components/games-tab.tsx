@@ -373,7 +373,80 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
             </div>
           ) : homeTeamStats && awayTeamStats ? (
             <div className="space-y-1.5">
-              {/* Container 1: Team Logos/Names/Date - Removed as it's now part of the collapsed card */}
+              {/* Container 1: Team Logos/Names/Date */}
+              <div
+                className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden"
+                style={{
+                  background: `linear-gradient(to right, ${homeTeamColor}30, #ffffff, ${awayTeamColor}30)`,
+                }}
+              >
+                <div className="flex items-center justify-between p-1.5 md:p-2">
+                  {/* Home Team */}
+                  <div className="flex flex-col items-center gap-0.5 flex-1">
+                    <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
+                      Home
+                    </span>
+                    <div
+                      className="p-1 rounded-lg shadow-sm border"
+                      style={{
+                        backgroundColor: `${homeTeamColor}20`,
+                        borderColor: `${homeTeamColor}60`,
+                      }}
+                    >
+                      <img
+                        src={game.home_teamlogo || "/placeholder.svg"}
+                        alt={`${game.home_team} logo`}
+                        className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                      />
+                    </div>
+                    <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      {game.home_team}
+                    </span>
+                  </div>
+
+                  {/* VS and Date/Time */}
+                  <div className="flex flex-col items-center gap-0.5 px-2">
+                    <span className="text-[9px] md:text-[10px] uppercase font-semibold text-gray-600">vs.</span>
+                    {timeDisplay && (
+                      <>
+                        <span className="text-[11px] md:text-sm font-bold text-gray-900">{timeDisplay}</span>
+                        {timezoneDisplay && (
+                          <span className="text-[7px] md:text-[8px] text-gray-500 font-medium">{timezoneDisplay}</span>
+                        )}
+                      </>
+                    )}
+                    <span className="text-[8px] md:text-[9px] text-gray-500">
+                      {new Date(game.game_date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  {/* Away Team */}
+                  <div className="flex flex-col items-center gap-0.5 flex-1">
+                    <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
+                      Away
+                    </span>
+                    <div
+                      className="p-1 rounded-lg shadow-sm border"
+                      style={{
+                        backgroundColor: `${awayTeamColor}20`,
+                        borderColor: `${awayTeamColor}60`,
+                      }}
+                    >
+                      <img
+                        src={game.away_teamlogo || "/placeholder.svg"}
+                        alt={`${game.away_team} logo`}
+                        className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                      />
+                    </div>
+                    <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      {game.away_team}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {/* Container 2: Offense Stats */}
               <div className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden">
@@ -1201,7 +1274,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       {/* Games Grid */}
       {sortedRoundGames.length > 0 ? (
         <div className="px-0 md:px-0">
-          <div className="grid gap-4 md:gap-5 md:grid-cols-2">
+          <div className="grid gap-2 md:gap-3 md:grid-cols-2">
             {sortedRoundGames.map((game, index) => {
               const [year, month, day] = game.game_date.split("T")[0].split("-")
               const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
@@ -1311,7 +1384,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     </div>
                   )}
 
-                  {/* Game Card with integrated team logos/names/date */}
+                  {/* Game Card with integrated date */}
                   <div
                     onClick={() => {
                       if (game.is_played && game.gamecode) {
@@ -1320,7 +1393,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         handleGamePreviewClick(game)
                       }
                     }}
-                    className={`bg-white rounded-lg border border-black shadow-md transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-lg hover:bg-gray-50 ${
+                    className={`bg-white rounded-lg border border-gray-200 shadow-md transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-lg hover:bg-gray-50 ${
                       (expandedGameForLogs?.gamecode === game.gamecode) ||
                       (
                         expandedGameForPreview?.home_teamcode === game.home_teamcode &&
@@ -1330,77 +1403,57 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         ? "shadow-md bg-gray-50"
                         : ""
                     }`}
-                    style={{
-                      background: `linear-gradient(to right, ${euroleague_team_colors[game.home_teamcode] || "#4b5563"}30, #ffffff, ${euroleague_team_colors[game.away_teamcode] || "#4b5563"}30)`,
-                    }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center w-full">
                       {/* Home Team */}
-                      <div className="flex flex-col items-center gap-0.5 flex-1">
-                        <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
-                          Home
-                        </span>
-                        <div className="p-1 bg-white rounded-lg shadow-sm border-2 border-gray-400">
-                          <img
-                            src={game.home_teamlogo || "/placeholder.svg"}
-                            alt={`${game.home_team} logo`}
-                            className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                          />
-                        </div>
-                        <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
+                        <img
+                          src={game.home_teamlogo || "/placeholder.svg"}
+                          alt={`${game.home_team} logo`}
+                          className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
+                        />
+                        <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
                           {game.home_team}
                         </span>
                       </div>
 
-                      {/* VS and Date/Time */}
-                      <div className="flex flex-col items-center gap-0.5 px-2">
+                      {/* Score or VS with time */}
+                      <div className="flex items-center justify-center px-1 md:px-2 min-w-[20%] max-w-[25%]">
                         {game.is_played && game.home_score !== null && game.away_score !== null ? (
                           <div className="text-center">
-                            <div className="text-lg md:text-xl font-bold text-gray-900">
-                              {game.home_score}-{game.away_score}
+                            <div className="text-[9px] md:text-sm font-bold text-gray-900">
+                              {game.away_score}-{game.home_score}
                             </div>
                           </div>
                         ) : (
-                          <>
-                            <span className="text-[9px] md:text-[10px] uppercase font-semibold text-gray-600">vs.</span>
+                          <div className="text-center">
+                            <div className="text-[8px] md:text-xs font-medium text-gray-500 mb-0.5">vs.</div>
                             {timeDisplay && (
-                              <>
-                                <span className="text-[11px] md:text-sm font-bold text-gray-900">{timeDisplay}</span>
+                              <div className="flex flex-col items-center">
+                                <div className="text-[10px] md:text-sm text-gray-900 font-bold">{timeDisplay}</div>
                                 {timezoneDisplay && (
-                                  <span className="text-[7px] md:text-[8px] text-gray-500 font-medium">
+                                  <div className="text-[6px] md:text-[8px] text-gray-500 font-medium">
                                     {timezoneDisplay}
-                                  </span>
+                                  </div>
                                 )}
-                              </>
+                              </div>
                             )}
-                            <span className="text-[8px] md:text-[9px] text-gray-500">
-                              {new Date(game.game_date).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </>
+                          </div>
                         )}
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex flex-col items-center gap-0.5 flex-1">
-                        <span className="text-[8px] md:text-[9px] font-medium text-gray-500 uppercase tracking-wide">
-                          Away
-                        </span>
-                        <div className="p-1 bg-white rounded-lg shadow-sm border-2 border-gray-400">
-                          <img
-                            src={game.away_teamlogo || "/placeholder.svg"}
-                            alt={`${game.away_team} logo`}
-                            className="w-6 h-6 md:w-8 md:h-8 object-contain"
-                          />
-                        </div>
-                        <span className="text-[9px] md:text-[10px] font-semibold text-gray-700 text-center">
+                      <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
+                        <img
+                          src={game.away_teamlogo || "/placeholder.svg"}
+                          alt={`${game.away_team} logo`}
+                          className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
+                        />
+                        <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
                           {game.away_team}
                         </span>
                       </div>
 
-                      {/* Chevron Icon */}
                       <div className="flex items-center ml-1">
                         <ChevronDown
                           className={`h-3 w-3 md:h-4 md:w-4 text-gray-400 transition-transform ${
