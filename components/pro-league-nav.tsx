@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Trophy, Users, BarChart, Calendar } from "lucide-react"
+import { ChevronDown, Trophy, Users, BarChart, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import OffenseTab from "./my-season/offense-tab"
 import ComparisonTab from "./my-season/comparison-tab"
@@ -471,37 +472,232 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         <div ref={topHeaderRowRef} className="w-full">
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1 border-b border-gray-200">
-              {leagueSections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => handleTabClick(section.id)}
-                  className={`relative px-6 py-1.5 pb-2 text-sm font-medium transition-colors uppercase ${
-                    activeSection === section.id
-                      ? "text-blue-700 border-b-2 border-blue-700"
-                      : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
+            <div className="hidden sm:block">
+              <div className="flex items-center justify-between h-16 px-4 sm:px-8 gap-4">
+                {/* Left - Brand + League Buttons */}
+                <div className="flex items-center space-x-6 flex-shrink-0">
+                  <button
+                    onClick={() => setShowLandingPage(true)}
+                    className="relative h-10 w-32 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <Image
+                      src="/stretch5-logo-original.png"
+                      alt="Stretch 5 Analytics"
+                      fill
+                      className="object-contain"
+                    />
+                  </button>
+
+                  {/* League Dropdown */}
+                  <div className="relative" ref={leagueDropdownRef}>
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsLeagueDropdownOpen(true)
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm"
+                    >
+                      <span className="text-sm font-medium">
+                        {allLeagues.find((l) => l.id === activeLeague)?.name || "Select League"}
+                      </span>
+                      <svg
+                        className={`h-4 w-4 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {isLeagueDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md">
+                        <div className="py-2">
+                          {allLeagues.map((league) => (
+                            <button
+                              key={league.id}
+                              onClick={() => {
+                                setActiveLeague(league.id)
+                                setSelectedLeague(league.id)
+                                setIsLeagueDropdownOpen(false)
+                              }}
+                              className={cn(
+                                "flex items-center w-full px-3 py-2 text-sm transition-colors",
+                                activeLeague === league.id
+                                  ? "bg-gray-100 text-gray-900 font-medium"
+                                  : "text-gray-600 hover:bg-gray-50",
+                              )}
+                            >
+                              {league.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right - Season Selector + Actions */}
+                <div className="flex items-center space-x-4 flex-shrink-0">
+                  {/* Season Selector */}
+                  <div className="relative" ref={seasonDropdownRef}>
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsSeasonDropdownOpen(true)
+                      }}
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm"
+                    >
+                      <span className="text-sm font-medium">
+                        {seasons.find((s) => s.id === selectedSeason)?.display || "2024-25"}
+                      </span>
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                    <AnimatePresence>
+                      {isSeasonDropdownOpen && (
+                        <motion.div
+                          className="absolute right-0 mt-2 w-40 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <div className="py-2">
+                            {seasons.map((season) => (
+                              <button
+                                key={season.id}
+                                onClick={() => {
+                                  setSelectedSeason(season.id)
+                                  setIsSeasonDropdownOpen(false)
+                                }}
+                                className={cn(
+                                  "flex items-center w-full px-3 py-2 text-sm transition-colors",
+                                  selectedSeason === season.id
+                                    ? "bg-gray-100 text-gray-900 font-medium"
+                                    : "text-gray-600 hover:bg-gray-50",
+                                )}
+                              >
+                                {season.display}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Mobile Navigation */}
-            <div className="md:hidden flex items-center border-b border-gray-200">
-              {leagueSections.map((section) => (
+            {/* Mobile Navigation - Single Level with Logo and Right-aligned League/Season Buttons */}
+            <div className="sm:hidden">
+              <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-100">
+                {/* Logo */}
                 <button
-                  key={section.id}
-                  onClick={() => handleTabClick(section.id)}
-                  className={`relative flex-1 px-2 py-1.5 pb-2 text-xs font-medium transition-colors uppercase ${
-                    activeSection === section.id
-                      ? "text-blue-700 border-b-2 border-blue-700"
-                      : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent"
-                  }`}
+                  onClick={() => setShowLandingPage(true)}
+                  className="relative h-7 w-24 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  {section.label}
+                  <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
                 </button>
-              ))}
+
+                {/* League and Season Dropdowns - Mobile */}
+                <div className="flex items-center space-x-2">
+                  {/* League Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsLeagueDropdownOpen(true)
+                      }}
+                      className="flex items-center space-x-1 px-3 py-1 rounded-md text-white bg-blue-600 hover:bg-blue-700 shadow-md transition-all duration-200 text-[11px] font-semibold"
+                    >
+                      <span className="text-xs">{allLeagues.find((l) => l.id === activeLeague)?.name || "League"}</span>
+                      <svg
+                        className={`h-3 w-3 transition-transform ${isLeagueDropdownOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {isLeagueDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-32 rounded-lg overflow-hidden z-[9999] border border-gray-200 shadow-lg bg-white">
+                        <div className="py-2 max-h-40 overflow-y-auto">
+                          {allLeagues.map((league) => (
+                            <button
+                              key={league.id}
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setActiveLeague(league.id)
+                                setSelectedLeague(league.id)
+                                setIsLeagueDropdownOpen(false)
+                              }}
+                              className={cn(
+                                "flex items-center w-full px-3 py-2 text-xs transition-colors cursor-pointer",
+                                activeLeague === league.id
+                                  ? "bg-blue-50 text-blue-900 font-semibold"
+                                  : "text-gray-600 hover:bg-gray-50",
+                              )}
+                            >
+                              {league.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Season Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        closeAllDropdowns()
+                        setIsMobileSeasonOpen(true)
+                      }}
+                      className="flex items-center space-x-1 px-3 py-1 rounded-md text-white bg-orange-600 hover:bg-orange-700 shadow-md transition-all duration-200 text-[11px] font-semibold"
+                    >
+                      <span className="text-xs">
+                        {seasons.find((s) => s.id === selectedSeason)?.display || "2024-25"}
+                      </span>
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    <AnimatePresence>
+                      {isMobileSeasonOpen && (
+                        <motion.div
+                          className="absolute right-0 mt-2 w-24 rounded-lg overflow-hidden z-[1001] border border-gray-200 shadow-lg bg-white/95 backdrop-blur-md"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <div className="py-2 max-h-40 overflow-y-auto">
+                            {seasons.map((season) => (
+                              <button
+                                key={season.id}
+                                onClick={() => {
+                                  setSelectedSeason(season.id)
+                                  setIsMobileSeasonOpen(false)
+                                }}
+                                className={cn(
+                                  "flex items-center w-full px-3 py-2 text-xs transition-colors",
+                                  selectedSeason === season.id
+                                    ? "bg-orange-50 text-orange-900 font-semibold"
+                                    : "text-gray-600 hover:bg-gray-50",
+                                )}
+                              >
+                                {season.display}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -516,13 +712,13 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <div className="max-w-screen-2xl mx-auto">
             {/* Desktop Navigation Tabs */}
             <div className="hidden sm:block border-t border-gray-100 px-4 sm:px-8">
-              <nav className="flex items-center justify-center space-x-8 py-2">
+              <nav className="flex items-center justify-center space-x-8 py-1">
                 {leagueSections.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => handleTabClick(section.id)}
                     className={cn(
-                      "text-sm font-medium transition-all duration-200 relative whitespace-nowrap px-3 py-1",
+                      "text-sm font-medium transition-all duration-200 relative whitespace-nowrap px-3 py-1.5 uppercase",
                       activeSection === section.id
                         ? "text-gray-900 border-b-4 border-blue-700"
                         : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
@@ -538,14 +734,14 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             <div className="sm:hidden px-2 py-1">
               <div className="flex items-center justify-center">
                 {/* Navigation Tabs */}
-                <nav className="flex items-center space-x-8 overflow-x-auto">
+                <nav className="flex items-center w-full">
                   {leagueSections.map((section) => {
                     return (
                       <button
                         key={section.id}
                         onClick={() => handleTabClick(section.id)}
                         className={cn(
-                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-2 flex-shrink-0",
+                          "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1.5 flex-1 uppercase",
                           activeSection === section.id
                             ? "text-gray-900 border-b-2 border-blue-700"
                             : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
