@@ -2,13 +2,12 @@
 import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import {
   fetchTeamStats,
   fetchSeasons,
   fetchPhases,
   fetchTeamAdvancedStatsByTeamCode, // Updated import
-  fetchTeamPlayersDirectly,
   fetchDebugPlayerData,
 } from "@/app/actions/standings"
 import type { EuroleagueTeamStats, EuroleagueTeamAdvanced, EuroleaguePlayerStats } from "@/lib/db"
@@ -64,8 +63,6 @@ const team_logo_mappings = {
   // Add more seasons as needed
 }
 
-
-
 // Add the Euroleague team colors mapping
 export const euroleague_team_colors = {
   // Your existing colors (unchanged)
@@ -73,7 +70,7 @@ export const euroleague_team_colors = {
   BAS: "#2c5f94", // Baskonia Vitoria-Gasteiz - Darker navy blue
   OLY: "#bf5050", // Olympiacos Piraeus - Darker red
   DUB: "#2A3439",
-  MAN: "#A10022", 
+  MAN: "#A10022",
   NIN: "#E35205",
   MCO: "#b03340", // AS Monaco - Darker red
   ASV: "#8a8d90", // LDLC ASVEL Villeurbanne - Darker gray
@@ -143,7 +140,7 @@ export const euroleague_team_colors = {
   PAO: "#1a1a1a", // PAOK Thessaloniki - Black (from "black and white")
   AEK: "#fbc02d", // AEK Athens - Yellow/Gold (from "black and yellow")
   ROM: "#8b1538", // Virtus Rome - Maroon (from "maroon and gold")
-  
+
   // Newly verified teams
   KLA: "#1565c0", // Neptunas Klaipeda - Blue (from "blue and white")
   PAI: "#1c5aa0", // Levallois Metropolitans - Navy blue (from "navy and gold" / "blue and yellow")
@@ -155,10 +152,10 @@ export const euroleague_team_colors = {
   CHO: "#d32f2f", // Cholet Basket - Red (from "red and white")
   ANT: "#d32f2f", // Telenet Giants Antwerp - Red (from "red and white")
   SZO: "#1a1a1a", // Szolnoki Olaj - Black (from "black and red")
-  
-    // Updated with verified authentic colors
+
+  // Updated with verified authentic colors
   GRA: "#1565c0", // BCM Gravelines Dunkerque - Dark blue (from "bluedark and orange")
-  AZO: "#1976d2", // Azovmash Mariupol - Blue (from "blue and orange")  
+  AZO: "#1976d2", // Azovmash Mariupol - Blue (from "blue and orange")
   SOF: "#1976d2", // Lukoil Academic Sofia - Blue (from "blue and white")
   ROM: "#8b1538", // Virtus Rome - Maroon (from "maroon and gold")
   RIS: "#ff6f00", // Maccabi Rishon LeZion - Orange (from "orange and white")
@@ -166,7 +163,7 @@ export const euroleague_team_colors = {
   TOR: "#8b1538", // Fiat Turin - Maroon (traditional Turin maroon color)
   BAN: "#ff6f00", // Banvit Bandirma - Orange (from "orange, green and white")
   VAR: "#d32f2f", // Cimberio Varese - Red (from "red and white" traditional colors)
-    // Updated with verified authentic colors
+  // Updated with verified authentic colors
   CAI: "#d32f2f", // CAI Zaragoza - Red (from "red and white")
   OOS: "#1976d2", // Telenet Ostend - Blue (originally "blue and yellow", currently "red and yellow" but traditionally blue)
   RDN: "#d32f2f", // Radnicki Kragujevac - Red (from "red and white" / "reddark and red")
@@ -174,14 +171,14 @@ export const euroleague_team_colors = {
   WUE: "#b03340", // s.Oliver Baskets Wurzburg - Darker blue (keeping original estimate as no specific info found)
   ANT: "#d32f2f", // Telenet Giants Antwerp - Red (already verified as "red and white")
   FUE: "#d47800", // Montakit Fuenlabrada - Darker blue (keeping original estimate as no specific info found)
-  BUR: "#1a3a5c", /* Deep navy blue */
-    
+  BUR: "#1a3a5c" /* Deep navy blue */,
+
   /* Ventspils - Blue and yellow (using blue as primary) */
-  VEN: "#1e4a72", /* Deep blue */
-  MHB: "#1b5e20", /* Deep forest green */
-  SAR: "#212121",/* Deep charcoal black */
-  DIJ: "#212121",/* Deep charcoal black */
-  BON: "#8b1538", /* Deep cardinal red */
+  VEN: "#1e4a72" /* Deep blue */,
+  MHB: "#1b5e20" /* Deep forest green */,
+  SAR: "#212121" /* Deep charcoal black */,
+  DIJ: "#212121" /* Deep charcoal black */,
+  BON: "#8b1538" /* Deep cardinal red */,
   PLO: "#1e4a72", // CSU Asesoft Ploiesti - Deep blue (team colors: blue and white)
   BUC: "#8b1538", // Steaua CSM EximBank Bucharest - Deep red (team colors: blue and red - using red as primary)
   PAO: "#1a1a1a", // PAOK Thessaloniki - Deep black (team colors: black and white)
@@ -210,14 +207,15 @@ export const euroleague_team_colors = {
   VSZ: "#1e4a72", // Alba Fehervar - Deep blue (team colors: blue and white)
   TRB: "#8b1538", // Trabzonspor Medical Park - Deep red (team colors: light blue, white and dark red - using red as primary)
   OKT: "#8b1538", // Krasny Oktyabr Volgograd - Darker red
-  FRA: "#1e4a72" // Fraport Skyliners Frankfurt - Darker blue
-};
+  FRA: "#1e4a72", // Fraport Skyliners Frankfurt - Darker blue
+}
+
 // Team name to code mapping for teams not in current database
 export const teamNameToCode = {
   "Hapoel IBI Tel Aviv": "HTA",
   "Hapoel Tel Aviv": "HTA", // Add variation without "IBI"
   "Hapoel Tel-Aviv": "HTA", // Add variation with hyphen
-  "Hapoel": "HTA" // Add short version as fallback
+  Hapoel: "HTA", // Add short version as fallback
 }
 
 // Player images data - empty array to be filled from database later
@@ -260,9 +258,10 @@ interface YamagataTeamStatsProps {
   initialTab?: string
   hideNav?: boolean
   selectedSeason?: number
-  selectedLeague?: string // Add this prop
-  initialTeam?: any // Add initialTeam prop for landing page navigation
-  initialTableMode?: "league" | "player" // Add prop for initial table mode within league tab
+  selectedLeague?: string
+  initialTeam?: any
+  initialTableMode?: "league" | "player"
+  onSectionChange?: (section: string) => void
 }
 
 type StatType = "points" | "rebounds" | "assists" | "threePointers" | "steals" | "blocks"
@@ -278,12 +277,13 @@ function YamagataTeamStats({
   initialTab = "league",
   hideNav = false,
   selectedSeason: propSelectedSeason,
-  selectedLeague: propSelectedLeague = "international-euroleague", // Add default value
-  initialTeam, // Add initialTeam prop
-  initialTableMode, // Add initialTableMode prop for league/player toggle
+  selectedLeague: propSelectedLeague = "international-euroleague",
+  initialTeam,
+  initialTableMode,
+  onSectionChange,
 }: YamagataTeamStatsProps) {
   const router = useRouter()
-  
+
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([])
 
   const togglePlayerSelection = (playerId: string) => {
@@ -304,13 +304,13 @@ function YamagataTeamStats({
 
   // Initialize selected team from initialTeam prop or default
   const getInitialTeam = () => {
-    if (typeof initialTeam === 'string') return initialTeam
+    if (typeof initialTeam === "string") return initialTeam
     if (initialTeam?.name) return initialTeam.name
     return ""
   }
-  
+
   const [selectedTeam, setSelectedTeamInternal] = useState(getInitialTeam())
-  
+
   // Wrapped setSelectedTeam with debugging
   const setSelectedTeam = (teamName: string) => {
     setSelectedTeamInternal(teamName)
@@ -372,13 +372,13 @@ function YamagataTeamStats({
     }
   }, [propSelectedLeague, currentLeague])
 
-
   // Handle initialTeam prop from landing page - only on initial load
   useEffect(() => {
-    const teamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
+    const teamName = typeof initialTeam === "string" ? initialTeam : initialTeam?.name
     if (teamName && teamStats.length > 0) {
       const teamExists = teamStats.some((team) => team.name === teamName)
-      if (teamExists && (!selectedTeam || selectedTeam === "")) { // Only set if no team selected
+      if (teamExists && (!selectedTeam || selectedTeam === "")) {
+        // Only set if no team selected
         setSelectedTeam(teamName)
       }
     }
@@ -437,7 +437,7 @@ function YamagataTeamStats({
           // Auto-selection logic: prioritize initialTeam, then preserve current selection, then fallback to first team
           if (stats.length > 0) {
             // First check if we have an initialTeam that exists in the data
-            const initialTeamName = typeof initialTeam === 'string' ? initialTeam : initialTeam?.name
+            const initialTeamName = typeof initialTeam === "string" ? initialTeam : initialTeam?.name
             if (initialTeamName && stats.some((team) => team.name === initialTeamName)) {
               setSelectedTeam(initialTeamName)
             } else {
@@ -468,7 +468,6 @@ function YamagataTeamStats({
     const loadTeamAdvancedStats = async () => {
       if (selectedTeam && selectedSeason && selectedPhase && teamStats.length > 0) {
         try {
-
           // Get teamcode from the current team stats
           const selectedTeamData = teamStats.find((team) => team.name === selectedTeam)
           const teamCode = selectedTeamData?.teamcode
@@ -605,10 +604,13 @@ function YamagataTeamStats({
         pts: +(player.pts * player.gp).toFixed(0),
         twopm: +(player.twopm * player.gp).toFixed(0),
         twopa: +(player.twopa * player.gp).toFixed(0),
+        twop: +(player.twop * player.gp).toFixed(0),
         threepm: +(player.threepm * player.gp).toFixed(0),
         threepa: +(player.threepa * player.gp).toFixed(0),
+        threep: +(player.threep * player.gp).toFixed(0),
         ftm: +(player.ftm * player.gp).toFixed(0),
         fta: +(player.fta * player.gp).toFixed(0),
+        ft: +(player.ft * player.gp).toFixed(0),
         or: +(player.or * player.gp).toFixed(0),
         dr: +(player.dr * player.gp).toFixed(0),
         tr: +(player.tr * player.gp).toFixed(0),
@@ -710,13 +712,7 @@ function YamagataTeamStats({
     // First check if we have a direct logo URL from the database
     const teamData = teamStats.find((team) => team.name === teamName)
     if (teamData?.teamlogo) {
-      return (
-        <img
-          src={teamData.teamlogo || "/placeholder.svg"}
-          alt={`${teamName} logo`}
-          className="w-6 h-6"
-        />
-      )
+      return <img src={teamData.teamlogo || "/placeholder.svg"} alt={`${teamName} logo`} className="w-6 h-6" />
     }
 
     // Fallback to the mapping using teamcode
@@ -863,7 +859,6 @@ function YamagataTeamStats({
   return (
     <div className="w-full">
       {/* Only show navigation if hideNav is false */}
-      
 
       <Tabs
         value={activeTab}
@@ -891,6 +886,7 @@ function YamagataTeamStats({
             teamNameToCode={teamNameToCode}
             team_logo_mapping={currentTeamLogoMapping}
             initialTableMode={initialTableMode}
+            onNavigateToTeams={() => onSectionChange?.("teams")}
           />
         </TabsContent>
 

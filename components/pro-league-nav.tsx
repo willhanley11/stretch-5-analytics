@@ -43,8 +43,7 @@ const leagueSections = [
   { id: "games", label: "Games", initial: "G", icon: Calendar },
   { id: "teams", label: "Teams", initial: "T", icon: BarChart },
   { id: "statistics", label: "Players", initial: "P", icon: Users },
-  { id: "standings", label: "Leaders", initial: "S", icon: Trophy },
-  { id: "comparison", label: "Comparison", initial: "C", icon: Scale },
+  { id: "standings", label: "Leaders", initial: "S", icon: Trophy }
 ]
 
 interface ProLeagueNavProps {
@@ -314,6 +313,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
                 initialTeam={landingPageSelections?.team}
+                onSectionChange={(section) => setActiveSection(section)}
               />
             </div>
           </motion.div>
@@ -364,6 +364,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                 selectedLeague={selectedLeague}
                 initialTeam={landingPageSelections?.team}
                 initialTableMode={landingPageSelections?.mode}
+                onSectionChange={(section) => setActiveSection(section)}
               />
             </div>
           </motion.div>
@@ -435,6 +436,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                 selectedSeason={selectedSeason}
                 selectedLeague={selectedLeague}
                 initialTeam={landingPageSelections?.team}
+                onSectionChange={(section) => setActiveSection(section)}
               />
             </div>
           </div>

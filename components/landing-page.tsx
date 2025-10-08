@@ -1460,60 +1460,7 @@ export default function LandingPage({
                 </motion.div>
 
                 {/* Comparison Box */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.9 }}
-                  className="bg-black shadow-md rounded-xl relative"
-                  style={{ zIndex: 10, contain: "layout style", willChange: "opacity" }}
-                >
-                  <button className="w-full text-left" onClick={() => handleMenuSelection("comparison")}>
-                    <div
-                      className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
-                      style={{
-                        border: `1px solid black`,
-                        backgroundColor: "#5C763E",
-                      }}
-                    >
-                      <div className="flex items-center p-2 gap-2">
-                        {/* Icon section */}
-                        <div className="flex-shrink-0">
-                          <div className="w-8 h-8 flex items-center justify-center rounded-lg shadow-sm">
-                            <div
-                              className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5"
-                              style={{
-                                border: "1px solid black",
-                                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <Scale className="w-5 h-5 text-black" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3
-                            className="text-sm font-bold text-white"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Comparisons
-                          </h3>
-                          <p
-                            className="text-xs text-white opacity-90"
-                            style={{
-                              textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-                            }}
-                          >
-                            Player Head to Head
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
+                
               </motion.div>
             </div>
           </motion.div>

@@ -30,6 +30,7 @@ interface LeagueStandingsTabProps {
   teamNameToCode: Record<string, string>
   team_logo_mapping: Record<string, string>
   initialTableMode?: "league" | "player" // Add prop for initial table mode from landing page
+  onNavigateToTeams?: () => void
 }
 
 type ViewMode =
@@ -69,6 +70,7 @@ export function LeagueStandingsTab({
   teamNameToCode,
   team_logo_mapping,
   initialTableMode,
+  onNavigateToTeams,
 }: LeagueStandingsTabProps) {
   const [allTeamsAdvancedStats, setAllTeamsAdvancedStats] = useState<any[]>([])
   const [standingsData, setStandingsData] = useState<any[]>([])
@@ -907,8 +909,9 @@ export function LeagueStandingsTab({
                                   setActiveTab("teams")
                                   setSelectedTeam(team.name)
                                   setShouldScrollTop(true)
+                                  onNavigateToTeams?.()
                                 }}
-                                className="hover:underline focus:outline-none focus:ring-1 focus:ring-blue-300 px-1 flex items-center justify-start w-full group relative"
+                                className="hover:underline focus:outline-none focus:ring-1 focus:ring-blue-300 px-1 flex items-center justify-center md:justify-start w-full group relative"
                               >
                                 <div className="w-5 h-5 md:w-7 md:h-7 rounded-sm flex items-center justify-center mr-1.5 md:mr-2 bg-white flex-shrink-0">
                                   {getTeamLogo(team.name, teamCode)}
