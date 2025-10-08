@@ -358,6 +358,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
     return (
       <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
+        <div className="text-center py-1.5 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
+          <span className="text-xs md:text-sm font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
+        </div>
         <div
           className="p-4 pb-2 border-b-2 border-gray-400"
           style={{
