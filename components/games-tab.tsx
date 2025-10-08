@@ -357,7 +357,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-md my-2 overflow-hidden">
+      <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
         <div
           className="p-4 pb-2 border-b-2 border-gray-400"
           style={{
@@ -1237,7 +1237,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         handleGamePreviewClick(game)
                       }
                     }}
-                    className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-md hover:bg-gray-50 ${
+                    className={`bg-white rounded-lg border border-gray-200 shadow-md transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-lg hover:bg-gray-50 ${
                       (expandedGameForLogs?.gamecode === game.gamecode) ||
                       (
                         expandedGameForPreview?.home_teamcode === game.home_teamcode &&

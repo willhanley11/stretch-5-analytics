@@ -1248,7 +1248,7 @@ export default function LandingPage({
                       className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
                       style={{
                         border: `1px solid black`,
-                        backgroundColor: "#4A5568", // Changed from deep red (#763E5C) to subtle slate gray
+                        backgroundColor: "#36454F", // Changed from deep red (#763E5C) to subtle slate gray
                       }}
                     >
                       <div className="flex items-center p-2 gap-2">
@@ -1360,7 +1360,7 @@ export default function LandingPage({
                       className="rounded-xl overflow-hidden shadow-xl w-full cursor-pointer hover:shadow-xl transition-shadow"
                       style={{
                         border: `1px solid black`,
-                        backgroundColor: "#36454F",
+                        backgroundColor: "#76463E",
                       }}
                     >
                       <div className="flex items-center p-2 gap-2">
