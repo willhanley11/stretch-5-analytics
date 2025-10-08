@@ -1567,6 +1567,7 @@ export function TeamDetailsTab({
 
   return (
     <>
+    <div className="max-w-7xl mx-auto w-full">
       {isAnyDataLoading ? (
         <div className="flex items-center justify-center h-full mt-6">
           {selectedTeam && teamStats.length > 0 ? (
@@ -3553,6 +3554,7 @@ export function TeamDetailsTab({
           </div>
         </div>
       )}
+      </div>
     </>
   )
 }
