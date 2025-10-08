@@ -1184,7 +1184,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-0 py-2 md:p-6">
+    <div className="w-full max-w-7xl mx-auto px-0 py-2 md:p-6">
       {/* Round Selector - Mobile Style */}
       <div className="md:hidden bg-black shadow-xl rounded-xl relative -mt-5 mb-3">
         <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
