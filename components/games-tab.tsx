@@ -1236,15 +1236,15 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       </div>
 
       {/* Round Selector - Desktop Style */}
-      <div className="hidden md:block mb-6">
-        <div className="flex justify-center">
+      <div className="hidden md:block mb-1 -mt-3">
+        <div className="flex justify-start">
           <div className="relative">
             <button
               onClick={() => setIsRoundDropdownOpen(!isRoundDropdownOpen)}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 transition-all duration-200 shadow-sm min-w-[140px] text-lg md:text-xl font-bold"
+              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 transition-all duration-200 shadow-sm min-w-[120px] text-sm md:text-base font-semibold"
             >
               <span>Round {selectedRound}</span>
-              <ChevronDown className={`h-5 w-5 transition-transform ${isRoundDropdownOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`h-4 w-4 transition-transform ${isRoundDropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
             {isRoundDropdownOpen && (
@@ -1274,7 +1274,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       {/* Games Grid */}
       {sortedRoundGames.length > 0 ? (
         <div className="px-0 md:px-0">
-          <div className="grid gap-2 md:gap-3 md:grid-cols-2">
+          <div className="grid gap-2 md:gap-3">
             {sortedRoundGames.map((game, index) => {
               const [year, month, day] = game.game_date.split("T")[0].split("-")
               const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
@@ -1371,7 +1371,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
                   {isNewDate && (
-                    <div className="md:col-span-2 w-full flex items-center my-1">
+                    <div className="w-full flex items-center my-1">
                       <div className="flex-grow h-px bg-gray-200"></div>
                       <div className="px-2 py-0.5 mx-2 text-[10px] font-medium text-black rounded">
                         {gameDate.toLocaleDateString("en-US", {
@@ -1477,16 +1477,12 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                     expandedGameForPreview?.home_teamcode === game.home_teamcode &&
                     expandedGameForPreview?.away_teamcode === game.away_teamcode &&
                     expandedGameForPreview?.round === game.round && (
-                      <div className="md:col-span-2 w-full max-w-full overflow-hidden">
-                        {renderGamePreviewExpansion(game)}
-                      </div>
+                      <div className="w-full max-w-full overflow-hidden">{renderGamePreviewExpansion(game)}</div>
                     )}
 
                   {/* Game log expansion - positioned correctly within grid */}
                   {game.is_played && game.gamecode && expandedGameForLogs?.gamecode === game.gamecode && (
-                    <div className="md:col-span-2 w-full max-w-full overflow-hidden">
-                      {renderGameLogExpansion(game)}
-                    </div>
+                    <div className="w-full max-w-full overflow-hidden">{renderGameLogExpansion(game)}</div>
                   )}
                 </React.Fragment>
               )
