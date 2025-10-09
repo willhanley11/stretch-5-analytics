@@ -710,7 +710,7 @@ export function LeagueStandingsTab({
   const statColumnWidth = "w-[40px] md:w-[50px]"
 
   return (
-    <div className="max-w-7xl mx-auto w-full">
+    <div className="max-w-6xl mx-auto w-full">
       <>
         <div className="bg-black shadow-md rounded-xl relative -mt-3 md:mt-0 mb-4">
           <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>

@@ -255,7 +255,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         return (
           <motion.div
             className=" px-2 pb-4 pt-6 md:px-8 md:pt-2"
-            style={{ backgroundColor: "#f3f4f6" }}
+            style={{ backgroundColor: "#fdf9f3" }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -277,7 +277,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6  md:px-8 md:pt-2"
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "#fdf9f3",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -304,7 +304,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "#fdf9f3",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -328,7 +328,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-4 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "#fdf9f3",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -349,7 +349,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2"
             style={{
-              backgroundColor: "#f9fafb",
+              backgroundColor: "#fdf9f3",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -365,7 +365,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "#fdf9f3",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -419,7 +419,17 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <header
-        className="relative top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(229, 231, 235, 0.5)',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }}
       >
         {/* Top row - Logo + League Buttons + Season + Actions */}
         <div className="w-full">
@@ -657,7 +667,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
 
         <div
           className={cn(
-            "w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50 sticky top-0 shadow-sm",
+            "w-full border-t border-gray-100 bg-white/95 backdrop-blur-md z-50 shadow-sm",
           )}
         >
           <div className="max-w-screen-2xl mx-auto">
@@ -671,7 +681,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                     className={cn(
                       "text-sm font-medium transition-all duration-200 relative whitespace-nowrap px-3 py-1.5 uppercase",
                       activeSection === section.id
-                        ? "text-gray-900 border-b-4 border-blue-700"
+                        ? "text-blue-700 border-b-4 border-blue-700"
                         : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
                     )}
                   >
@@ -694,7 +704,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
                         className={cn(
                           "text-xs font-medium transition-all duration-200 relative whitespace-nowrap px-2 py-1.5 flex-1 uppercase",
                           activeSection === section.id
-                            ? "text-gray-900 border-b-4 border-blue-700"
+                            ? "text-blue-700 border-b-4 border-blue-700"
                             : "text-gray-600 hover:text-gray-900 border-b-2 border-transparent",
                         )}
                       >
@@ -710,7 +720,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10">{renderActiveContent()}</main>
+      <main className="relative z-10 pt-20 sm:pt-28" style={{ backgroundColor: '#fdf9f3' }}>{renderActiveContent()}</main>
 
       {/* Mobile menu (remains outside the fixed header logic for its own animation) */}
       <AnimatePresence>

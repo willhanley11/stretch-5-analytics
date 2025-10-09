@@ -1,10 +1,11 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fetchGameLogsByGamecode } from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
+import { LeagueLoadingScreen } from "./ui/league-spinner"
 
 interface GamesTabProps {
   selectedSeason: number
@@ -133,27 +134,57 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   const roundGames = games.filter((game) => game.round === selectedRound)
 
   const sortedRoundGames = [...roundGames].sort((a, b) => {
-    // First sort by date
-    const dateA = new Date(a.game_date).getTime()
-    const dateB = new Date(b.game_date).getTime()
-
-    if (dateA !== dateB) {
-      return dateA - dateB
-    }
-
-    // If dates are the same, sort by time
-    const getTimeValue = (game: GameMatchup) => {
+    // Create full datetime for each game
+    const getGameDateTime = (game: GameMatchup) => {
+      const gameDateStr = game.game_date.split("T")[0] // Get YYYY-MM-DD
       const timeStr = game.time || game.game_time || "00:00:00"
-      const [hours, minutes] = timeStr.split(":")
-      return Number.parseInt(hours) * 60 + Number.parseInt(minutes)
+      
+      if (timeStr && timeStr !== "00:00:00") {
+        const [hours, minutes] = timeStr.split(":")
+        // Create ISO string in UTC to avoid timezone issues
+        const isoString = `${gameDateStr}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000Z`
+        return new Date(isoString).getTime()
+      } else {
+        // For games without time, use just the date
+        return new Date(`${gameDateStr}T00:00:00.000Z`).getTime()
+      }
     }
 
-    return getTimeValue(a) - getTimeValue(b)
+    return getGameDateTime(a) - getGameDateTime(b)
   })
 
   const handleRoundChange = (round: number) => {
     setSelectedRound(round)
     setIsRoundDropdownOpen(false)
+    // Close any open dropdowns when round changes
+    setExpandedGameForLogs(null)
+    setExpandedGameForPreview(null)
+    setExpandedGameLogsData([])
+    setSelectedGameTeam("")
+  }
+
+  const handlePreviousRound = () => {
+    const currentIndex = availableRounds.indexOf(selectedRound)
+    if (currentIndex > 0) {
+      setSelectedRound(availableRounds[currentIndex - 1])
+      // Close any open dropdowns when round changes
+      setExpandedGameForLogs(null)
+      setExpandedGameForPreview(null)
+      setExpandedGameLogsData([])
+      setSelectedGameTeam("")
+    }
+  }
+
+  const handleNextRound = () => {
+    const currentIndex = availableRounds.indexOf(selectedRound)
+    if (currentIndex < availableRounds.length - 1) {
+      setSelectedRound(availableRounds[currentIndex + 1])
+      // Close any open dropdowns when round changes
+      setExpandedGameForLogs(null)
+      setExpandedGameForPreview(null)
+      setExpandedGameLogsData([])
+      setSelectedGameTeam("")
+    }
   }
 
   // Game log expansion handlers
@@ -168,6 +199,13 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       setSelectedGameTeam("")
       return
     }
+
+    // Close any open preview dropdown
+    setExpandedGameForPreview(null)
+    setHomeTeamStats(null)
+    setAwayTeamStats(null)
+    setHomeTeamPlayers([])
+    setAwayTeamPlayers([])
 
     // Expand new game
     setExpandedGameForLogs(game)
@@ -207,6 +245,11 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       setAwayTeamPlayers([])
       return
     }
+
+    // Close any open logs dropdown
+    setExpandedGameForLogs(null)
+    setExpandedGameLogsData([])
+    setSelectedGameTeam("")
 
     // Expand new game
     setExpandedGameForPreview(game)
@@ -251,9 +294,11 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading games...</div>
-      </div>
+      <LeagueLoadingScreen 
+        league={selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"}
+        message="Loading games data..."
+        fullScreen={true}
+      />
     )
   }
 
@@ -362,9 +407,12 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     }
 
     return (
-      <div className="bg-white border-2 border-gray-500 rounded-lg shadow-lg my-2 overflow-hidden">
-        <div className="text-center py-1 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
-          <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
+      <div className="bg-white overflow-hidden relative z-20">
+        <div className="relative py-1 px-2 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
+          <div className="text-center">
+            <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest">Preview</span>
+          </div>
+          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[8px] md:text-[9px] text-gray-400 italic">Click to Return</span>
         </div>
         <div className="p-1 md:p-1.5">
           {isPreviewLoading ? (
@@ -931,7 +979,13 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     const bodyRowClasses = "h-7 border-b border-gray-200 hover:shadow-sm transition-all duration-200 ease-in-out group"
 
     return (
-      <div className="bg-white border border-gray-300 rounded-lg shadow-md my-2 overflow-hidden">
+      <div className="bg-white overflow-hidden relative z-20">
+        <div className="relative py-1 px-2 border-b border-gray-300 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100">
+          <div className="text-center">
+            <span className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-widest">Game Details</span>
+          </div>
+          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[8px] md:text-[9px] text-gray-400 italic">Click to Return</span>
+        </div>
         <div
           className="p-4 pb-2 border-b-2 border-gray-300"
           style={{
@@ -1184,7 +1238,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-0 py-2 md:p-6">
+    <div className="w-full max-w-5xl mx-auto px-0 py-2 md:p-6 relative">
+      
       {/* Round Selector - Mobile Style */}
       <div className="md:hidden bg-black shadow-xl rounded-xl relative -mt-5 mb-3">
         <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
@@ -1236,37 +1291,67 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       </div>
 
       {/* Round Selector - Desktop Style */}
-      <div className="hidden md:block mb-1 -mt-3">
-        <div className="flex justify-start">
-          <div className="relative">
+      <div className="hidden md:block mb-4 -mt-3">
+        <div className="flex justify-center">
+          <div className="flex items-center space-x-2 bg-white rounded-lg border border-gray-300 shadow-sm p-1">
+            {/* Previous Round Arrow */}
             <button
-              onClick={() => setIsRoundDropdownOpen(!isRoundDropdownOpen)}
-              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 transition-all duration-200 shadow-sm min-w-[120px] text-sm md:text-base font-semibold"
+              onClick={handlePreviousRound}
+              disabled={availableRounds.indexOf(selectedRound) === 0}
+              className={cn(
+                "p-1 rounded transition-colors",
+                availableRounds.indexOf(selectedRound) === 0
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
             >
-              <span>Round {selectedRound}</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${isRoundDropdownOpen ? "rotate-180" : ""}`} />
+              <ChevronLeft className="h-4 w-4" />
             </button>
 
-            {isRoundDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-10 border border-gray-200 shadow-lg bg-white">
-                <div className="py-2 max-h-60 overflow-y-auto">
-                  {availableRounds.map((round) => (
-                    <button
-                      key={round}
-                      onClick={() => handleRoundChange(round)}
-                      className={cn(
-                        "flex items-center w-full px-3 py-2 text-sm transition-colors",
-                        selectedRound === round
-                          ? "bg-blue-50 text-blue-900 font-medium"
-                          : "text-gray-600 hover:bg-gray-50",
-                      )}
-                    >
-                      Round {round}
-                    </button>
-                  ))}
+            {/* Round Display with Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsRoundDropdownOpen(!isRoundDropdownOpen)}
+                className="flex items-center justify-center px-12 py-1 rounded-lg text-gray-900 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm min-w-[200px] text-sm font-semibold"
+              >
+                <span>Round {selectedRound}</span>
+              </button>
+
+              {isRoundDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-10 border border-gray-200 shadow-lg bg-white">
+                  <div className="py-2 max-h-60 overflow-y-auto">
+                    {availableRounds.map((round) => (
+                      <button
+                        key={round}
+                        onClick={() => handleRoundChange(round)}
+                        className={cn(
+                          "flex items-center w-full px-3 py-2 text-sm transition-colors",
+                          selectedRound === round
+                            ? "bg-blue-50 text-blue-900 font-medium"
+                            : "text-gray-600 hover:bg-gray-50",
+                        )}
+                      >
+                        Round {round}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Next Round Arrow */}
+            <button
+              onClick={handleNextRound}
+              disabled={availableRounds.indexOf(selectedRound) === availableRounds.length - 1}
+              className={cn(
+                "p-1 rounded transition-colors",
+                availableRounds.indexOf(selectedRound) === availableRounds.length - 1
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -1371,119 +1456,160 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
                   {isNewDate && (
-                    <div className="w-full flex items-center my-1">
-                      <div className="flex-grow h-px bg-gray-200"></div>
-                      <div className="px-2 py-0.5 mx-2 text-[10px] font-medium text-black rounded">
+                    <div className="w-full flex items-center my-2">
+                      <div className="flex-grow h-px bg-gray-300"></div>
+                      <div className="px-4 py-1 mx-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg border border-gray-300 shadow-sm">
                         {gameDate.toLocaleDateString("en-US", {
                           weekday: "short",
                           month: "short",
                           day: "numeric",
                         })}
                       </div>
-                      <div className="flex-grow h-px bg-gray-200"></div>
+                      <div className="flex-grow h-px bg-gray-300"></div>
                     </div>
                   )}
 
                   {/* Game Card with integrated date */}
                   <div
-                    onClick={() => {
-                      if (game.is_played && game.gamecode) {
-                        handleGameRowClick(game)
-                      } else {
-                        handleGamePreviewClick(game)
-                      }
-                    }}
-                    className={`bg-white rounded-lg border border-gray-200 shadow-md transition-all duration-200 p-1.5 md:p-2 w-full max-w-full overflow-hidden cursor-pointer hover:shadow-lg hover:bg-gray-50 ${
-                      (expandedGameForLogs?.gamecode === game.gamecode) ||
-                      (
-                        expandedGameForPreview?.home_teamcode === game.home_teamcode &&
-                          expandedGameForPreview?.away_teamcode === game.away_teamcode &&
-                          expandedGameForPreview?.round === game.round
-                      )
-                        ? "shadow-md bg-gray-50"
-                        : ""
+                    className={`bg-white transition-all duration-200 w-full max-w-full overflow-hidden ${
+                      (() => {
+                        // Check if this specific game is the one that's expanded
+                        const isThisGameExpandedForLogs = 
+                          expandedGameForLogs && 
+                          expandedGameForLogs.gamecode === game.gamecode && 
+                          game.is_played;
+                        
+                        const isThisGameExpandedForPreview = 
+                          expandedGameForPreview &&
+                          expandedGameForPreview.home_teamcode === game.home_teamcode &&
+                          expandedGameForPreview.away_teamcode === game.away_teamcode &&
+                          expandedGameForPreview.round === game.round &&
+                          !game.is_played;
+                        
+                        // If this game is expanded, style it differently
+                        if (isThisGameExpandedForLogs || isThisGameExpandedForPreview) {
+                          return "rounded-lg border-2 border-gray-300";
+                        }
+                        
+                        // If any dropdown is open and this is NOT the expanded game, dim it
+                        const anyDropdownOpen = expandedGameForLogs || expandedGameForPreview;
+                        if (anyDropdownOpen && !isThisGameExpandedForLogs && !isThisGameExpandedForPreview) {
+                          return "rounded-lg border border-gray-200 shadow-md opacity-30";
+                        }
+                        
+                        // Default state
+                        return "rounded-lg border border-gray-200 shadow-md hover:shadow-lg";
+                      })()
                     }`}
                   >
-                    <div className="flex items-center w-full">
-                      {/* Home Team */}
-                      <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
-                        <img
-                          src={game.home_teamlogo || "/placeholder.svg"}
-                          alt={`${game.home_team} logo`}
-                          className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
-                        />
-                        <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
-                          {game.home_team}
-                        </span>
-                      </div>
-
-                      {/* Score or VS with time */}
-                      <div className="flex items-center justify-center px-1 md:px-2 min-w-[20%] max-w-[25%]">
-                        {game.is_played && game.home_score !== null && game.away_score !== null ? (
-                          <div className="text-center">
-                            <div className="text-[9px] md:text-sm font-bold text-gray-900">
-                              {game.away_score}-{game.home_score}
-                            </div>
+                    {/* Original game content - shown when NOT expanded */}
+                    {!(
+                      (expandedGameForLogs?.gamecode === game.gamecode && game.is_played) ||
+                      (expandedGameForPreview?.home_teamcode === game.home_teamcode &&
+                       expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+                       expandedGameForPreview?.round === game.round &&
+                       !game.is_played)
+                    ) && (
+                      <div
+                        onClick={() => {
+                          if (game.is_played && game.gamecode) {
+                            handleGameRowClick(game)
+                          } else {
+                            handleGamePreviewClick(game)
+                          }
+                        }}
+                        className="p-1.5 md:p-2 cursor-pointer hover:bg-gray-50"
+                      >
+                        <div className="flex items-center w-full">
+                          {/* Home Team */}
+                          <div className="flex items-center space-x-2 flex-1 min-w-0">
+                            <img
+                              src={game.home_teamlogo || "/placeholder.svg"}
+                              alt={`${game.home_team} logo`}
+                              className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
+                            />
+                            <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
+                              {game.home_team}
+                            </span>
                           </div>
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-[8px] md:text-xs font-medium text-gray-500 mb-0.5">vs.</div>
-                            {timeDisplay && (
-                              <div className="flex flex-col items-center">
-                                <div className="text-[10px] md:text-sm text-gray-900 font-bold">{timeDisplay}</div>
-                                {timezoneDisplay && (
-                                  <div className="text-[6px] md:text-[8px] text-gray-500 font-medium">
-                                    {timezoneDisplay}
+
+                          {/* Score or VS with time - positioned to align with date headers */}
+                          <div className="flex items-center justify-center px-2 md:px-4 ml-6 md:ml-8">
+                            {game.is_played && game.home_score !== null && game.away_score !== null ? (
+                              <div className="text-center">
+                                <div className="text-[9px] md:text-sm font-bold text-blue-600">
+                                  {game.away_score}-{game.home_score}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <div className="text-[8px] md:text-xs font-medium text-gray-500 mb-0.5">vs.</div>
+                                {timeDisplay && (
+                                  <div className="flex flex-col items-center">
+                                    <div className="text-[10px] md:text-sm text-gray-900 font-bold">{timeDisplay}</div>
+                                    {timezoneDisplay && (
+                                      <div className="text-[6px] md:text-[8px] text-gray-500 font-medium">
+                                        {timezoneDisplay}
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
                             )}
                           </div>
-                        )}
-                      </div>
 
-                      {/* Away Team */}
-                      <div className="flex items-center space-x-2 flex-1 min-w-0 max-w-[40%]">
-                        <img
-                          src={game.away_teamlogo || "/placeholder.svg"}
-                          alt={`${game.away_team} logo`}
-                          className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
-                        />
-                        <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
-                          {game.away_team}
-                        </span>
-                      </div>
+                          {/* Away Team */}
+                          <div className="flex items-center space-x-2 flex-1 min-w-0 justify-end">
+                            <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
+                              {game.away_team}
+                            </span>
+                            <img
+                              src={game.away_teamlogo || "/placeholder.svg"}
+                              alt={`${game.away_team} logo`}
+                              className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
+                            />
+                          </div>
 
-                      <div className="flex items-center ml-1">
-                        <ChevronDown
-                          className={`h-3 w-3 md:h-4 md:w-4 text-gray-400 transition-transform ${
-                            (game.is_played && expandedGameForLogs?.gamecode === game.gamecode) ||
-                            (
-                              !game.is_played &&
-                                expandedGameForPreview?.home_teamcode === game.home_teamcode &&
-                                expandedGameForPreview?.away_teamcode === game.away_teamcode &&
-                                expandedGameForPreview?.round === game.round
-                            )
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
+                          <div className="flex items-center ml-1 w-6 md:w-8 justify-center">
+                            <ChevronDown className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Game preview expansion - for upcoming games */}
-                  {!game.is_played &&
-                    expandedGameForPreview?.home_teamcode === game.home_teamcode &&
-                    expandedGameForPreview?.away_teamcode === game.away_teamcode &&
-                    expandedGameForPreview?.round === game.round && (
-                      <div className="w-full max-w-full overflow-hidden">{renderGamePreviewExpansion(game)}</div>
                     )}
 
-                  {/* Game log expansion - positioned correctly within grid */}
-                  {game.is_played && game.gamecode && expandedGameForLogs?.gamecode === game.gamecode && (
-                    <div className="w-full max-w-full overflow-hidden">{renderGameLogExpansion(game)}</div>
-                  )}
+                    {/* Expanded content - shown when expanded */}
+                    {(expandedGameForLogs?.gamecode === game.gamecode && game.is_played) && (
+                      <div 
+                        className="relative z-20 cursor-pointer"
+                        onClick={() => {
+                          setExpandedGameForLogs(null)
+                          setExpandedGameLogsData([])
+                          setSelectedGameTeam("")
+                        }}
+                      >
+                        {renderGameLogExpansion(game)}
+                      </div>
+                    )}
+                    
+                    {(expandedGameForPreview?.home_teamcode === game.home_teamcode &&
+                      expandedGameForPreview?.away_teamcode === game.away_teamcode &&
+                      expandedGameForPreview?.round === game.round &&
+                      !game.is_played) && (
+                      <div 
+                        className="relative z-20 cursor-pointer"
+                        onClick={() => {
+                          setExpandedGameForPreview(null)
+                          setHomeTeamStats(null)
+                          setAwayTeamStats(null)
+                          setHomeTeamPlayers([])
+                          setAwayTeamPlayers([])
+                        }}
+                      >
+                        {renderGamePreviewExpansion(game)}
+                      </div>
+                    )}
+                  </div>
+
                 </React.Fragment>
               )
             })}

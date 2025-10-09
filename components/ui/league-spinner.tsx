@@ -94,7 +94,7 @@ export function LeagueLoadingOverlay({
         league={league} 
         size="lg" 
         message={message}
-        className="text-center mt-20 mb-20"
+        className="text-center mt-48 mb-20"
       />
     </div>
   )

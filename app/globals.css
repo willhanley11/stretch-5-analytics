@@ -119,9 +119,9 @@ html {
   overflow-x: hidden;
   /* Prevent zoom on iOS */
   -webkit-text-size-adjust: 100%;
-  /* Force hardware acceleration */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  /* Force hardware acceleration - COMMENTED OUT TO FIX STICKY POSITIONING */
+  /* -webkit-transform: translateZ(0); */
+  /* transform: translateZ(0); */
 }
 
 body {

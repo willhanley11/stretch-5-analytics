@@ -1712,7 +1712,7 @@ export function TeamDetailsTab({
                     ${isSelected ? "shadow-md" : "hover:shadow-sm"}
                     transition-all p-1`}
                           style={{
-                            backgroundColor: isSelected ? teamColor : "light-beige",
+                            backgroundColor: isSelected ? teamColor : "white",
                             border: isSelected ? `1px solid black` : "1px solid #4b5563",
                           }}
                         >
