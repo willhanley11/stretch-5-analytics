@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, Users, BarChart, Calendar, ChevronRight } from "lucide-react" 
+import { ChevronRight } from "lucide-react" 
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
@@ -33,32 +33,28 @@ const menuItems = [
     id: "games",
     title: "Games",
     description: "Upcoming Games & Round Results", 
-    icon: Calendar,
-    color: "text-blue-700",
+    color: "#1D4ED8", // Explicit blue color for border
     shadow: "shadow-blue-200",
   },
   {
     id: "teams",
     title: "Teams",
     description: "Reports, Schedule/Results, Rosters", 
-    icon: Users,
-    color: "text-orange-500",
+    color: "#EA580C", // Explicit orange color for border
     shadow: "shadow-orange-200",
   },
   {
     id: "players",
     title: "Players",
     description: "Profiles, Shot Charts, Game Logs", 
-    icon: Trophy,
-    color: "text-gray-700",
+    color: "#4B5563", // Explicit gray color for border
     shadow: "shadow-gray-200",
   },
   {
     id: "leaders",
     title: "Leaders",
     description: "League Standings, Player Statistics", 
-    icon: BarChart,
-    color: "text-blue-700",
+    color: "#1D4ED8", // Explicit blue color for border
     shadow: "shadow-blue-200",
   },
 ]
@@ -72,8 +68,8 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [isExiting, setIsExiting] = useState(false)
   
-  const [isLeagueDropdownOpen, setIsLeagueDropdownOpen] = useState(false)
-  const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false)
+  const [isLeagueDropdownOpen, setIsLeagueDropdown] = useState(false)
+  const [isSeasonDropdownOpen, setIsSeasonDropdown] = useState(false)
 
   const leagueDropdownRef = useRef<HTMLDivElement>(null)
   const seasonDropdownRef = useRef<HTMLDivElement>(null)
@@ -85,8 +81,8 @@ export default function LandingPage({
       const isOutsideLeague = leagueDropdownRef.current && !leagueDropdownRef.current.contains(target)
       const isOutsideSeason = seasonDropdownRef.current && !seasonDropdownRef.current.contains(target)
       
-      if (isOutsideLeague) setIsLeagueDropdownOpen(false)
-      if (isOutsideSeason) setIsSeasonDropdownOpen(false)
+      if (isOutsideLeague) setIsLeagueDropdown(false)
+      if (isOutsideSeason) setIsSeasonDropdown(false)
     }
 
     document.addEventListener("mousedown", handleClickOutside)
@@ -147,14 +143,23 @@ export default function LandingPage({
 
       <div className="flex flex-col justify-start items-center p-4 pt-4 min-h-[calc(100vh-80px)]">
         
-        {/* Header Section and Dropdowns - NOW max-w-md on mobile, max-w-lg on desktop */}
+        {/* Header Section and Dropdowns - max-w-md on mobile, max-w-lg on desktop */}
         <motion.div
-          className="text-center mb-6 w-full max-w-md sm:max-w-lg mx-auto" // DROPDOWNS are now narrower on mobile
+          className="text-center mb-6 w-full max-w-md sm:max-w-lg mx-auto" 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           
+          {/* Main Title (SUBTLE & SMALLER) */}
+          <motion.h1
+            className="text-sm md:text-lg text-black mb-1 -mt-1 tracking-wide"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            Basketball Analytics & Visualization
+          </motion.h1>
 
           {/* League and Season Selection */}
           <motion.div
@@ -167,8 +172,8 @@ export default function LandingPage({
             <div className="relative flex-1" ref={leagueDropdownRef}>
               <button
                 onClick={() => {
-                  if (isSeasonDropdownOpen) setIsSeasonDropdownOpen(false) 
-                  setIsLeagueDropdownOpen((prev) => !prev) 
+                  if (isSeasonDropdownOpen) setIsSeasonDropdown(false) 
+                  setIsLeagueDropdown((prev) => !prev) 
                 }}
                 className={cn(
                   "w-full border border-gray-300 bg-white text-left text-gray-800 outline-none hover:bg-gray-50 flex items-center justify-between font-semibold transition-all duration-200 h-11 px-4 text-base shadow-sm",
@@ -206,7 +211,7 @@ export default function LandingPage({
                           key={league.id}
                           onClick={() => {
                             onLeagueChange(league.id)
-                            setIsLeagueDropdownOpen(false)
+                            setIsLeagueDropdown(false)
                           }}
                           className={cn(
                             "w-full flex items-center px-4 py-2 text-left transition-colors text-base font-medium",
@@ -228,8 +233,8 @@ export default function LandingPage({
             <div className="relative flex-1" ref={seasonDropdownRef}>
               <button
                 onClick={() => {
-                  if (isLeagueDropdownOpen) setIsLeagueDropdownOpen(false)
-                  setIsSeasonDropdownOpen((prev) => !prev)
+                  if (isLeagueDropdownOpen) setIsLeagueDropdown(false)
+                  setIsSeasonDropdown((prev) => !prev)
                 }}
                 className={cn(
                   "w-full border border-gray-300 bg-white text-left text-gray-800 outline-none hover:bg-gray-50 flex items-center justify-between font-semibold transition-all duration-200 h-11 px-4 text-base shadow-sm",
@@ -267,7 +272,7 @@ export default function LandingPage({
                           key={season.id}
                           onClick={() => {
                             onSeasonChange(season.id)
-                            setIsSeasonDropdownOpen(false)
+                            setIsSeasonDropdown(false)
                           }}
                           className={cn(
                             "w-full flex items-center px-4 py-2 text-left transition-colors text-base font-medium",
@@ -287,7 +292,7 @@ export default function LandingPage({
           </motion.div>
         </motion.div>
         
-        {/* Subtle Divider Line - now uses max-w-md on mobile to match dropdowns */}
+        {/* Subtle Divider Line */}
         <motion.hr 
             className="w-full max-w-md sm:max-w-lg border-gray-300 mb-4" 
             initial={{ opacity: 0 }}
@@ -295,68 +300,63 @@ export default function LandingPage({
             transition={{ duration: 0.6, delay: 0.65 }}
         />
 
-        {/* 4-Box Menu Grid (NARROWER: uses max-w-xs on mobile, max-w-sm on desktop) */}
-        <motion.div
-          className="w-full max-w-xs sm:max-w-sm mx-auto pb-4" // ENFORCES max-w-xs on mobile for narrowness
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-        >
-          {/* Single Column Grid */}
-          <div className="grid grid-cols-1 gap-4"> 
-            {menuItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.8 + index * 0.05 }}
-                whileHover={{ 
-                    scale: 1.02, 
-                    boxShadow: `0 10px 20px -5px ${item.shadow}`,
-                    borderColor: item.color.replace('text', 'border') 
-                }} 
-                whileTap={{ scale: 0.98 }}
-                className="bg-white rounded-xl relative overflow-hidden transition-all duration-300 cursor-pointer border border-gray-200 shadow-md"
-                style={{ willChange: "transform, box-shadow" }}
-              >
-                <button className="w-full text-left p-3" onClick={() => handleMenuSelection(item.id)}> 
-                  
-                  <div className="relative z-10 flex items-center gap-3 justify-between">
-                    <div className="flex items-center gap-3">
-                        {/* Icon Section */}
-                        <div className="flex-shrink-0">
-                          <div
-                            className={cn(
-                              "w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 border-2", 
-                              item.color.includes('blue') || item.color.includes('gray') 
-                                ? "border-blue-100" 
-                                : "border-orange-100"
-                            )}
-                            style={{ boxShadow: "0 0 8px rgba(0, 0, 0, 0.05)" }}
-                          >
-                            <item.icon className={cn("w-5 h-5", item.color)} /> 
-                          </div>
-                        </div>
-
-                        {/* Title and description */}
-                        <div className="flex-grow">
-                          <h3 className="text-lg font-bold text-gray-900 mb-0.5 tracking-wide">
-                            {item.title}
-                          </h3>
-                          <p className="text-xs text-gray-500 font-medium">
-                            {item.description}
-                          </p>
-                        </div>
-                    </div>
+        {/* 4-Box Menu Grid (NARROWER) */}
+        <div className="w-full max-w-xs sm:max-w-sm mx-auto pb-4">
+          
+          <motion.div
+            // *** FIX: Apply an initial hidden state to the grid content and animate in
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+          >
+            {/* Single Column Grid */}
+            <div className="grid grid-cols-1 gap-4"> 
+              {menuItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  // Removed staggered delay on the main wrapper, now applying it to children
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  // Adjusted delay to start immediately after the parent fade-in is timed
+                  transition={{ duration: 0.3, delay: 0.0 + index * 0.05 }} 
+                  whileHover={{ 
+                      scale: 1.02, 
+                      boxShadow: `0 10px 20px -5px ${item.shadow}`,
+                      borderLeftColor: item.color, 
+                  }} 
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-white rounded-xl relative overflow-hidden transition-all duration-300 cursor-pointer border border-gray-200 shadow-md"
+                  style={{ 
+                      willChange: "transform, box-shadow",
+                      borderLeftWidth: '4px', 
+                      borderLeftColor: item.color, 
+                  }}
+                >
+                  <button className="w-full text-left p-3" onClick={() => handleMenuSelection(item.id)}> 
                     
-                    {/* Go Arrow */}
-                    <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+                    <div className="relative z-10 flex items-center gap-3 justify-between">
+                      
+                      <div className="flex items-center gap-3 ml-1"> 
+                          {/* Title and description */}
+                          <div className="flex-grow">
+                            <h3 className="text-lg font-bold text-gray-900 mb-0.5 tracking-wide">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs text-gray-500 font-medium">
+                              {item.description}
+                            </p>
+                          </div>
+                      </div>
+                      
+                      {/* Go Arrow */}
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   )
