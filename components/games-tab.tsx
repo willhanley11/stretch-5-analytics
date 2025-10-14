@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { fetchGameLogsByGamecode } from "@/app/actions/standings"
+import { fetchGameLogsByGamecode, fetchStandingsFromGameLogs } from "@/app/actions/standings"
 import { euroleague_team_colors } from "./yamagata-team-stats"
 import { LeagueLoadingScreen } from "./ui/league-spinner"
 
@@ -77,6 +77,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
   const [homeTeamPlayers, setHomeTeamPlayers] = useState<any[]>([])
   const [awayTeamPlayers, setAwayTeamPlayers] = useState<any[]>([])
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
+  const [teamStandings, setTeamStandings] = useState<any[]>([])
 
   // Get league name for API calls
   const league = selectedLeague === "international-euroleague" ? "euroleague" : "eurocup"
@@ -129,6 +130,30 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
     fetchGames()
   }, [selectedSeason, league])
+
+  // Fetch team standings data
+  useEffect(() => {
+    const fetchStandings = async () => {
+      try {
+        const standings = await fetchStandingsFromGameLogs(selectedSeason, "RS", league)
+        setTeamStandings(standings || [])
+      } catch (error) {
+        console.error("Error fetching standings:", error)
+        setTeamStandings([])
+      }
+    }
+
+    fetchStandings()
+  }, [selectedSeason, league])
+
+  // Helper function to get team record
+  const getTeamRecord = (teamCode: string) => {
+    const team = teamStandings.find(t => t.teamcode === teamCode)
+    if (team && team.w !== undefined && team.l !== undefined) {
+      return `${team.w}-${team.l}`
+    }
+    return null
+  }
 
   // Filter games by selected round
   const roundGames = games.filter((game) => game.round === selectedRound)
@@ -1043,7 +1068,10 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
             {availableTeamsInGame.map((teamCode) => (
               <div
                 key={teamCode}
-                onClick={() => handleGameTeamChange(teamCode)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleGameTeamChange(teamCode)
+                }}
                 className={`
                           flex-1 text-center px-2 py-2 cursor-pointer transition-all duration-200 ease-in-out
                           font-semibold text-xs whitespace-nowrap overflow-hidden text-ellipsis
@@ -1364,8 +1392,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               const [year, month, day] = game.game_date.split("T")[0].split("-")
               const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
 
-              const monthShort = gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
-              const dayNum = gameDate.getDate()
+              // const monthShort = gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
+              // const dayNum = gameDate.getDate()
 
               const currentGameDateString = gameDate.toDateString()
               const previousGame = index > 0 ? sortedRoundGames[index - 1] : null
@@ -1385,36 +1413,33 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               let timeDisplay = ""
               let timezoneDisplay = ""
               try {
-                let gameTime = null
+                let gameTime: Date | null = null
 
                 // First try to use game_time if available
                 if (game.time && game.time !== "00:00:00") {
                   // Parse the time string (HH:MM:SS format)
                   const [hours, minutes] = game.time.split(":")
 
-                  // Create a date string in ISO format assuming CET timezone
-                  // CET is UTC+1 (or UTC+2 during DST, but we'll use UTC+1 as baseline)
+                  // Create a date string in ISO format assuming CET timezone (simplified: treating it as UTC for browser conversion)
                   const gameDateStr = game.game_date.split("T")[0] // Get YYYY-MM-DD
-
-                  // Create the time in CET by manually constructing a UTC timestamp
-                  // If the game is at 20:00 CET, that's 19:00 UTC (20:00 - 1 hour)
+                  
+                  // Construct a datetime string
                   const cetHours = Number.parseInt(hours)
                   const cetMinutes = Number.parseInt(minutes)
-                  const utcHours = cetHours // Convert CET to UTC
-
-                  // Create a UTC date string
-                  const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+                  
+                  const utcDateStr = `${gameDateStr}T${String(cetHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
                   gameTime = new Date(utcDateStr)
+
                 } else if (game.game_time && game.game_time !== "00:00:00") {
                   const [hours, minutes] = game.game_time.split(":")
 
                   const gameDateStr = game.game_date.split("T")[0]
                   const cetHours = Number.parseInt(hours)
                   const cetMinutes = Number.parseInt(minutes)
-                  const utcHours = cetHours
 
-                  const utcDateStr = `${gameDateStr}T${String(utcHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
+                  const utcDateStr = `${gameDateStr}T${String(cetHours).padStart(2, "0")}:${String(cetMinutes).padStart(2, "0")}:00Z`
                   gameTime = new Date(utcDateStr)
+                  
                 } else {
                   // Try to extract time from the game_date if it includes time
                   const time = gameDate.toLocaleTimeString("en-US", {
@@ -1518,66 +1543,111 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             handleGamePreviewClick(game)
                           }
                         }}
-                        className="p-1.5 md:p-2 cursor-pointer hover:bg-gray-50"
+                        className="flex w-full cursor-pointer hover:bg-gray-50" 
                       >
-                        <div className="flex items-center w-full">
-                          {/* Home Team */}
-                          <div className="flex items-center space-x-2 flex-1 min-w-0">
-                            <img
-                              src={game.home_teamlogo || "/placeholder.svg"}
-                              alt={`${game.home_team} logo`}
-                              className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
-                            />
-                            <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
-                              {game.home_team}
-                            </span>
-                          </div>
-
-                          {/* Score or VS with time - positioned to align with date headers */}
-                          <div className="flex items-center justify-center px-2 md:px-4 ml-6 md:ml-8">
-                            {game.is_played && game.home_score !== null && game.away_score !== null ? (
+                        
+                        {/* 1. TIME/SCORE STATUS COLUMN (Left Side with Divider) */}
+                        <div className="flex-shrink-0 w-20 md:w-28 flex flex-col items-center justify-center p-1.5 md:p-2 border-r border-gray-200">
+                           {game.is_played && game.home_score !== null && game.away_score !== null ? (
                               <div className="text-center">
-                                <div className="text-[9px] md:text-sm font-bold text-blue-600">
-                                  {game.away_score}-{game.home_score}
+                                {/* Only display FINAL status here */}
+                                <div className="text-[10px] md:text-sm font-bold text-gray-700">
+                                  FINAL
                                 </div>
                               </div>
                             ) : (
                               <div className="text-center">
-                                <div className="text-[8px] md:text-xs font-medium text-gray-500 mb-0.5">vs.</div>
-                                {timeDisplay && (
-                                  <div className="flex flex-col items-center">
-                                    <div className="text-[10px] md:text-sm text-gray-900 font-bold">{timeDisplay}</div>
+                                {timeDisplay ? (
+                                  <>
+                                    {/* Stack the time and timezone vertically */}
+                                    <div className="text-xs md:text-base text-gray-900 font-bold">{timeDisplay}</div>
                                     {timezoneDisplay && (
-                                      <div className="text-[6px] md:text-[8px] text-gray-500 font-medium">
+                                      <div className="text-[8px] md:text-[10px] text-gray-500 font-medium">
                                         {timezoneDisplay}
                                       </div>
                                     )}
-                                  </div>
+                                  </>
+                                ) : (
+                                  <div className="text-[8px] md:text-xs font-medium text-gray-500">TBD</div>
                                 )}
                               </div>
                             )}
-                          </div>
+                        </div>
 
-                          {/* Away Team */}
-                          <div className="flex items-center space-x-2 flex-1 min-w-0 justify-end">
-                            <span className="text-[10px] md:text-xs font-medium text-gray-900 truncate">
-                              {game.away_team}
-                            </span>
-                            <img
-                              src={game.away_teamlogo || "/placeholder.svg"}
-                              alt={`${game.away_team} logo`}
-                              className="w-7 h-7 md:w-9 md:h-9 object-contain flex-shrink-0"
-                            />
-                          </div>
+                        {/* 2. TEAM & SCORE COLUMN (Main Content) */}
+                        <div className="flex-1 min-w-0 p-1.5 md:p-2">
+                            <div className="flex flex-col space-y-2">
+                                
+                                {/* Row 1: Home Team */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <img
+                                            src={game.home_teamlogo || "/placeholder.svg"}
+                                            alt={`${game.home_team} logo`}
+                                            className="w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0"
+                                        />
+                                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                                            {game.home_team}
+                                            {!game.is_played && getTeamRecord(game.home_teamcode) && (
+                                                <span className="text-[10px] md:text-xs text-gray-500 font-normal ml-1">
+                                                    ({getTeamRecord(game.home_teamcode)})
+                                                </span>
+                                            )}
+                                        </span>
+                                    </div>
+                                    {/* **FIX: Display HOME score next to the home team if played** */}
+                                    {game.is_played && game.home_score !== null && (
+                                        <span className={`text-sm md:text-lg font-bold ${
+                                            // Highlight winner's score
+                                            game.home_score > (game.away_score || 0) 
+                                                ? 'text-green-700' 
+                                                : 'text-gray-700'
+                                        }`}>
+                                            {game.home_score}
+                                        </span>
+                                    )}
+                                </div>
 
-                          <div className="flex items-center ml-1 w-6 md:w-8 justify-center">
-                            <ChevronDown className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
-                          </div>
+                                {/* Row 2: Away Team */}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <img
+                                            src={game.away_teamlogo || "/placeholder.svg"}
+                                            alt={`${game.away_team} logo`}
+                                            className="w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0"
+                                        />
+                                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                                            {game.away_team}
+                                            {!game.is_played && getTeamRecord(game.away_teamcode) && (
+                                                <span className="text-[10px] md:text-xs text-gray-500 font-normal ml-1">
+                                                    ({getTeamRecord(game.away_teamcode)})
+                                                </span>
+                                            )}
+                                        </span>
+                                    </div>
+                                    {/* **FIX: Display AWAY score next to the away team if played** */}
+                                    {game.is_played && game.away_score !== null && (
+                                        <span className={`text-sm md:text-lg font-bold ${
+                                            // Highlight winner's score
+                                            game.away_score > (game.home_score || 0) 
+                                                ? 'text-green-700' 
+                                                : 'text-gray-700'
+                                        }`}>
+                                            {game.away_score}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. ARROW COLUMN (Right Side) */}
+                        <div className="flex items-center ml-1 w-6 md:w-8 justify-center flex-shrink-0">
+                            <ChevronRight className="h-3 w-3 md:h-4 md:w-4 text-gray-400" /> 
                         </div>
                       </div>
                     )}
 
-                    {/* Expanded content - shown when expanded */}
+                    {/* Expanded content - shown when expanded (logic remains the same) */}
                     {(expandedGameForLogs?.gamecode === game.gamecode && game.is_played) && (
                       <div 
                         className="relative z-20 cursor-pointer"
