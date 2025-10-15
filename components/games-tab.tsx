@@ -1269,53 +1269,69 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     <div className="w-full max-w-5xl mx-auto px-0 py-2 md:p-6 relative">
       
       {/* Round Selector - Mobile Style */}
-      <div className="md:hidden bg-black shadow-xl rounded-xl relative -mt-5 mb-3">
-        <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
-          <div className="flex items-center h-full">
-            <div className="flex-1" style={{ backgroundColor: "#D37000" }}>
+      <div className="md:hidden mb-2 -mt-6">
+        <div className="flex justify-center">
+          <div className="flex items-center justify-between w-full bg-white rounded-lg border border-gray-300 shadow-sm p-1">
+            {/* Previous Round Arrow */}
+            <button
+              onClick={handlePreviousRound}
+              disabled={availableRounds.indexOf(selectedRound) === 0}
+              className={cn(
+                "p-1 rounded transition-colors",
+                availableRounds.indexOf(selectedRound) === 0
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            {/* Round Display with Dropdown */}
+            <div className="relative flex-1 mx-2">
               <button
                 onClick={() => setIsRoundDropdownOpen(!isRoundDropdownOpen)}
-                className="w-full h-full py-2 px-3 text-center flex items-center justify-center space-x-2"
+                className="flex items-center justify-center w-full py-1 rounded-lg text-gray-900 hover:text-gray-700 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm text-sm font-semibold"
               >
-                <h2
-                  className="text-md font-bold text-white"
-                  style={{ textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000" }}
-                >
-                  Round {selectedRound}
-                </h2>
-                <ChevronDown
-                  className={`h-4 w-4 text-white transition-transform ${isRoundDropdownOpen ? "rotate-180" : ""}`}
-                  style={{
-                    filter:
-                      "drop-shadow(1px 1px 0 #000) drop-shadow(-1px -1px 0 #000) drop-shadow(1px -1px 0 #000) drop-shadow(-1px 1px 0 #000)",
-                  }}
-                />
+                <span>Round {selectedRound}</span>
               </button>
+
+              {isRoundDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                  <div className="py-1 max-h-60 overflow-y-auto">
+                    {availableRounds.map((round) => (
+                      <button
+                        key={round}
+                        onClick={() => handleRoundChange(round)}
+                        className={cn(
+                          "flex items-center w-full px-4 py-2 text-sm transition-colors",
+                          selectedRound === round
+                            ? "bg-gray-100 text-gray-900 font-medium"
+                            : "text-gray-600 hover:bg-gray-50",
+                        )}
+                      >
+                        Round {round}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Next Round Arrow */}
+            <button
+              onClick={handleNextRound}
+              disabled={availableRounds.indexOf(selectedRound) === availableRounds.length - 1}
+              className={cn(
+                "p-1 rounded transition-colors",
+                availableRounds.indexOf(selectedRound) === availableRounds.length - 1
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              )}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
-
-        {/* Dropdown Menu */}
-        {isRoundDropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-10 border border-gray-200 shadow-xl bg-white">
-            <div className="py-2 max-h-60 overflow-y-auto">
-              {availableRounds.map((round) => (
-                <button
-                  key={round}
-                  onClick={() => handleRoundChange(round)}
-                  className={cn(
-                    "flex items-center w-full px-3 py-2 text-sm transition-colors",
-                    selectedRound === round
-                      ? "bg-orange-50 text-orange-900 font-medium"
-                      : "text-gray-600 hover:bg-gray-50",
-                  )}
-                >
-                  Round {round}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Round Selector - Desktop Style */}
@@ -1481,14 +1497,21 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
                   {isNewDate && (
-                    <div className="w-full flex items-center my-2">
+                    <div className={`w-full flex items-center mb-1 ${index === 0 ? 'my-2' : 'mt-6 mb-2'}`}>
                       <div className="flex-grow h-px bg-gray-300"></div>
-                      <div className="px-4 py-1 mx-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg border border-gray-300 shadow-sm">
-                        {gameDate.toLocaleDateString("en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                      <div className="flex items-center gap-1 mx-2">
+                        {/* Weekday container */}
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300">
+                          {gameDate.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
+                        </div>
+                        {/* Month container */}
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300">
+                          {gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()}
+                        </div>
+                        {/* Day container */}
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300 min-w-[32px] text-center">
+                          {gameDate.getDate()}
+                        </div>
                       </div>
                       <div className="flex-grow h-px bg-gray-300"></div>
                     </div>
