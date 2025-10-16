@@ -525,6 +525,28 @@ function StatisticsTab({
     return `${seasonValue}-${(seasonValue + 1).toString().slice(-2)}`
   }
 
+  // Check if postseason data should be available for the given season
+  const hasPostseasonData = (seasonValue: number) => {
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth() + 1 // JavaScript months are 0-indexed
+    
+    // Season 2025 = 2024-25 season, Season 2026 = 2025-26 season, etc.
+    const seasonEndYear = seasonValue + 1
+    
+    // If this is the current season or a future season
+    if (seasonEndYear >= currentYear) {
+      // For current season, check if we're past playoff time (April)
+      if (seasonEndYear === currentYear) {
+        return currentMonth >= 4
+      }
+      // For future seasons, no postseason data yet
+      return false
+    }
+    
+    // For past seasons, assume postseason data exists
+    return true
+  }
+
 
   if (isPlayerStatsLoading) {
     return (
@@ -537,25 +559,20 @@ function StatisticsTab({
   }
 
   return (
-    <div className="bg-white rounded-md border border-black shadow-sm ">
+    <div className="bg-white rounded-md border  shadow-sm ">
       {/* Team color header strip */}
-      <div
-        className="w-full h-2 border-b border-black rounded-t-md "
-        style={{
-          backgroundColor: "#9ca3af", // gray-400
-        }}
-      />
-      <div className="p-3">
-        <div className="flex justify-between items-center mb-4">
+      
+      <div className="p-1 py-2">
+        <div className="flex justify-between items-center mb-3 pr-1">
         <div className="flex items-center gap-2 ml-1">
-          <h3 className="text-xl font-semibold">Statistics</h3>
           {/* Search - inline on desktop */}
-          <div className="relative w-28 md:w-72 ml-1 md:ml-4">
+          <div className="relative w-60 md:w-72 ml-1 md:ml-4">
             <Search className="absolute left-1 md:left-3 top-1/2 transform -translate-y-1/2 h-2.5 md:h-4 w-2.5 md:w-4 text-gray-400" />
-            <Input
+            <input
               type="text"
               placeholder="Search..."
-              className="pl-4 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[10px] md:text-xs border border-gray-300 focus:outline-none w-full h-6 md:h-8 search-input-mobile"
+              className="pl-6 md:pl-10 pr-1 md:pr-3 py-0 md:py-1 text-[10px] md:text-xs border border-gray-300 focus:outline-none w-full h-6 md:h-8"
+              style={{ borderRadius: '6px' }}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -575,10 +592,10 @@ function StatisticsTab({
         <div className="flex items-center gap-1 md:gap-4 flex-wrap justify-end">
 
           {/* Stat Display Mode Toggle */}
-          <div className="flex rounded-full border bg-[#f1f5f9] p-0.5">
+          <div className="flex rounded-md border bg-[#f1f5f9] p-0.5">
             <button
               onClick={() => setStatDisplayMode("averages")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
+              className={`rounded-lg px-2 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "averages" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -586,7 +603,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("per40")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
+              className={`rounded-lg px-2 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "per40" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -594,7 +611,7 @@ function StatisticsTab({
             </button>
             <button
               onClick={() => setStatDisplayMode("total")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
+              className={`rounded-lg px-2 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
                 statDisplayMode === "total" ? "bg-[#475569] text-white" : "text-[#475569]"
               }`}
             >
@@ -602,32 +619,34 @@ function StatisticsTab({
             </button>
           </div>
 
-          {/* Phase Toggle */}
-          <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
-            <button
-              onClick={() => setSelectedPhase("Regular")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
-                selectedPhase === "Regular" ? "bg-[#475569] text-white" : "text-[#475569]"
-              }`}
-            >
-              RS
-            </button>
-            <button
-              onClick={() => setSelectedPhase("Playoffs")}
-              className={`rounded-full px-1 md:px-1 py-0.5 text-[9px] md:text-xs font-medium ${
-                selectedPhase === "Playoffs" ? "bg-[#475569] text-white" : "text-[#475569]"
-              }`}
-            >
-              PO
-            </button>
-          </div>
+          {/* Phase Toggle - only show if postseason data is available */}
+          {hasPostseasonData(season) && (
+            <div className="flex rounded-xl bg-[#f1f5f9] p-0.5 border">
+              <button
+                onClick={() => setSelectedPhase("Regular")}
+                className={`rounded-xl px-2 md:px-1 py-2 text-[9px] md:text-xs font-medium ${
+                  selectedPhase === "Regular" ? "bg-[#475569] text-white" : "text-[#475569]"
+                }`}
+              >
+                RS
+              </button>
+              <button
+                onClick={() => setSelectedPhase("Playoffs")}
+                className={`rounded-xl px-2 md:px-1 py-2 text-[9px] md:text-xs font-medium ${
+                  selectedPhase === "Playoffs" ? "bg-[#475569] text-white" : "text-[#475569]"
+                }`}
+              >
+                PO
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="relative sm:-ml-2 sm:-mr-2">
-        <div className="grid grid-cols-[180px_1fr] md:grid-cols-[220px_1fr] min-h-[500px]">
+        <div className="grid grid-cols-[150px_1fr] md:grid-cols-[220px_1fr] min-h-[500px]">
           {/* Fixed Player Column */}
-          <div className="bg-white border-r-2 md:border-r-2 border-black relative z-30 h-full">
+          <div className="bg-white border-r relative z-30 h-full">
             <table className="w-full text-[11px] md:text-xs border-collapse rounded-none" style={{borderSpacing: 0}}>
               <thead>
                 <tr className="bg-gray-100 h-6 md:h-8 border-b-2 border-black border-t-2 border-t-black">
@@ -677,8 +696,8 @@ function StatisticsTab({
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] md:text-[10px] font-medium text-nowrap text-black leading-tight">
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[9px] md:text-[10px] font-medium text-black leading-tight truncate overflow-hidden max-w-[120px] md:max-w-[160px] block">
                                     {player.player_name}
                                   </span>
                                 </div>

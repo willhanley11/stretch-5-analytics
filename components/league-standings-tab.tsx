@@ -745,19 +745,23 @@ export function LeagueStandingsTab({
       <>
         <div className="md:hidden mb-0 -mt-6">
           <div className="flex justify-center">
-            <div className="flex items-center w-full bg-gray-100 border-l border-r border-gray-300  p-1">
+            <div className="flex items-center w-full bg-gray-100 border-l border-r border-gray-300  py-1">
               {/* Table Mode Dropdown */}
               <div className="relative flex-1">
                 <button
-                  onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
-                  className=" mb-2 flex items-center justify-center w-full py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white border border-gray-300 transition-all duration-200 shadow-lg text-sm font-bold gap-2"
+                  onClick={() => {
+                    setIsTableDropdownOpen(!isTableDropdownOpen)
+                    setIsCategoryDropdownOpen(false)
+                    setIsSubcategoryDropdownOpen(false)
+                  }}
+                  className=" mb-2 flex items-center justify-center w-full py-2 rounded-sm text-gray-900 hover:text-gray-700 bg-white border border-gray-300 transition-all duration-200 shadow-md text-sm font-semibold gap-2"
                 >
                   <span>{selectedTableMode === "league" ? "Regular Season Table" : "Player Statistics"}</span>
                   <ChevronDown className="h-4 w-4" />
                 </button>
 
                 {isTableDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                  <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white">
                     <div className="py-1">
                       <button
                         onClick={() => {
@@ -843,18 +847,22 @@ export function LeagueStandingsTab({
 
         {selectedTableMode === "league" ? (
           /* Team Standings Section - Full Width */
-          <div className=" mt-0 w-full bg-gray-100  rounded md:rounded-md shadow-xl overflow-hidden rounded-b-lg">
+          <div className=" mt-0 w-full bg-white border border-gray-300  rounded-sm md:rounded-md shadow-xl overflow-hidden rounded-b-lg">
             {/* Team color header strip */}
             
-            <div className="p-1 md:p-5">
+            <div className="p-1 py-1.5 md:p-5">
               <div className="flex justify-between items-center mb-4 gap-2">
                 <div className="flex gap-2 flex-1">
                   {/* Category Dropdown (Offense/Defense/Overall) */}
                   {selectedTableMode === "league" && (
                     <div className="relative flex-1">
                       <button
-                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                        className="flex items-center justify-center px-4 py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
+                        onClick={() => {
+                          setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                          setIsSubcategoryDropdownOpen(false)
+                          setIsTableDropdownOpen(false)
+                        }}
+                        className="flex items-center justify-center px-4 py-1.5 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
                       >
                         <span>
                           {categoryMode === "overall" && "Overall"}
@@ -864,7 +872,7 @@ export function LeagueStandingsTab({
                         <ChevronDown className="h-3 w-3" />
                       </button>
                       {isCategoryDropdownOpen && (
-                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white">
                           <div className="py-2">
                             <button
                               onClick={() => {
@@ -915,8 +923,12 @@ export function LeagueStandingsTab({
                   {selectedTableMode === "league" && (
                     <div className="relative flex-1">
                       <button
-                        onClick={() => setIsSubcategoryDropdownOpen(!isSubcategoryDropdownOpen)}
-                        className="flex items-center justify-center px-4 py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
+                        onClick={() => {
+                          setIsSubcategoryDropdownOpen(!isSubcategoryDropdownOpen)
+                          setIsCategoryDropdownOpen(false)
+                          setIsTableDropdownOpen(false)
+                        }}
+                        className="flex items-center justify-center px-4 py-1.5 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
                       >
                         <span>
                           {getAvailableSubcategories().find(sub => sub.key === subcategoryMode)?.label || "4 Factors"}
@@ -924,7 +936,7 @@ export function LeagueStandingsTab({
                         <ChevronDown className="h-3 w-3" />
                       </button>
                       {isSubcategoryDropdownOpen && (
-                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-50 border border-gray-200 shadow-lg bg-white">
                           <div className="py-2">
                             {getAvailableSubcategories().map((subcategory) => (
                               <button
@@ -1051,7 +1063,7 @@ export function LeagueStandingsTab({
                             </td>
 
                             {/* Team Column */}
-                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm w-[80px] md:min-w-[160px] md:w-[160px]">
+                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-gray-300 shadow-sm w-[80px] md:min-w-[160px] md:w-[160px]">
                               <button
                                 onClick={() => {
                                   setActiveTab("teams")
@@ -1095,7 +1107,7 @@ export function LeagueStandingsTab({
                                       key={column.key}
                                       className={`py-0.5 md:py-1 px-1 md:px-2 text-center font-mono text-[0.5rem] md:text-[0.65rem] ${statColumnWidth} ${
                                         colIndex === group.columns.length - 1 && groupIndex < columnGroups.length - 1
-                                          ? "border-r-2 border-gray-800"
+                                          ? "border-r-2 border-gray-300"
                                           : ""
                                       }`}
                                     >
