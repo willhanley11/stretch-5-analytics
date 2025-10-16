@@ -255,7 +255,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
         return (
           <motion.div
             className=" px-2 pb-4 pt-6 md:px-8 md:pt-2"
-            style={{ backgroundColor: "#fdf9f3" }}
+            style={{ backgroundColor: "#F8F9FA" }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -277,7 +277,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="px-2 pb-4 pt-6  md:px-8 md:pt-2"
             style={{
-              backgroundColor: "#fdf9f3",
+              backgroundColor: "#F8F9FA",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -328,7 +328,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Remove mobile horizontal padding
             style={{
-              backgroundColor: "#fdf9f3",
+              backgroundColor: "#F8F9FA",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -365,7 +365,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
           <motion.div
             className="pb-4 pt-6 sm:px-6 md:px-8 md:pt-2" // Use consistent padding
             style={{
-              backgroundColor: "#fdf9f3",
+              backgroundColor: "#F8F9FA",
             }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -720,7 +720,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 pt-20 sm:pt-28" style={{ backgroundColor: '#fdf9f3' }}>{renderActiveContent()}</main>
+      <main className="relative z-10 pt-20 sm:pt-28" style={{ backgroundColor: '#F8F9FA' }}>{renderActiveContent()}</main>
 
       {/* Mobile menu (remains outside the fixed header logic for its own animation) */}
       <AnimatePresence>
