@@ -111,7 +111,7 @@ export default function LandingPage({
 
   return (
     <motion.div
-      className="min-h-screen fixed inset-0 z-[100] overflow-y-auto bg-warm-beige"
+      className="min-h-screen fixed inset-0 z-[100] overflow-y-auto bg-[#F8F9FA]"
       
       animate={{
         opacity: isExiting ? 0 : 1,

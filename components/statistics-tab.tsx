@@ -624,7 +624,7 @@ function StatisticsTab({
         </div>
       </div>
 
-      <div className="relative -ml-2 -mr-2">
+      <div className="relative sm:-ml-2 sm:-mr-2">
         <div className="grid grid-cols-[180px_1fr] md:grid-cols-[220px_1fr] min-h-[500px]">
           {/* Fixed Player Column */}
           <div className="bg-white border-r-2 md:border-r-2 border-black relative z-30 h-full">

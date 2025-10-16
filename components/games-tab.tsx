@@ -1271,7 +1271,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       {/* Round Selector - Mobile Style */}
       <div className="md:hidden mb-2 -mt-6">
         <div className="flex justify-center">
-          <div className="flex items-center justify-between w-full bg-white rounded-lg border border-gray-300 shadow-sm p-1">
+          <div className="flex items-center justify-between w-full bg-white rounded border border-gray-300 shadow-sm p-1">
             {/* Previous Round Arrow */}
             <button
               onClick={handlePreviousRound}
@@ -1283,14 +1283,14 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               )}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-8 w-4" />
             </button>
 
             {/* Round Display with Dropdown */}
             <div className="relative flex-1 mx-2">
               <button
                 onClick={() => setIsRoundDropdownOpen(!isRoundDropdownOpen)}
-                className="flex items-center justify-center w-full py-1 rounded-lg text-gray-900 hover:text-gray-700 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm text-sm font-semibold"
+                className="flex items-center justify-center w-full py-1 border border-gray-300 rounded-sm text-gray-800 hover:text-gray-700 hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm text-md font-bold"
               >
                 <span>Round {selectedRound}</span>
               </button>
@@ -1403,7 +1403,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
       {/* Games Grid */}
       {sortedRoundGames.length > 0 ? (
         <div className="px-0 md:px-0">
-          <div className="grid gap-2 md:gap-3">
+          <div className="grid gap-1 md:gap-3">
             {sortedRoundGames.map((game, index) => {
               const [year, month, day] = game.game_date.split("T")[0].split("-")
               const gameDate = new Date(Number.parseInt(year), Number.parseInt(month) - 1, Number.parseInt(day))
@@ -1497,9 +1497,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
               return (
                 <React.Fragment key={`${game.round}-${game.home_teamcode}-${game.away_teamcode}`}>
                   {isNewDate && (
-                    <div className={`w-full flex items-center mb-1 ${index === 0 ? 'my-2' : 'mt-6 mb-2'}`}>
+                    <div className={`w-full flex items-center mb-1 ${index === 0 ? 'my-2' : 'mt-4 mb-1'}`}>
                       <div className="flex-grow h-px bg-gray-300"></div>
-                      <div className="flex items-center gap-1 mx-2">
+                      <div className="flex items-center gap-1 mx-1">
                         {/* Weekday container */}
                         <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300">
                           {gameDate.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
@@ -1546,7 +1546,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         }
                         
                         // Default state
-                        return "rounded-lg border border-gray-200 shadow-md hover:shadow-lg";
+                        return "rounded border border-gray-300 shadow-md hover:shadow-lg";
                       })()
                     }`}
                   >
@@ -1566,11 +1566,11 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                             handleGamePreviewClick(game)
                           }
                         }}
-                        className="flex w-full cursor-pointer hover:bg-gray-50" 
+                        className="flex w-full cursor-pointer" 
                       >
                         
                         {/* 1. TIME/SCORE STATUS COLUMN (Left Side with Divider) */}
-                        <div className="flex-shrink-0 w-20 md:w-28 flex flex-col items-center justify-center p-1.5 md:p-2 border-r border-gray-200">
+                        <div className="flex-shrink-0 w-16 md:w-28 flex flex-col items-center justify-center p-1.5 md:p-2 border-r border-gray-200">
                            {game.is_played && game.home_score !== null && game.away_score !== null ? (
                               <div className="text-center">
                                 {/* Only display FINAL status here */}
@@ -1607,9 +1607,19 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                                         <img
                                             src={game.home_teamlogo || "/placeholder.svg"}
                                             alt={`${game.home_team} logo`}
-                                            className="w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0"
+                                            className={`w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0 ${
+                                                game.is_played && game.home_score !== null && game.away_score !== null && game.home_score <= game.away_score
+                                                    ? 'opacity-50'
+                                                    : 'opacity-100'
+                                            }`}
                                         />
-                                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                                        <span className={`text-xs md:text-sm truncate ${
+                                            game.is_played && game.home_score !== null && game.away_score !== null
+                                                ? game.home_score > game.away_score
+                                                    ? 'font-bold text-gray-900'
+                                                    : 'font-medium text-gray-500'
+                                                : 'font-medium text-gray-900'
+                                        }`}>
                                             {game.home_team}
                                             {!game.is_played && getTeamRecord(game.home_teamcode) && (
                                                 <span className="text-[10px] md:text-xs text-gray-500 font-normal ml-1">
@@ -1623,8 +1633,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                                         <span className={`text-sm md:text-lg font-bold ${
                                             // Highlight winner's score
                                             game.home_score > (game.away_score || 0) 
-                                                ? 'text-green-700' 
-                                                : 'text-gray-700'
+                                                ? 'text-gray-800' 
+                                                : 'text-gray-400'
                                         }`}>
                                             {game.home_score}
                                         </span>
@@ -1637,9 +1647,19 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                                         <img
                                             src={game.away_teamlogo || "/placeholder.svg"}
                                             alt={`${game.away_team} logo`}
-                                            className="w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0"
+                                            className={`w-5 h-5 md:w-7 md:h-7 object-contain flex-shrink-0 ${
+                                                game.is_played && game.home_score !== null && game.away_score !== null && game.away_score <= game.home_score
+                                                    ? 'opacity-50'
+                                                    : 'opacity-100'
+                                            }`}
                                         />
-                                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">
+                                        <span className={`text-xs md:text-sm truncate ${
+                                            game.is_played && game.home_score !== null && game.away_score !== null
+                                                ? game.away_score > game.home_score
+                                                    ? 'font-bold text-gray-900'
+                                                    : 'font-medium text-gray-500'
+                                                : 'font-medium text-gray-900'
+                                        }`}>
                                             {game.away_team}
                                             {!game.is_played && getTeamRecord(game.away_teamcode) && (
                                                 <span className="text-[10px] md:text-xs text-gray-500 font-normal ml-1">
@@ -1653,8 +1673,8 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                                         <span className={`text-sm md:text-lg font-bold ${
                                             // Highlight winner's score
                                             game.away_score > (game.home_score || 0) 
-                                                ? 'text-green-700' 
-                                                : 'text-gray-700'
+                                                ? 'text-gray-800' 
+                                                : 'text-gray-400'
                                         }`}>
                                             {game.away_score}
                                         </span>

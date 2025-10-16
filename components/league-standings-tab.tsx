@@ -3,7 +3,7 @@
 import React from "react"
 import type { ReactNode } from "react"
 import { useState, useEffect, useMemo } from "react"
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react"
 import {
   fetchAllTeamAdvancedStatsCalculated,
   fetchLeagueAveragesPrecalculated,
@@ -33,16 +33,8 @@ interface LeagueStandingsTabProps {
   onNavigateToTeams?: () => void
 }
 
-type ViewMode =
-  | "team"
-  | "off-4factors"
-  | "off-shooting"
-  | "off-ptdist"
-  | "off-misc"
-  | "def-4factors"
-  | "def-shooting"
-  | "def-ptdist"
-  | "def-misc"
+type CategoryMode = "overall" | "offense" | "defense"
+type SubcategoryMode = "ratings-pace" | "4factors" | "shooting" | "ptdist" | "misc"
 type DisplayMode = "rank" | "value"
 
 const formatStatValue = (value: number | undefined | null, decimals = 1, statKey?: string) => {
@@ -78,15 +70,42 @@ export function LeagueStandingsTab({
   const [isAdvancedStatsLoading, setIsAdvancedStatsLoading] = useState(false)
   const [sortColumn, setSortColumn] = useState<string>("w")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
-  const [viewMode, setViewMode] = useState<ViewMode>("team")
+  const [categoryMode, setCategoryMode] = useState<CategoryMode>("overall")
+  const [subcategoryMode, setSubcategoryMode] = useState<SubcategoryMode>("ratings-pace")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("rank")
   const [selectedTableMode, setSelectedTableMode] = useState<"league" | "player">(initialTableMode || "league")
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false)
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
+  const [isSubcategoryDropdownOpen, setIsSubcategoryDropdownOpen] = useState(false)
 
   // Debug logging
 
   const [playerSearch, setPlayerSearch] = useState("")
   // const [activeDesktopTable, setActiveDesktopTable] = useState<"standings" | "statistics">("standings")
+
+  // Get available subcategories based on category mode
+  const getAvailableSubcategories = () => {
+    if (categoryMode === "overall") {
+      return [{ key: "ratings-pace", label: "Ratings & Pace" }]
+    } else {
+      return [
+        { key: "4factors", label: "4 Factors" },
+        { key: "shooting", label: "Shooting" },
+        { key: "ptdist", label: "Point Distribution" },
+        { key: "misc", label: "Misc" },
+      ]
+    }
+  }
+
+  // Update subcategory when category changes
+  const handleCategoryChange = (newCategory: CategoryMode) => {
+    setCategoryMode(newCategory)
+    if (newCategory === "overall") {
+      setSubcategoryMode("ratings-pace")
+    } else {
+      setSubcategoryMode("4factors")
+    }
+  }
 
   const getTeamColorStyles = (teamName: string, teamCode?: string) => {
     const code = teamCode || ""
@@ -254,29 +273,41 @@ export function LeagueStandingsTab({
       ],
     }
 
-    // Return groups based on view mode
-    switch (viewMode) {
-      case "team":
-        return [recordGroup, paceGroup, ratingGroup]
-      case "off-4factors":
-        return [recordGroup, fourFactorsOffense]
-      case "off-shooting":
-        return [recordGroup, shootingOffense]
-      case "off-ptdist":
-        return [recordGroup, ptDistOffense]
-      case "off-misc":
-        return [recordGroup, miscOffense]
-      case "def-4factors":
-        return [recordGroup, fourFactorsDefense]
-      case "def-shooting":
-        return [recordGroup, shootingDefense]
-      case "def-ptdist":
-        return [recordGroup, ptDistDefense]
-      case "def-misc":
-        return [recordGroup, miscDefense]
-      default:
+    // Return groups based on category and subcategory mode
+    if (categoryMode === "overall") {
+      if (subcategoryMode === "ratings-pace") {
         return [recordGroup, ratingGroup, paceGroup]
+      }
+    } else if (categoryMode === "offense") {
+      switch (subcategoryMode) {
+        case "4factors":
+          return [recordGroup, fourFactorsOffense]
+        case "shooting":
+          return [recordGroup, shootingOffense]
+        case "ptdist":
+          return [recordGroup, ptDistOffense]
+        case "misc":
+          return [recordGroup, miscOffense]
+        default:
+          return [recordGroup, fourFactorsOffense]
+      }
+    } else if (categoryMode === "defense") {
+      switch (subcategoryMode) {
+        case "4factors":
+          return [recordGroup, fourFactorsDefense]
+        case "shooting":
+          return [recordGroup, shootingDefense]
+        case "ptdist":
+          return [recordGroup, ptDistDefense]
+        case "misc":
+          return [recordGroup, miscDefense]
+        default:
+          return [recordGroup, fourFactorsDefense]
+      }
     }
+
+    // Default fallback
+    return [recordGroup, ratingGroup, paceGroup]
   }
 
   const getRank = (teamCode: string, statKey: string) => {
@@ -712,7 +743,58 @@ export function LeagueStandingsTab({
   return (
     <div className="max-w-6xl mx-auto w-full">
       <>
-        <div className="bg-black shadow-md rounded-xl relative -mt-3 md:mt-0 mb-4">
+        <div className="md:hidden mb-0 -mt-6">
+          <div className="flex justify-center">
+            <div className="flex items-center w-full bg-gray-100 border-l border-r border-gray-300  p-1">
+              {/* Table Mode Dropdown */}
+              <div className="relative flex-1">
+                <button
+                  onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
+                  className=" mb-2 flex items-center justify-center w-full py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white border border-gray-300 transition-all duration-200 shadow-lg text-sm font-bold gap-2"
+                >
+                  <span>{selectedTableMode === "league" ? "Regular Season Table" : "Player Statistics"}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+
+                {isTableDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setSelectedTableMode("league")
+                          setIsTableDropdownOpen(false)
+                        }}
+                        className={`flex items-center w-full px-4 py-2 text-sm transition-colors ${
+                          selectedTableMode === "league"
+                            ? "bg-gray-100 text-gray-900 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        Regular Season Table
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedTableMode("player")
+                          setIsTableDropdownOpen(false)
+                        }}
+                        className={`flex items-center w-full px-4 py-2 text-sm transition-colors ${
+                          selectedTableMode === "player"
+                            ? "bg-gray-100 text-gray-900 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        Player Statistics
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop version - keep the original styling */}
+        <div className="hidden md:block bg-black shadow-md rounded-xl relative -mt-3 md:mt-0 mb-4">
           <div className="rounded-xl overflow-hidden shadow-xl w-full" style={{ border: "1px solid black" }}>
             <div className="flex items-center h-full">
               {/* Toggle Buttons */}
@@ -761,71 +843,137 @@ export function LeagueStandingsTab({
 
         {selectedTableMode === "league" ? (
           /* Team Standings Section - Full Width */
-          <div className="w-full bg-light-beige rounded-md border border-black shadow-sm overflow-hidden">
+          <div className=" mt-0 w-full bg-gray-100  rounded md:rounded-md shadow-xl overflow-hidden rounded-b-lg">
             {/* Team color header strip */}
-            <div
-              className="w-full h-2 border-b border-black rounded-t-md -mb-1"
-              style={{
-                backgroundColor: "#9ca3af", // gray-400
-              }}
-            />
-            <div className="p-3 md:p-5">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2 ml-1">
-                  <h3 className="text-lg font-semibold">Standings</h3>
-                </div>
-                <div className="flex items-center gap-2 md:gap-4 mt-1">
-                  {/* View Mode Dropdown */}
-                  <div className="flex items-center gap-1">
-                    <label htmlFor="view-mode-filter" className="text-xs text-gray-600 sr-only">
-                      View:
-                    </label>
-                    <select
-                      id="view-mode-filter"
-                      value={viewMode}
-                      onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                      className={`text-[0.55rem] md:text-xs border border-gray-300 rounded-sm px-1 py-1 bg-white focus:outline-none focus:ring-1 w-24 md:w-48`}
-                      style={
-                        {
-                          "--tw-ring-color": league === "eurocup" ? "#3979D1" : "#D37000",
-                        } as any
-                      }
-                    >
-                      <option value="team">Team</option>
-                      <option value="off-4factors">Off - 4 Factors</option>
-                      <option value="off-shooting">Off - Shooting</option>
-                      <option value="off-ptdist">Off - Pt Dist</option>
-                      <option value="off-misc">Off - Misc</option>
-                      <option value="def-4factors">Def - 4 Factors</option>
-                      <option value="def-shooting">Def - Shooting</option>
-                      <option value="def-ptdist">Def - Pt Dist</option>
-                      <option value="def-misc">Def - Misc</option>
-                    </select>
-                  </div>
+            
+            <div className="p-1 md:p-5">
+              <div className="flex justify-between items-center mb-4 gap-2">
+                <div className="flex gap-2 flex-1">
+                  {/* Category Dropdown (Offense/Defense/Overall) */}
+                  {selectedTableMode === "league" && (
+                    <div className="relative flex-1">
+                      <button
+                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                        className="flex items-center justify-center px-4 py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
+                      >
+                        <span>
+                          {categoryMode === "overall" && "Overall"}
+                          {categoryMode === "offense" && "Offense"}
+                          {categoryMode === "defense" && "Defense"}
+                        </span>
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      {isCategoryDropdownOpen && (
+                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                          <div className="py-2">
+                            <button
+                              onClick={() => {
+                                handleCategoryChange("overall")
+                                setIsCategoryDropdownOpen(false)
+                              }}
+                              className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                                categoryMode === "overall"
+                                  ? "bg-blue-50 text-blue-900 font-medium"
+                                  : "text-gray-600 hover:bg-gray-50"
+                              }`}
+                            >
+                              Overall
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleCategoryChange("offense")
+                                setIsCategoryDropdownOpen(false)
+                              }}
+                              className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                                categoryMode === "offense"
+                                  ? "bg-blue-50 text-blue-900 font-medium"
+                                  : "text-gray-600 hover:bg-gray-50"
+                              }`}
+                            >
+                              Offense
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleCategoryChange("defense")
+                                setIsCategoryDropdownOpen(false)
+                              }}
+                              className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                                categoryMode === "defense"
+                                  ? "bg-blue-50 text-blue-900 font-medium"
+                                  : "text-gray-600 hover:bg-gray-50"
+                              }`}
+                            >
+                              Defense
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                  {/* Display Mode Toggle */}
-                  <div className="flex rounded-full bg-[#f1f5f9] p-0.5 border">
-                    <button
-                      onClick={() => setDisplayMode("value")}
-                      className={`rounded-full px-2 md:px-3 py-1 text-[0.55rem] md:text-[0.65rem] font-medium ${
-                        displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
-                      }`}
-                    >
-                      Value
-                    </button>
+                  {/* Subcategory Dropdown */}
+                  {selectedTableMode === "league" && (
+                    <div className="relative flex-1">
+                      <button
+                        onClick={() => setIsSubcategoryDropdownOpen(!isSubcategoryDropdownOpen)}
+                        className="flex items-center justify-center px-4 py-2 rounded-lg text-gray-900 hover:text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 transition-all duration-200 shadow-sm w-full text-xs md:text-sm font-semibold gap-2"
+                      >
+                        <span>
+                          {getAvailableSubcategories().find(sub => sub.key === subcategoryMode)?.label || "4 Factors"}
+                        </span>
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      {isSubcategoryDropdownOpen && (
+                        <div className="absolute top-full left-0 mt-2 w-full rounded-lg overflow-hidden z-20 border border-gray-200 shadow-lg bg-white">
+                          <div className="py-2">
+                            {getAvailableSubcategories().map((subcategory) => (
+                              <button
+                                key={subcategory.key}
+                                onClick={() => {
+                                  setSubcategoryMode(subcategory.key as SubcategoryMode)
+                                  setIsSubcategoryDropdownOpen(false)
+                                }}
+                                className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                                  subcategoryMode === subcategory.key
+                                    ? "bg-blue-50 text-blue-900 font-medium"
+                                    : "text-gray-600 hover:bg-gray-50"
+                                }`}
+                              >
+                                {subcategory.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Display Mode Toggle - only for league mode */}
+                {selectedTableMode === "league" && (
+                  <div className="flex rounded-xl bg-[#f1f5f9] p-0.5 border border-gray-200 flex-shrink-0 bg-white text-gray-900">
                     <button
                       onClick={() => setDisplayMode("rank")}
-                      className={`rounded-full px-2 md:px-3 py-1 text-[0.55rem] md:text-[0.65rem] font-medium ${
+                      className={`rounded-xl px-2 md:px-3 py-2 text-[0.5rem] md:text-[0.6rem] font-semibold ${
                         displayMode === "rank" ? "bg-[#475569] text-white" : "text-[#475569]"
                       }`}
                     >
                       Rank
                     </button>
+                    <button
+                      onClick={() => setDisplayMode("value")}
+                      className={`rounded-xl px-2 md:px-3 py-2 text-[0.5rem] md:text-[0.6rem] font-semibold ${
+                        displayMode === "value" ? "bg-[#475569] text-white" : "text-[#475569]"
+                      }`}
+                    >
+                      Value
+                    </button>
+                    
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="overflow-x-auto -ml-2 -mr-2">
+              <div className="overflow-x-auto sm:-ml-2 sm:-mr-2 -mt-2">
                 <div className="min-w-full ">
                   <table className="w-full text-[0.45rem] md:text-[0.55rem] border-collapse relative table-fixed rounded-none bg-light-beige">
                     <thead>
@@ -833,7 +981,7 @@ export function LeagueStandingsTab({
                         <th className="bg-gray-100 text-center py-1 px-0.5 font-semibold border-r border-gray-400 w-[25px] min-w-[25px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700"></div>
                         </th>
-                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 w-[50px] md:min-w-[450px] md:w-[450px]">
+                        <th className="sticky left-[25px] bg-gray-100 text-center py-1 px-1 font-semibold border-r-2 border-gray-800 w-[80px] md:min-w-[450px] md:w-[450px]">
                           <div className="text-[0.55rem] md:text-[0.65rem] font-semibold text-gray-700">TEAM</div>
                         </th>
                         {columnGroups.map((group, groupIndex) => (
@@ -856,7 +1004,7 @@ export function LeagueStandingsTab({
                           <div className="text-[0.45rem] md:text-[0.6rem]"></div>
                         </th>
                         <th
-                          className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 w-[50px] md:min-w-[160px] md:w-[160px]"
+                          className="sticky left-[25px] bg-gray-50 text-center py-1 px-1 font-semibold cursor-pointer hover:bg-gray-100 transition-colors border-r-2 border-gray-800 w-[80px] md:min-w-[160px] md:w-[160px]"
                           onClick={() => handleColumnSort("team")}
                         >
                           <div className="flex items-center justify-center text-[0.45rem] md:text-[0.65rem]">
@@ -903,7 +1051,7 @@ export function LeagueStandingsTab({
                             </td>
 
                             {/* Team Column */}
-                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm w-[50px] md:min-w-[160px] md:w-[160px]">
+                            <td className="sticky left-[25px] bg-gray-50 py-1 px-1 font-medium border-r-2 border-black shadow-sm w-[80px] md:min-w-[160px] md:w-[160px]">
                               <button
                                 onClick={() => {
                                   setActiveTab("teams")
@@ -916,6 +1064,7 @@ export function LeagueStandingsTab({
                                 <div className="w-5 h-5 md:w-7 md:h-7 rounded-sm flex items-center justify-center mr-1.5 md:mr-2 bg-white flex-shrink-0">
                                   {getTeamLogo(team.name, teamCode)}
                                 </div>
+                                <span className="md:hidden truncate text-[10px] text-gray-900 leading-none">{teamCode}</span>
                                 <span className="hidden md:inline truncate text-xs text-gray-900">{team.name}</span>
                               </button>
                             </td>
