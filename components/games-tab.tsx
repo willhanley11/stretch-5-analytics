@@ -1269,9 +1269,9 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
     <div className="w-full max-w-5xl mx-auto px-0 py-2 md:p-6 relative">
       
       {/* Round Selector - Mobile Style */}
-      <div className="md:hidden mb-2 -mt-6">
+      <div className="md:hidden mb-2 -mt-6 px-1">
         <div className="flex justify-center">
-          <div className="flex items-center justify-between w-full bg-white rounded border border-gray-300 shadow-sm p-1">
+          <div className="flex items-center justify-between w-full bg-white rounded-md border border-gray-300 shadow-sm p-1">
             {/* Previous Round Arrow */}
             <button
               onClick={handlePreviousRound}
@@ -1402,7 +1402,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
 
       {/* Games Grid */}
       {sortedRoundGames.length > 0 ? (
-        <div className="px-0 md:px-0">
+        <div className="px-2 md:px-0">
           <div className="grid gap-1 md:gap-3">
             {sortedRoundGames.map((game, index) => {
               const [year, month, day] = game.game_date.split("T")[0].split("-")
@@ -1501,15 +1501,15 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                       <div className="flex-grow h-px bg-gray-300"></div>
                       <div className="flex items-center gap-1 mx-1">
                         {/* Weekday container */}
-                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300">
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-md border border-gray-300">
                           {gameDate.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
                         </div>
                         {/* Month container */}
-                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300">
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-md border border-gray-300">
                           {gameDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase()}
                         </div>
                         {/* Day container */}
-                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-300 min-w-[32px] text-center">
+                        <div className="bg-white text-gray-700 px-2 py-1 rounded-md text-xs font-bold shadow-md border border-gray-300 min-w-[32px] text-center">
                           {gameDate.getDate()}
                         </div>
                       </div>
@@ -1546,7 +1546,7 @@ export default function GamesTab({ selectedSeason, selectedLeague }: GamesTabPro
                         }
                         
                         // Default state
-                        return "rounded border border-gray-300 shadow-md hover:shadow-lg";
+                        return "rounded-md border border-gray-300 shadow-md hover:shadow-lg";
                       })()
                     }`}
                   >
