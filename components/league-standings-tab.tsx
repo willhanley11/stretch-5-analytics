@@ -741,11 +741,11 @@ export function LeagueStandingsTab({
   const statColumnWidth = "w-[40px] md:w-[50px]"
 
   return (
-    <div className="max-w-6xl mx-auto w-full">
+    <div className="max-w-6xl mx-auto w-full px-1">
       <>
         <div className="md:hidden mb-0 -mt-6">
           <div className="flex justify-center">
-            <div className="flex items-center w-full bg-gray-100 border-l border-r border-gray-300  py-1">
+            <div className="flex items-center w-full bg-gray-100 py-1">
               {/* Table Mode Dropdown */}
               <div className="relative flex-1">
                 <button
