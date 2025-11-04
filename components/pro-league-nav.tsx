@@ -57,7 +57,7 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
   // Initialize state from props or defaults
   const [activeLeague, setActiveLeague] = useState("international-euroleague")
   const [activeSection, setActiveSection] = useState(initialSection || "games")
-  const [showLandingPage, setShowLandingPage] = useState(initialShowLandingPage)
+  const [showLandingPage, setShowLandingPage] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -439,17 +439,14 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
               <div className="flex items-center justify-between h-16 px-4 sm:px-8 gap-4">
                 {/* Left - Brand + League Buttons */}
                 <div className="flex items-center space-x-6 flex-shrink-0">
-                  <button
-                    onClick={() => setShowLandingPage(true)}
-                    className="relative h-10 w-32 cursor-pointer hover:opacity-80 transition-opacity"
-                  >
+                  <div className="relative h-10 w-32">
                     <Image
                       src="/stretch5-logo-original.png"
                       alt="Stretch 5 Analytics"
                       fill
                       className="object-contain"
                     />
-                  </button>
+                  </div>
 
                   {/* League Dropdown */}
                   <div className="relative" ref={leagueDropdownRef}>
@@ -556,12 +553,9 @@ export function ProLeagueNav({ initialSection, showLandingPage: initialShowLandi
             <div className="sm:hidden">
               <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-100">
                 {/* Logo */}
-                <button
-                  onClick={() => setShowLandingPage(true)}
-                  className="relative h-7 w-24 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                >
+                <div className="relative h-7 w-24 flex-shrink-0">
                   <Image src="/stretch5-logo-original.png" alt="Stretch 5 Analytics" fill className="object-contain" />
-                </button>
+                </div>
 
                 {/* League and Season Dropdowns - Mobile */}
                 <div className="flex items-center space-x-2">
