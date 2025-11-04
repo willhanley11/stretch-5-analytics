@@ -86,12 +86,12 @@ export function LeagueStandingsTab({
   // Get available subcategories based on category mode
   const getAvailableSubcategories = () => {
     if (categoryMode === "overall") {
-      return [{ key: "ratings-pace", label: "Ratings & Pace" }]
+      return [{ key: "ratings-pace", label: "Ratings" }]
     } else {
       return [
         { key: "4factors", label: "4 Factors" },
         { key: "shooting", label: "Shooting" },
-        { key: "ptdist", label: "Point Distribution" },
+        { key: "ptdist", label: "Point Dist" },
         { key: "misc", label: "Misc" },
       ]
     }
